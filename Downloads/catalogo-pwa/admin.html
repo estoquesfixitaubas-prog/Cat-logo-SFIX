@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel do Catálogo — S-Fix</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+  :root{
+    --azul:#0f5c8c; --azul-escuro:#0a4468; --vermelho:#c81e2c;
+    --teal:#00857c; --bg:#f4f5f6; --texto:#1c1c1c; --cinza:#6b7280;
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+    background:var(--bg); color:var(--texto);
+  }
+  header {
+    background:var(--azul); color:#fff; padding:18px 24px;
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;
+  }
+  header h1 { font-size:18px; margin:0; }
+  header p { margin:2px 0 0; font-size:13px; color:#cfe3f0; }
+
+  main { max-width:820px; margin:0 auto; padding:24px 16px 80px; }
+
+  .painel {
+    background:#fff; border-radius:10px; padding:20px; margin-bottom:20px;
+    box-shadow:0 1px 3px rgba(0,0,0,.1);
+  }
+  .painel h2 { font-size:16px; margin:0 0 10px; color:var(--azul-escuro); }
+  .painel p { font-size:13.5px; color:var(--cinza); line-height:1.5; margin:0 0 14px; }
+
+  button {
+    font-family:inherit; cursor:pointer; border:none; border-radius:8px;
+    padding:10px 16px; font-size:14px; font-weight:700;
+  }
+  .btn-primaria { background:var(--azul); color:#fff; }
+  .btn-primaria:hover { background:var(--azul-escuro); }
+  .btn-sucesso { background:var(--teal); color:#fff; }
+  .btn-perigo { background:#fde8e8; color:var(--vermelho); }
+  .btn-secundaria { background:#e5e7eb; color:#374151; }
+  button:disabled { opacity:.5; cursor:not-allowed; }
+  button.icone { padding:6px 10px; font-size:13px; }
+
+  #modoAviso {
+    font-size:13px; padding:10px 14px; border-radius:8px; margin-bottom:14px;
+  }
+  .aviso-ok { background:#e7f7f3; color:#065f52; }
+  .aviso-atencao { background:#fff4e5; color:#92620a; }
+
+  #editorArea { display:none; }
+
+  /* ---------- abas MAKITA / DEWALT & STANLEY no painel admin ---------- */
+  .tabs-admin {
+    display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap;
+  }
+  .tab-btn-admin {
+    flex:1; min-width:160px; background:#fff; color:var(--azul-escuro);
+    border:2px solid var(--azul-escuro); border-radius:10px; padding:12px 16px;
+    font-weight:800; font-size:14px; text-align:center;
+  }
+  .tab-btn-admin.ativo { background:var(--azul-escuro); color:#fff; }
+  .secao-marca { display:none; }
+  .secao-marca.ativo { display:block; }
+
+  /* ---------- pré-visualização da capa de introdução ---------- */
+  .capa-preview-wrap {
+    width:100%; max-width:360px; height:160px; border-radius:8px;
+    background:#eee; overflow:hidden; margin-bottom:10px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .capa-preview-wrap img.capa-preview {
+    width:100%; height:100%; object-fit:cover; display:block;
+  }
+
+  .produto-card {
+    border:1px solid #e5e7eb; border-radius:10px; padding:16px; margin-bottom:14px;
+    background:#fafbfc;
+  }
+  .produto-topo { display:flex; gap:14px; align-items:flex-start; }
+  .produto-topo .preview {
+    width:80px; height:80px; background:#eee; border-radius:8px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; overflow:hidden;
+    font-size:11px; color:#999; text-align:center;
+  }
+  .produto-topo .preview img { width:100%; height:100%; object-fit:contain; }
+  .campos { flex:1; display:flex; flex-direction:column; gap:8px; }
+  label { font-size:12px; font-weight:700; color:var(--cinza); display:block; margin-bottom:3px; }
+  input[type="text"] {
+    width:100%; padding:8px 10px; border:1px solid #d1d5db; border-radius:6px; font-size:14px;
+  }
+  input[type="file"] { font-size:13px; }
+
+  .codigos-lista { margin-top:10px; display:flex; flex-direction:column; gap:6px; }
+  .codigo-row { display:flex; gap:6px; align-items:center; }
+  .codigo-row input[type="text"] { flex:1; }
+  .codigo-row input.voltagem-input { max-width:90px; flex:none; }
+
+  .produto-acoes {
+    display:flex; gap:6px; margin-top:12px; padding-top:12px; border-top:1px dashed #e0e0e0;
+    flex-wrap:wrap;
+  }
+
+  #rodapeAcoes {
+    position:sticky; bottom:0; background:#fff; border-top:1px solid #e5e7eb;
+    padding:14px 16px; display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;
+    margin: 0 -16px;
+  }
+
+  #resultado { margin-top:16px; font-size:14px; line-height:1.6; }
+  #resultado .ok { color:#065f52; font-weight:700; }
+  #resultado .lista-arquivos { background:#f4f5f6; border-radius:8px; padding:12px; margin-top:8px; font-family:monospace; font-size:12.5px; }
+  #resultado a.download-link {
+    display:inline-block; margin:6px 8px 0 0; background:var(--azul); color:#fff;
+    padding:8px 14px; border-radius:6px; text-decoration:none; font-size:13.5px; font-weight:700;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Painel do Catálogo</h1>
+    <p>Adicione, edite ou remova produtos sem mexer em código</p>
+  </div>
+</header>
+
+<main>
+
+  <div class="painel" id="painelInicio">
+    <h2>Passo 1 — Abrir o catálogo</h2>
+    <p id="textoModo"></p>
+    <button class="btn-primaria" id="btnAbrirPasta">📁 Selecionar a pasta do catálogo</button>
+    <div style="margin-top:10px;">
+      <button class="btn-secundaria" id="btnModoManual">Não consigo — usar modo manual</button>
+    </div>
+
+    <div id="areaManual" style="display:none; margin-top:16px; border-top:1px dashed #ddd; padding-top:16px;">
+      <p><strong>Modo manual:</strong> selecione o arquivo <code>index.html</code> que está dentro da pasta <code>catalogo-pwa</code>.</p>
+      <input type="file" id="inputIndexManual" accept=".html">
+    </div>
+  </div>
+
+  <div id="editorArea">
+
+    <details id="publicacaoAuto" class="painel" style="padding:14px 20px;">
+      <summary style="cursor:pointer; font-weight:800; color:var(--azul-escuro);">🚀 Publicação automática no Netlify (opcional — configurar uma vez)</summary>
+      <div style="margin-top:12px;">
+        <p>Se o seu site no Netlify estiver conectado a um repositório do GitHub com "deploy automático" ativado, o painel pode publicar as mudanças direto nesse repositório — o Netlify detecta e atualiza o site sozinho, sem você entrar lá.</p>
+        <div style="display:flex; flex-direction:column; gap:8px; max-width:480px;">
+          <div>
+            <label>Token de acesso do GitHub (Personal Access Token)</label>
+            <input type="password" id="ghToken" placeholder="ghp_...">
+          </div>
+          <div>
+            <label>Repositório (ex: seu-usuario/seu-repositorio)</label>
+            <input type="text" id="ghRepo" placeholder="usuario/repositorio">
+          </div>
+          <div>
+            <label>Branch</label>
+            <input type="text" id="ghBranch" value="main">
+          </div>
+          <div>
+            <label>Subpasta dentro do repositório (deixe em branco se o site estiver na raiz)</label>
+            <input type="text" id="ghSubpasta" placeholder="ex: catalogo-pwa">
+          </div>
+        </div>
+        <p style="font-size:12px; color:var(--cinza); margin-top:8px;">Essas informações ficam salvas só neste navegador (nunca são enviadas para mim). Se você não configurar isso, use normalmente o botão "Salvar alterações" abaixo.</p>
+      </div>
+    </details>
+
+    <div class="tabs-admin">
+      <button type="button" class="tab-btn-admin ativo" data-marca="makita">MAKITA</button>
+      <button type="button" class="tab-btn-admin" data-marca="dewalt">DEWALT &amp; STANLEY</button>
+    </div>
+
+    <div id="secaoMakita" class="secao-marca ativo">
+      <div class="painel">
+        <h2>Capa da aba Makita</h2>
+        <p>Troque a imagem de capa que aparece ao abrir a aba Makita. Se não escolher um arquivo novo, a capa atual é mantida.</p>
+        <div class="capa-preview-wrap">
+          <img id="imgPreviewIntroMakita" class="capa-preview" src="">
+        </div>
+        <input type="file" accept="image/*" id="inputIntroMakita">
+      </div>
+
+      <div class="painel">
+        <h2>Produtos Makita</h2>
+        <p>Preencha nome, foto e os códigos de cada produto. Use os botões ↑ ↓ para reordenar.</p>
+        <div id="listaProdutosMakita"></div>
+        <button type="button" class="btn-secundaria" id="btnAddProdutoMakita">+ Adicionar produto</button>
+      </div>
+    </div>
+
+    <div id="secaoDewalt" class="secao-marca">
+      <div class="painel">
+        <h2>Capa da aba Dewalt &amp; Stanley</h2>
+        <p>Troque a imagem de capa que aparece ao abrir a aba Dewalt &amp; Stanley. Se não escolher um arquivo novo, a capa atual é mantida.</p>
+        <div class="capa-preview-wrap">
+          <img id="imgPreviewIntroDewalt" class="capa-preview" src="">
+        </div>
+        <input type="file" accept="image/*" id="inputIntroDewalt">
+      </div>
+
+      <div class="painel">
+        <h2>Produtos Dewalt &amp; Stanley</h2>
+        <p>Preencha nome, foto e os códigos de cada produto. Use os botões ↑ ↓ para reordenar.</p>
+        <div id="listaProdutosDewalt"></div>
+        <button type="button" class="btn-secundaria" id="btnAddProdutoDewalt">+ Adicionar produto</button>
+      </div>
+    </div>
+
+    <div id="rodapeAcoes">
+      <button class="btn-primaria" id="btnPublicar">🚀 Publicar automaticamente</button>
+      <button class="btn-sucesso" id="btnSalvar">💾 Salvar alterações no catálogo</button>
+    </div>
+
+    <div id="resultado"></div>
+  </div>
+
+</main>
+
+<script>
+  const MARK_START = '// ==PRODUTOS-INICIO==';
+  const MARK_END = '// ==PRODUTOS-FIM==';
+  const MARK_START_DEWALT = '// ==PRODUTOS-DEWALT-INICIO==';
+  const MARK_END_DEWALT = '// ==PRODUTOS-DEWALT-FIM==';
+  const SW_MARK_START = '// ==CACHE-INICIO==';
+  const SW_MARK_END = '// ==CACHE-FIM==';
+
+  const FIXED_SHELL = [
+    './',
+    './index.html',
+    './manifest.json',
+    './assets/logo-sfix.png',
+    './assets/logo-makita.png',
+    './assets/watermark-tile.png',
+    './assets/seta-voltar.png'
+  ];
+
+  const temFileSystemAccess = 'showDirectoryPicker' in window;
+  document.getElementById('textoModo').textContent = temFileSystemAccess
+    ? 'Seu navegador suporta o modo automático: a ferramenta lê e salva os arquivos direto na pasta do site, sem downloads manuais.'
+    : 'Seu navegador não suporta o modo automático (funciona melhor no Chrome ou Edge). Use o modo manual abaixo — você vai baixar os arquivos atualizados e copiar as fotos você mesmo.';
+
+  document.getElementById('btnAbrirPasta').style.display = temFileSystemAccess ? '' : 'none';
+
+  let dirHandle = null;      // pasta raiz (modo automático)
+  let assetsHandle = null;   // pasta assets (modo automático)
+  let produtosHandle = null; // pasta assets/produtos (modo automático)
+  let indexHtmlTexto = '';
+  let swJsTexto = '';
+  let produtos = [];         // Makita — { nome, imagem, codigos:[{voltagem,codigo}], arquivoNovo: File|null, previewUrl }
+  let produtosDewalt = [];   // Dewalt & Stanley — mesma estrutura
+  let modoManual = false;
+
+  // capas de introdução das abas (Makita / Dewalt & Stanley)
+  let introMakita = { caminhoAtual: 'assets/intro-makita.jpg', arquivoNovo: null, previewUrl: null };
+  let introDewalt = { caminhoAtual: 'assets/intro-dewalt.jpg', arquivoNovo: null, previewUrl: null };
+
+  // ---------- abas MAKITA / DEWALT & STANLEY do painel admin ----------
+
+  document.querySelectorAll('.tab-btn-admin').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn-admin').forEach(b => b.classList.remove('ativo'));
+      document.querySelectorAll('.secao-marca').forEach(s => s.classList.remove('ativo'));
+      btn.classList.add('ativo');
+      const alvo = btn.dataset.marca === 'makita' ? 'secaoMakita' : 'secaoDewalt';
+      document.getElementById(alvo).classList.add('ativo');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  // ---------- Passo 1: abrir pasta ou arquivo ----------
+
+  document.getElementById('btnModoManual').addEventListener('click', () => {
+    modoManual = true;
+    document.getElementById('areaManual').style.display = 'block';
+  });
+
+  document.getElementById('btnAbrirPasta').addEventListener('click', async () => {
+    try {
+      dirHandle = await window.showDirectoryPicker();
+      assetsHandle = await dirHandle.getDirectoryHandle('assets', { create: true });
+      produtosHandle = await assetsHandle.getDirectoryHandle('produtos', { create: true });
+
+      const indexFileHandle = await dirHandle.getFileHandle('index.html');
+      indexHtmlTexto = await (await indexFileHandle.getFile()).text();
+
+      const swFileHandle = await dirHandle.getFileHandle('sw.js');
+      swJsTexto = await (await swFileHandle.getFile()).text();
+
+      carregarCatalogoDoTexto(indexHtmlTexto);
+      abrirEditor();
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        alert('Não consegui abrir essa pasta: ' + err.message);
+      }
+    }
+  });
+
+  document.getElementById('inputIndexManual').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    indexHtmlTexto = await file.text();
+    swJsTexto = ''; // no modo manual, sw.js é gerado do zero a partir do padrão conhecido
+    carregarCatalogoDoTexto(indexHtmlTexto);
+    abrirEditor();
+  });
+
+  // ---------- leitura dos dados atuais do index.html ----------
+
+  function extrairListaDoTexto(html, markStart, markEnd, nomeVar) {
+    const startIdx = html.indexOf(markStart);
+    const endIdx = html.indexOf(markEnd);
+    if (startIdx === -1 || endIdx === -1) return [];
+    const bloco = html.slice(startIdx + markStart.length, endIdx);
+    const match = bloco.match(new RegExp('const\\s+' + nomeVar + '\\s*=\\s*([\\s\\S]*);\\s*$'));
+    if (!match) return [];
+    try {
+      const lista = new Function('return ' + match[1])();
+      lista.forEach(p => { p.arquivoNovo = null; p.previewUrl = null; });
+      return lista;
+    } catch (err) {
+      return [];
+    }
+  }
+
+  function carregarCatalogoDoTexto(html) {
+    carregarCapasDoTexto(html);
+
+    if (html.indexOf(MARK_START) === -1 || html.indexOf(MARK_END) === -1) {
+      alert('Não encontrei os marcadores de produtos Makita nesse arquivo. Verifique se é o index.html correto.');
+    }
+    produtos = extrairListaDoTexto(html, MARK_START, MARK_END, 'produtos');
+    produtosDewalt = extrairListaDoTexto(html, MARK_START_DEWALT, MARK_END_DEWALT, 'produtosDewalt');
+  }
+
+  function carregarCapasDoTexto(html) {
+    const mMakita = html.match(/id="introCoverImgMakita"\s+src="([^"]+)"/);
+    const mDewalt = html.match(/id="introCoverImgDewalt"\s+src="([^"]+)"/);
+    introMakita = { caminhoAtual: mMakita ? mMakita[1] : 'assets/intro-makita.jpg', arquivoNovo: null, previewUrl: null };
+    introDewalt = { caminhoAtual: mDewalt ? mDewalt[1] : 'assets/intro-dewalt.jpg', arquivoNovo: null, previewUrl: null };
+  }
+
+  function renderizarCapasPreview() {
+    const imgM = document.getElementById('imgPreviewIntroMakita');
+    const imgD = document.getElementById('imgPreviewIntroDewalt');
+    imgM.src = introMakita.previewUrl || introMakita.caminhoAtual;
+    imgD.src = introDewalt.previewUrl || introDewalt.caminhoAtual;
+  }
+
+  document.getElementById('inputIntroMakita').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    introMakita.arquivoNovo = file;
+    introMakita.previewUrl = URL.createObjectURL(file);
+    renderizarCapasPreview();
+  });
+  document.getElementById('inputIntroDewalt').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    introDewalt.arquivoNovo = file;
+    introDewalt.previewUrl = URL.createObjectURL(file);
+    renderizarCapasPreview();
+  });
+
+  function abrirEditor() {
+    document.getElementById('editorArea').style.display = 'block';
+    document.getElementById('painelInicio').style.display = 'none';
+    renderizarProdutos(produtos, document.getElementById('listaProdutosMakita'));
+    renderizarProdutos(produtosDewalt, document.getElementById('listaProdutosDewalt'));
+    renderizarCapasPreview();
+    carregarConfigGithub();
+  }
+
+  // ---------- Publicação automática via GitHub ----------
+
+  function carregarConfigGithub() {
+    document.getElementById('ghToken').value = localStorage.getItem('ghToken') || '';
+    document.getElementById('ghRepo').value = localStorage.getItem('ghRepo') || '';
+    document.getElementById('ghBranch').value = localStorage.getItem('ghBranch') || 'main';
+    document.getElementById('ghSubpasta').value = localStorage.getItem('ghSubpasta') || '';
+  }
+
+  function salvarConfigGithub({ token, repo, branch, subpasta }) {
+    localStorage.setItem('ghToken', token);
+    localStorage.setItem('ghRepo', repo);
+    localStorage.setItem('ghBranch', branch);
+    localStorage.setItem('ghSubpasta', subpasta);
+  }
+
+  function utf8ToBase64(str) {
+    return btoa(unescape(encodeURIComponent(str)));
+  }
+
+  async function arquivoParaBase64(file) {
+    const buffer = await file.arrayBuffer();
+    const bytes = new Uint8Array(buffer);
+    let binario = '';
+    const tamanhoBloco = 0x8000;
+    for (let i = 0; i < bytes.length; i += tamanhoBloco) {
+      binario += String.fromCharCode.apply(null, bytes.subarray(i, i + tamanhoBloco));
+    }
+    return btoa(binario);
+  }
+
+  async function publicarArquivoNoGithub({ token, repo, branch, caminho, conteudoBase64, mensagem }) {
+    const apiUrl = `https://api.github.com/repos/${repo}/contents/${caminho}`;
+    const headers = {
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/vnd.github+json'
+    };
+
+    let sha = null;
+    const respAtual = await fetch(`${apiUrl}?ref=${encodeURIComponent(branch)}`, { headers });
+    if (respAtual.ok) {
+      const atual = await respAtual.json();
+      sha = atual.sha;
+    } else if (respAtual.status !== 404) {
+      const texto = await respAtual.text();
+      throw new Error(`Não consegui checar "${caminho}" no GitHub (${respAtual.status}): ${texto.slice(0, 200)}`);
+    }
+
+    const respPut = await fetch(apiUrl, {
+      method: 'PUT',
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: mensagem,
+        content: conteudoBase64,
+        branch,
+        ...(sha ? { sha } : {})
+      })
+    });
+    if (!respPut.ok) {
+      const texto = await respPut.text();
+      throw new Error(`Falha ao publicar "${caminho}" (${respPut.status}): ${texto.slice(0, 200)}`);
+    }
+  }
+
+  document.getElementById('btnPublicar').addEventListener('click', async () => {
+    const token = document.getElementById('ghToken').value.trim();
+    const repo = document.getElementById('ghRepo').value.trim();
+    const branch = document.getElementById('ghBranch').value.trim() || 'main';
+    const subpasta = document.getElementById('ghSubpasta').value.trim().replace(/^\/+|\/+$/g, '');
+
+    if (!token || !repo) {
+      alert('Preencha o token e o repositório do GitHub (no bloco "Publicação automática" acima) antes de publicar.');
+      return;
+    }
+
+    const dados = montarArquivosFinais();
+    if (!dados) return;
+    const { novoIndexHtml, novoSwJs, fotosNovas, capasNovas } = dados;
+
+    salvarConfigGithub({ token, repo, branch, subpasta });
+
+    const prefixo = subpasta ? subpasta + '/' : '';
+    const resultado = document.getElementById('resultado');
+    resultado.innerHTML = '<p>Publicando no GitHub…</p>';
+
+    try {
+      await publicarArquivoNoGithub({
+        token, repo, branch,
+        caminho: prefixo + 'index.html',
+        conteudoBase64: utf8ToBase64(novoIndexHtml),
+        mensagem: 'Atualiza catálogo (index.html)'
+      });
+      await publicarArquivoNoGithub({
+        token, repo, branch,
+        caminho: prefixo + 'sw.js',
+        conteudoBase64: utf8ToBase64(novoSwJs),
+        mensagem: 'Atualiza catálogo (sw.js)'
+      });
+
+      for (const p of fotosNovas) {
+        const nomeArq = sanitizarNomeArquivo(p.arquivoNovo.name);
+        const base64 = await arquivoParaBase64(p.arquivoNovo);
+        await publicarArquivoNoGithub({
+          token, repo, branch,
+          caminho: `${prefixo}assets/produtos/${nomeArq}`,
+          conteudoBase64: base64,
+          mensagem: `Adiciona foto: ${p.nome}`
+        });
+      }
+      for (const c of capasNovas) {
+        const base64 = await arquivoParaBase64(c.arquivo);
+        await publicarArquivoNoGithub({
+          token, repo, branch,
+          caminho: `${prefixo}assets/${c.nomeArq}`,
+          conteudoBase64: base64,
+          mensagem: `Atualiza capa: ${c.label}`
+        });
+      }
+
+      indexHtmlTexto = novoIndexHtml;
+      swJsTexto = novoSwJs;
+
+      resultado.innerHTML = `
+        <p class="ok">✓ Publicado no GitHub!</p>
+        <p>Se o deploy automático estiver ativado no Netlify, o site atualiza sozinho em cerca de 1 minuto — sem precisar entrar no Netlify.</p>
+      `;
+    } catch (err) {
+      resultado.innerHTML = `
+        <p style="color:#c81e2c">Erro ao publicar: ${err.message}</p>
+        <p>Confira se: o token tem permissão de escrita no repositório (<code>repo</code> nos tokens clássicos, ou "Contents: Read and write" nos tokens de granularidade fina), se o nome do repositório está no formato <code>usuario/repositorio</code>, e se a branch existe.</p>
+      `;
+    }
+  });
+
+
+  // ---------- Passo 2: editor de produtos (genérico — Makita e Dewalt & Stanley) ----------
+
+  function sanitizarNomeArquivo(nome) {
+    return nome.toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9.\-]+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+  }
+
+  function renderizarProdutos(lista, containerEl) {
+    containerEl.innerHTML = '';
+
+    lista.forEach((p, i) => {
+      const card = document.createElement('div');
+      card.className = 'produto-card';
+
+      const previewSrc = p.previewUrl || null;
+
+      card.innerHTML = `
+        <div class="produto-topo">
+          <div class="preview" data-preview>
+            ${previewSrc ? `<img src="${previewSrc}">` : (p.imagem ? `<img src="${p.imagem}">` : 'sem foto')}
+          </div>
+          <div class="campos">
+            <div>
+              <label>Nome do produto</label>
+              <input type="text" data-campo="nome" value="${escapeAttr(p.nome || '')}">
+            </div>
+            <div>
+              <label>Foto do produto ${p.imagem ? '(já tem uma — escolha só se quiser trocar)' : ''}</label>
+              <input type="file" accept="image/*" data-campo="foto">
+            </div>
+          </div>
+        </div>
+
+        <div class="codigos-lista" data-codigos></div>
+        <button type="button" class="btn-secundaria icone" data-add-codigo>+ Adicionar código/voltagem</button>
+
+        <div class="produto-acoes">
+          <button type="button" class="btn-secundaria icone" data-mover="-1" ${i === 0 ? 'disabled' : ''}>↑ Subir</button>
+          <button type="button" class="btn-secundaria icone" data-mover="1" ${i === lista.length - 1 ? 'disabled' : ''}>↓ Descer</button>
+          <button type="button" class="btn-perigo icone" data-remover-produto>🗑 Remover produto</button>
+        </div>
+      `;
+
+      // nome
+      card.querySelector('[data-campo="nome"]').addEventListener('input', e => {
+        p.nome = e.target.value;
+      });
+
+      // foto
+      card.querySelector('[data-campo="foto"]').addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        p.arquivoNovo = file;
+        p.previewUrl = URL.createObjectURL(file);
+        renderizarProdutos(lista, containerEl);
+      });
+
+      // códigos
+      const codigosWrap = card.querySelector('[data-codigos]');
+      function renderCodigos() {
+        codigosWrap.innerHTML = '';
+        p.codigos.forEach((c, j) => {
+          const row = document.createElement('div');
+          row.className = 'codigo-row';
+          row.innerHTML = `
+            <input type="text" class="voltagem-input" placeholder="voltagem (ex: 220v)" value="${escapeAttr(c.voltagem || '')}">
+            <input type="text" placeholder="código" value="${escapeAttr(c.codigo || '')}">
+            <button type="button" class="btn-perigo icone" title="Remover">✕</button>
+          `;
+          const [voltInput, codInput, delBtn] = row.querySelectorAll('input, button');
+          voltInput.addEventListener('input', e => c.voltagem = e.target.value);
+          codInput.addEventListener('input', e => c.codigo = e.target.value);
+          delBtn.addEventListener('click', () => {
+            p.codigos.splice(j, 1);
+            renderCodigos();
+          });
+          codigosWrap.appendChild(row);
+        });
+      }
+      renderCodigos();
+
+      card.querySelector('[data-add-codigo]').addEventListener('click', () => {
+        p.codigos.push({ voltagem: '', codigo: '' });
+        renderCodigos();
+      });
+
+      card.querySelector('[data-remover-produto]').addEventListener('click', () => {
+        if (confirm(`Remover "${p.nome}" do catálogo?`)) {
+          lista.splice(i, 1);
+          renderizarProdutos(lista, containerEl);
+        }
+      });
+
+      card.querySelector('[data-mover="-1"]').addEventListener('click', () => {
+        [lista[i - 1], lista[i]] = [lista[i], lista[i - 1]];
+        renderizarProdutos(lista, containerEl);
+      });
+      card.querySelector('[data-mover="1"]').addEventListener('click', () => {
+        [lista[i + 1], lista[i]] = [lista[i], lista[i + 1]];
+        renderizarProdutos(lista, containerEl);
+      });
+
+      containerEl.appendChild(card);
+    });
+  }
+
+  function escapeAttr(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+  }
+
+  document.getElementById('btnAddProdutoMakita').addEventListener('click', () => {
+    produtos.push({ nome: '', imagem: '', codigos: [{ voltagem: '', codigo: '' }], arquivoNovo: null, previewUrl: null });
+    renderizarProdutos(produtos, document.getElementById('listaProdutosMakita'));
+  });
+  document.getElementById('btnAddProdutoDewalt').addEventListener('click', () => {
+    produtosDewalt.push({ nome: '', imagem: '', codigos: [{ voltagem: '', codigo: '' }], arquivoNovo: null, previewUrl: null });
+    renderizarProdutos(produtosDewalt, document.getElementById('listaProdutosDewalt'));
+  });
+
+  // ---------- Passo 3: salvar ----------
+
+  function serializarProdutos(lista, nomeVar) {
+    const linhas = [];
+    linhas.push(`  const ${nomeVar} = [`);
+    lista.forEach((p, i) => {
+      linhas.push('    {');
+      linhas.push(`      nome: ${JSON.stringify(p.nome || '')},`);
+      linhas.push(`      imagem: ${JSON.stringify(p.imagem || '')},`);
+      linhas.push('      codigos: [');
+      p.codigos.forEach((c, j) => {
+        const virgula = j < p.codigos.length - 1 ? ',' : '';
+        linhas.push(`        { voltagem: ${JSON.stringify(c.voltagem || '')}, codigo: ${JSON.stringify(c.codigo || '')} }${virgula}`);
+      });
+      linhas.push('      ]');
+      linhas.push(`    }${i < lista.length - 1 ? ',' : ''}`);
+    });
+    linhas.push('  ];');
+    return linhas.join('\n');
+  }
+
+  function gerarNovoSwJs(swTextoBase, listaProdutos, caminhoIntroMakita, caminhoIntroDewalt) {
+    const shellFiles = FIXED_SHELL
+      .concat([caminhoIntroMakita, caminhoIntroDewalt].filter(Boolean).map(p => './' + p))
+      .concat(listaProdutos.map(p => './' + p.imagem));
+    const novoBloco = [
+      SW_MARK_START,
+      "const CACHE_NAME = 'catalogo-cache-v" + (proximaVersaoCache(swTextoBase)) + "';",
+      '',
+      'const SHELL_FILES = [',
+      shellFiles.map(f => `  ${JSON.stringify(f)}`).join(',\n'),
+      '];',
+      SW_MARK_END
+    ].join('\n');
+
+    if (!swTextoBase || swTextoBase.indexOf(SW_MARK_START) === -1) {
+      // gera um sw.js padrão do zero (fallback se não tínhamos o original)
+      return novoBloco + `
+
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(SHELL_FILES))
+  );
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))
+    )
+  );
+  self.clients.claim();
+});
+
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    fetch(event.request)
+      .then(response => {
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        return response;
+      })
+      .catch(() => caches.match(event.request))
+  );
+});
+`;
+    }
+
+    const s = swTextoBase.indexOf(SW_MARK_START);
+    const e = swTextoBase.indexOf(SW_MARK_END) + SW_MARK_END.length;
+    return swTextoBase.slice(0, s) + novoBloco + swTextoBase.slice(e);
+  }
+
+  function proximaVersaoCache(swTextoBase) {
+    const m = (swTextoBase || '').match(/catalogo-cache-v(\d+)/);
+    return m ? (parseInt(m[1]) + 1) : 1;
+  }
+
+  function montarArquivosFinais() {
+    // validação simples (Makita + Dewalt & Stanley)
+    for (const p of produtos.concat(produtosDewalt)) {
+      if (!p.nome.trim()) { alert('Tem um produto sem nome.'); return null; }
+      if (!p.imagem && !p.arquivoNovo) { alert(`O produto "${p.nome}" ainda não tem foto.`); return null; }
+    }
+
+    // define o caminho da imagem para produtos com foto nova
+    produtos.concat(produtosDewalt).forEach(p => {
+      if (p.arquivoNovo) {
+        const nomeArq = sanitizarNomeArquivo(p.arquivoNovo.name);
+        p.imagem = 'assets/produtos/' + nomeArq;
+      }
+    });
+
+    // define o caminho final das capas de introdução (novo arquivo ou o que já existia)
+    introMakita.caminhoFinal = introMakita.arquivoNovo
+      ? 'assets/' + sanitizarNomeArquivo(introMakita.arquivoNovo.name)
+      : introMakita.caminhoAtual;
+    introDewalt.caminhoFinal = introDewalt.arquivoNovo
+      ? 'assets/' + sanitizarNomeArquivo(introDewalt.arquivoNovo.name)
+      : introDewalt.caminhoAtual;
+
+    // bloco de produtos Makita
+    const blocoMakita = MARK_START + '\n' + serializarProdutos(produtos, 'produtos') + '\n  ' + MARK_END;
+    const s1 = indexHtmlTexto.indexOf(MARK_START);
+    const e1 = indexHtmlTexto.indexOf(MARK_END) + MARK_END.length;
+    let novoIndexHtml = indexHtmlTexto.slice(0, s1) + blocoMakita + indexHtmlTexto.slice(e1);
+
+    // bloco de produtos Dewalt & Stanley
+    const blocoDewalt = MARK_START_DEWALT + '\n' + serializarProdutos(produtosDewalt, 'produtosDewalt') + '\n  ' + MARK_END_DEWALT;
+    const s2 = novoIndexHtml.indexOf(MARK_START_DEWALT);
+    const e2 = novoIndexHtml.indexOf(MARK_END_DEWALT) + MARK_END_DEWALT.length;
+    if (s2 !== -1 && e2 !== -1) {
+      novoIndexHtml = novoIndexHtml.slice(0, s2) + blocoDewalt + novoIndexHtml.slice(e2);
+    }
+
+    novoIndexHtml = novoIndexHtml.replace(
+      /id="introCoverImgMakita"\s+src="[^"]+"/,
+      `id="introCoverImgMakita" src="${introMakita.caminhoFinal}"`
+    );
+    novoIndexHtml = novoIndexHtml.replace(
+      /id="introCoverImgDewalt"\s+src="[^"]+"/,
+      `id="introCoverImgDewalt" src="${introDewalt.caminhoFinal}"`
+    );
+
+    const novoSwJs = gerarNovoSwJs(
+      swJsTexto,
+      produtos.concat(produtosDewalt),
+      introMakita.caminhoFinal,
+      introDewalt.caminhoFinal
+    );
+
+    const fotosNovas = produtos.concat(produtosDewalt).filter(p => p.arquivoNovo);
+    const capasNovas = [
+      introMakita.arquivoNovo ? { label: 'Capa Makita', arquivo: introMakita.arquivoNovo, nomeArq: sanitizarNomeArquivo(introMakita.arquivoNovo.name) } : null,
+      introDewalt.arquivoNovo ? { label: 'Capa Dewalt & Stanley', arquivo: introDewalt.arquivoNovo, nomeArq: sanitizarNomeArquivo(introDewalt.arquivoNovo.name) } : null
+    ].filter(Boolean);
+
+    return { novoIndexHtml, novoSwJs, fotosNovas, capasNovas };
+  }
+
+  document.getElementById('btnSalvar').addEventListener('click', async () => {
+    const dados = montarArquivosFinais();
+    if (!dados) return;
+    const { novoIndexHtml, novoSwJs, fotosNovas, capasNovas } = dados;
+    const produtosTodos = produtos.concat(produtosDewalt);
+
+    const resultado = document.getElementById('resultado');
+
+    if (!modoManual && dirHandle) {
+      try {
+        // grava as fotos novas de produtos (Makita + Dewalt & Stanley)
+        for (const p of produtosTodos) {
+          if (p.arquivoNovo) {
+            const nomeArq = sanitizarNomeArquivo(p.arquivoNovo.name);
+            const fh = await produtosHandle.getFileHandle(nomeArq, { create: true });
+            const writable = await fh.createWritable();
+            await writable.write(p.arquivoNovo);
+            await writable.close();
+          }
+        }
+        // grava as capas de introdução novas (se trocadas)
+        for (const capa of [introMakita, introDewalt]) {
+          if (capa.arquivoNovo) {
+            const nomeArq = sanitizarNomeArquivo(capa.arquivoNovo.name);
+            const fh = await assetsHandle.getFileHandle(nomeArq, { create: true });
+            const writable = await fh.createWritable();
+            await writable.write(capa.arquivoNovo);
+            await writable.close();
+          }
+        }
+        // grava index.html
+        const indexHandle = await dirHandle.getFileHandle('index.html', { create: true });
+        const w1 = await indexHandle.createWritable();
+        await w1.write(novoIndexHtml);
+        await w1.close();
+
+        // grava sw.js
+        const swHandle = await dirHandle.getFileHandle('sw.js', { create: true });
+        const w2 = await swHandle.createWritable();
+        await w2.write(novoSwJs);
+        await w2.close();
+
+        indexHtmlTexto = novoIndexHtml;
+        swJsTexto = novoSwJs;
+
+        resultado.innerHTML = `
+          <p class="ok">✓ Catálogo salvo direto na pasta!</p>
+          <p><strong>Importante:</strong> isso salvou os arquivos só no seu computador. Para as mudanças aparecerem no site publicado, é preciso subir a pasta de novo na hospedagem (Netlify) — arraste a pasta atualizada de novo, ou sincronize, se seu provedor fizer isso sozinho.</p>
+        `;
+      } catch (err) {
+        resultado.innerHTML = `<p style="color:#c81e2c">Erro ao salvar: ${err.message}</p>`;
+      }
+    } else {
+      // modo manual: monta um ZIP único já com os arquivos nos lugares certos
+      // (evita o usuário ter que renomear/mover fotos manualmente, que é onde mais dá erro)
+      resultado.innerHTML = `<p>Gerando o pacote atualizado…</p>`;
+
+      try {
+        if (typeof JSZip === 'undefined') throw new Error('Biblioteca de ZIP não carregou (sem internet?).');
+
+        const zip = new JSZip();
+        zip.file('index.html', novoIndexHtml);
+        fotosNovas.forEach(p => {
+          const nomeArq = sanitizarNomeArquivo(p.arquivoNovo.name);
+          zip.file('assets/produtos/' + nomeArq, p.arquivoNovo);
+        });
+        capasNovas.forEach(c => {
+          zip.file('assets/' + c.nomeArq, c.arquivo);
+        });
+
+        const blobZip = await zip.generateAsync({ type: 'blob' });
+        const urlZip = URL.createObjectURL(blobZip);
+
+        // sw.js vai separado, sem zipar: dentro de um ZIP ele era bloqueado por
+        // navegador/antivírus, e renomear .txt de volta para .js dá problema
+        // quando o Windows esconde a extensão de verdade (vira "sw.js.txt" sem avisar).
+        // Baixado sozinho, o arquivo já sai com o nome e a extensão corretos.
+        const blobSw = new Blob([novoSwJs], { type: 'text/javascript' });
+        const urlSw = URL.createObjectURL(blobSw);
+
+        const listaFotos = fotosNovas.map(p => `<li>${escapeAttr(p.nome)}</li>`).join('');
+        const listaCapas = capasNovas.map(c => `<li>${escapeAttr(c.label)}</li>`).join('');
+
+        resultado.innerHTML = `
+          <p class="ok">✓ Arquivos prontos!</p>
+          <a class="download-link" href="${urlZip}" download="catalogo-atualizado.zip">⬇ Baixar catalogo-atualizado.zip</a>
+          <a class="download-link" href="${urlSw}" download="sw.js">⬇ Baixar sw.js</a>
+          ${(fotosNovas.length || capasNovas.length) ? `
+            <div class="lista-arquivos">
+              <strong>Fotos incluídas no ZIP (já com o nome certo, na pasta certa):</strong>
+              <ul>${listaCapas}${listaFotos}</ul>
+            </div>` : ''}
+          <p style="margin-top:12px;"><strong>Como usar:</strong> baixe os dois arquivos. Extraia (descompacte) o ZIP — ele contém o <code>index.html</code> e a pasta <code>assets</code>. Depois arraste o <code>index.html</code>, a pasta <code>assets</code> extraída e o <code>sw.js</code> baixado separadamente para dentro da pasta <code>catalogo-pwa</code> do seu computador, substituindo os arquivos quando perguntar. Por fim, suba a pasta atualizada de novo na hospedagem (Netlify/Vercel).</p>
+        `;
+      } catch (err) {
+        resultado.innerHTML = `<p style="color:#c81e2c">Erro ao gerar o pacote: ${err.message}</p><p>Tente novamente com internet ligada (o gerador de ZIP precisa carregar uma vez), ou use o modo automático (Chrome/Edge) descrito no início da página.</p>`;
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
