@@ -1,5 +1,5 @@
 // ==CACHE-INICIO==
-const CACHE_NAME = 'catalogo-cache-v2';
+const CACHE_NAME = 'catalogo-cache-v3';
 
 const SHELL_FILES = [
   "./",
@@ -15,7 +15,8 @@ const SHELL_FILES = [
   "./assets/produtos/2-m0920b.png",
   "./assets/produtos/3-ga9020.png",
   "./assets/produtos/4-dga517z.png",
-  "./assets/produtos/5-dga504z.png"
+  "./assets/produtos/5-dga504z.png",
+  "./assets/produtos/img-20260715-144150.jpg"
 ];
 // ==CACHE-FIM==
 
