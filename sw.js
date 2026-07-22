@@ -112,7 +112,23 @@ const SHELL_FILES = [
   "./assets/produtos/99-serra-esquadria-10.png",
   "./assets/produtos/dewalt-serra-esquadria-12-220v-dws715.png",
   "./assets/produtos/101-furadeira-impacto-710w.png",
-  "./assets/produtos/102-soprador-20v.png"
+  "./assets/produtos/102-soprador-20v.png",
+  "./assets/produtos/stanley-esmerilhadeira-ang.-115mm-sbg700m2k.png",
+  "./assets/produtos/stanley-esmerilhadeira-ang.-4.1-2-900w.png",
+  "./assets/produtos/stanley-esmerilhadeira-ang.-4.1-2-750w-sg7115-br.png",
+  "./assets/produtos/stanley-esmerilhadeira-ang-2200w-220v.png",
+  "./assets/produtos/stanley-martelete-800w-shr263k-b2.png",
+  "./assets/produtos/stanley-martelete-sds-plus-sbh900m2k.png",
+  "./assets/produtos/stanley-furadeira-de-impacto-710w-13mm-127v-sdh710ka.png",
+  "./assets/produtos/stanley-furadeira-de-bancada-sbt2513-b2.png",
+  "./assets/produtos/stanley-carregador-20v-sc400-4ah.png",
+  "./assets/produtos/stanley-bateria-20v-4ah.png",
+  "./assets/produtos/stanley-serra-marmore-115mm-spt115b2.png",
+  "./assets/produtos/stanley-serra-corte-rapido-2200w-ssc22b2.png",
+  "./assets/produtos/stanley-tripe-1-4-telescopico.png",
+  "./assets/produtos/stanley-caixa-de-ferramentas-c-tampa-organ.png",
+  "./assets/produtos/stanley-soprador-termico-1800w.png",
+  "./assets/produtos/stanley-organizador-tstak-10-compartimento.png"
 ];
 // ==CACHE-FIM==
 
