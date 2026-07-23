@@ -362,6 +362,10 @@
     object-fit:contain;
     background:#f4f4f4;
     border-radius:8px;
+    touch-action:none;
+    transform-origin:center center;
+    transition:transform .08s ease-out;
+    will-change:transform;
   }
   .lightbox-content {
     display:flex;
@@ -410,6 +414,8 @@
   .img-wrap {
     position:relative;
     cursor: crosshair;
+    overflow:hidden;
+    border-radius:8px;
   }
   @media (max-width: 900px) {
     .lightbox-main {
@@ -1569,6 +1575,7 @@
     lightboxTitle.textContent = p.nome;
     zoomPane.style.backgroundImage = `url(${p.imagem})`;
     zoomPane.style.display = 'none';
+    resetZoomImagem();
     lightbox.classList.add('open');
   }
   document.getElementById('introCover').addEventListener('click', () => {
@@ -1578,6 +1585,7 @@
     lightboxTitle.textContent = '';
     zoomPane.style.backgroundImage = `url(${src})`;
     zoomPane.style.display = 'none';
+    resetZoomImagem();
     lightbox.classList.add('open');
   });
   document.getElementById('introDewalt').addEventListener('click', () => {
@@ -1587,17 +1595,20 @@
     lightboxTitle.textContent = '';
     zoomPane.style.backgroundImage = `url(${src})`;
     zoomPane.style.display = 'none';
+    resetZoomImagem();
     lightbox.classList.add('open');
   });
 
   document.getElementById('closeBtn').addEventListener('click', () => {
     lightbox.classList.remove('open');
     zoomPane.style.display = 'none';
+    resetZoomImagem();
   });
   lightbox.addEventListener('click', e => {
     if (e.target === lightbox) {
       lightbox.classList.remove('open');
       zoomPane.style.display = 'none';
+      resetZoomImagem();
     }
   });
 
@@ -1618,7 +1629,7 @@
     zoomPane.style.backgroundPosition = `${xPct}% ${yPct}%`;
   });
 
-  // Lupa por toque (celular/tablet): tocar na foto ampliada mostra a mesma
+  // Lupa por toque (celular/tablet): tocar com 1 dedo na foto ampliada mostra a mesma
   // lupa de 200%, só que abaixo da imagem, e some ao soltar o dedo.
   function posicionarZoomPorToque(e) {
     const touch = e.touches[0];
@@ -1630,19 +1641,108 @@
     yPct = Math.max(0, Math.min(100, yPct));
     zoomPane.style.backgroundPosition = `${xPct}% ${yPct}%`;
   }
+
+  // ==========================================================
+  // Zoom com 2 dedos (pinça), igual ao zoom normal de fotos no celular
+  // ==========================================================
+  const ZOOM_MIN = 1;
+  const ZOOM_MAX = 4;
+  let escalaAtual = 1;
+  let deslocX = 0, deslocY = 0;
+  let modoToque = null; // 'lupa' | 'pinca' | 'arrastar' | null
+  let pinçaDistInicial = 0;
+  let pinçaEscalaInicial = 1;
+  let arrastarInicioX = 0, arrastarInicioY = 0;
+  let arrastarDeslocXInicial = 0, arrastarDeslocYInicial = 0;
+  let ultimoToqueTempo = 0;
+
+  function aplicarTransformImagem(comTransicao) {
+    lightboxImg.style.transition = comTransicao ? 'transform .18s ease-out' : 'none';
+    lightboxImg.style.transform = `translate(${deslocX}px, ${deslocY}px) scale(${escalaAtual})`;
+  }
+
+  function resetZoomImagem() {
+    escalaAtual = 1;
+    deslocX = 0;
+    deslocY = 0;
+    modoToque = null;
+    aplicarTransformImagem(false);
+  }
+
+  function distanciaEntreToques(touches) {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.hypot(dx, dy);
+  }
+
   lightboxImg.addEventListener('touchstart', e => {
-    if (podeUsarHover) return;
-    zoomPane.style.display = 'block';
-    posicionarZoomPorToque(e);
+    if (e.touches.length === 2) {
+      // Começa o zoom de pinça (2 dedos)
+      zoomPane.style.display = 'none';
+      modoToque = 'pinca';
+      pinçaDistInicial = distanciaEntreToques(e.touches);
+      pinçaEscalaInicial = escalaAtual;
+    } else if (e.touches.length === 1) {
+      if (escalaAtual > 1) {
+        // Já está com zoom de pinça ativo: 1 dedo agora arrasta a imagem
+        modoToque = 'arrastar';
+        arrastarInicioX = e.touches[0].clientX;
+        arrastarInicioY = e.touches[0].clientY;
+        arrastarDeslocXInicial = deslocX;
+        arrastarDeslocYInicial = deslocY;
+      } else if (!podeUsarHover) {
+        // Comportamento original: 1 dedo abre a lupa lateral/inferior
+        modoToque = 'lupa';
+        zoomPane.style.display = 'block';
+        posicionarZoomPorToque(e);
+      }
+    }
   }, { passive: true });
+
   lightboxImg.addEventListener('touchmove', e => {
-    if (podeUsarHover) return;
-    posicionarZoomPorToque(e);
-    e.preventDefault();
+    if (e.touches.length === 2 && modoToque === 'pinca') {
+      e.preventDefault();
+      const novaDist = distanciaEntreToques(e.touches);
+      let novaEscala = pinçaEscalaInicial * (novaDist / pinçaDistInicial);
+      novaEscala = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, novaEscala));
+      escalaAtual = novaEscala;
+      aplicarTransformImagem(false);
+    } else if (e.touches.length === 1 && modoToque === 'arrastar') {
+      e.preventDefault();
+      deslocX = arrastarDeslocXInicial + (e.touches[0].clientX - arrastarInicioX);
+      deslocY = arrastarDeslocYInicial + (e.touches[0].clientY - arrastarInicioY);
+      aplicarTransformImagem(false);
+    } else if (e.touches.length === 1 && modoToque === 'lupa') {
+      posicionarZoomPorToque(e);
+      e.preventDefault();
+    }
   }, { passive: false });
-  lightboxImg.addEventListener('touchend', () => {
-    if (podeUsarHover) return;
-    zoomPane.style.display = 'none';
+
+  lightboxImg.addEventListener('touchend', e => {
+    if (modoToque === 'lupa' && !podeUsarHover) {
+      zoomPane.style.display = 'none';
+    }
+    if (e.touches.length === 0) {
+      // Toque duplo rápido sem zoom de pinça: volta a imagem ao tamanho normal
+      const agora = Date.now();
+      if (modoToque !== 'pinca' && modoToque !== 'arrastar' && escalaAtual > 1 && (agora - ultimoToqueTempo) < 300) {
+        resetZoomImagem();
+        aplicarTransformImagem(true);
+      }
+      if (modoToque === 'lupa') ultimoToqueTempo = agora;
+      // Se a pinça terminou com escala <= 1, garante que volte ao normal
+      if (escalaAtual <= 1) {
+        resetZoomImagem();
+      }
+      modoToque = null;
+    } else if (e.touches.length === 1) {
+      // Ainda sobrou 1 dedo depois de uma pinça: passa a arrastar a imagem
+      modoToque = 'arrastar';
+      arrastarInicioX = e.touches[0].clientX;
+      arrastarInicioY = e.touches[0].clientY;
+      arrastarDeslocXInicial = deslocX;
+      arrastarDeslocYInicial = deslocY;
+    }
   });
 
   // ==========================================================
