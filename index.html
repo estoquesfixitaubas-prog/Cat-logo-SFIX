@@ -101,6 +101,156 @@
   .painel { display:none; min-height: 65vh; }
   .painel.ativo { display:block; }
 
+  .escondido { display:none !important; }
+
+  /* ================= MENU INICIAL (tela de seleção de catálogo) ================= */
+  #telaInicial {
+    min-height: 70vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:28px;
+    padding:50px 20px 60px;
+    text-align:center;
+  }
+  #telaInicial h1 {
+    font-size:clamp(19px, 3vw, 26px);
+    color: var(--azul-escuro);
+    max-width:640px;
+  }
+  .menu-inicial-grid {
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap:22px;
+    width:100%;
+    max-width:780px;
+  }
+  .menu-inicial-card {
+    background: var(--card);
+    border:none;
+    padding:0;
+    border-radius:14px;
+    overflow:hidden;
+    cursor:pointer;
+    box-shadow: 0 4px 16px rgba(0,0,0,.16);
+    transition: transform .18s ease, box-shadow .18s ease;
+    display:flex;
+    flex-direction:column;
+  }
+  .menu-inicial-card:hover, .menu-inicial-card:focus-visible {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 28px rgba(0,0,0,.24);
+  }
+  .menu-inicial-card img {
+    width:100%;
+    aspect-ratio: 16 / 10;
+    object-fit:cover;
+    display:block;
+    background:#e5e7eb;
+  }
+  .menu-inicial-card .menu-inicial-nome {
+    padding:14px 10px;
+    font-weight:800;
+    font-size:16px;
+    letter-spacing:.3px;
+    color:#fff;
+    background: var(--azul-escuro);
+    text-align:center;
+  }
+
+  /* ================= BOTÃO HAMBÚRGUER (3 barras) + MENU LATERAL ================= */
+  .btn-menu {
+    position:fixed;
+    top:140px;
+    left:16px;
+    z-index:260;
+    width:46px;
+    height:46px;
+    border:none;
+    border-radius:10px;
+    background: var(--azul-escuro);
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:5px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.35);
+    transition: background .2s ease, transform .15s ease;
+  }
+  .btn-menu:hover { background: var(--azul); }
+  .btn-menu span {
+    display:block;
+    width:22px;
+    height:3px;
+    border-radius:2px;
+    background:#fff;
+  }
+
+  .menu-lateral-overlay {
+    position:fixed;
+    inset:0;
+    background:rgba(10,10,10,.35);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .25s ease;
+    z-index:230;
+  }
+  .menu-lateral-overlay.aberta { opacity:1; pointer-events:auto; }
+
+  .menu-lateral {
+    position:fixed;
+    top:0;
+    left:0;
+    height:100%;
+    width:min(300px, 82vw);
+    background:#fff;
+    z-index:250;
+    box-shadow: 6px 0 26px rgba(0,0,0,.3);
+    transform: translateX(-100%);
+    transition: transform .28s ease;
+    display:flex;
+    flex-direction:column;
+    padding:200px 0 20px;
+    overflow-y:auto;
+  }
+  .menu-lateral.aberto { transform: translateX(0); }
+  .menu-lateral-titulo {
+    padding:0 22px 12px;
+    font-size:12.5px;
+    font-weight:800;
+    letter-spacing:.6px;
+    text-transform:uppercase;
+    color: var(--cinza);
+  }
+  .menu-lateral-item {
+    display:flex;
+    align-items:center;
+    gap:12px;
+    width:100%;
+    border:none;
+    background:transparent;
+    text-align:left;
+    cursor:pointer;
+    padding:14px 22px;
+    font-size:15px;
+    font-weight:700;
+    color: var(--azul-escuro);
+    border-left:4px solid transparent;
+    transition: background .15s ease, border-color .15s ease;
+  }
+  .menu-lateral-item:hover { background:#f1f5f9; border-left-color: var(--teal); }
+  .menu-lateral-item.ativo { background:#eef4f8; border-left-color: var(--vermelho); color: var(--vermelho); }
+  .menu-lateral-item .icone { font-size:17px; }
+  .menu-lateral-sep { height:1px; background:#e5e7eb; margin:8px 22px; }
+  /* Regra automática: cria uma linha entre CADA aba/catálogo dentro do
+     menu lateral, não importa quantas abas existam. Ao adicionar uma
+     aba nova no admin.html, a linha aparece sozinha, sem editar nada aqui. */
+  #menuLateralCatalogos .menu-lateral-item:not(:last-child) {
+    border-bottom: 1px solid #e5e7eb;
+  }
+
   @media (max-width: 480px) {
     .tab-btn { font-size:13px; padding:10px 12px; min-width:0; }
   }
@@ -116,8 +266,8 @@
   }
 
   #statusBar {
-    background: var(--azul-escuro);
-    color:#cbd5e1;
+    background: var(--vermelho);
+    color:#ffffff;
     font-size:12px;
     text-align:center;
     padding:5px;
@@ -422,11 +572,29 @@
   <img class="makita" src="assets/logo-makita.png" alt="Makita">
 </header>
 
-<div class="aviso">Clique na imagem para ampliar</div>
+<div class="aviso" id="avisoZoom">Clique na imagem para ampliar</div>
 <div id="statusBar"><span id="dot"></span><span id="statusText">Verificando conexão...</span></div>
 
-<div class="tabs" id="tabsContainer"></div>
-<div id="paineisContainer"></div>
+<button class="btn-menu" id="btnMenu" aria-label="Abrir menu de catálogos" aria-expanded="false">
+  <span></span><span></span><span></span>
+</button>
+<div class="menu-lateral-overlay" id="menuLateralOverlay"></div>
+<nav class="menu-lateral" id="menuLateral">
+  <button class="menu-lateral-item" id="menuLateralHome">
+    <span class="icone">🏠</span> Menu inicial
+  </button>
+  <div class="menu-lateral-sep"></div>
+  <div class="menu-lateral-titulo">Catálogos</div>
+  <div id="menuLateralCatalogos"></div>
+</nav>
+
+<div id="telaInicial">
+  <h1>Selecione o catálogo que deseja abrir</h1>
+  <div class="menu-inicial-grid" id="menuInicialGrid"></div>
+</div>
+
+<div class="tabs escondido" id="tabsContainer"></div>
+<div id="paineisContainer" class="escondido"></div>
 
 <div class="lightbox" id="lightbox">
   <button class="close-btn" id="closeBtn"><img src="assets/seta-voltar.png" alt="Voltar"></button>
@@ -1383,8 +1551,121 @@
       document.querySelectorAll('.painel').forEach(p => p.classList.remove('ativo'));
       btn.classList.add('ativo');
       document.getElementById(btn.dataset.painel).classList.add('ativo');
+      sincronizarMenuLateral(btn.dataset.painel.replace('painel-', ''));
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
+  });
+
+  // ==========================================================
+  // MENU INICIAL — tela de seleção de catálogo (aparece antes
+  // de qualquer catálogo abrir) + MENU LATERAL (botão 3 barras)
+  // ==========================================================
+  const telaInicial       = document.getElementById('telaInicial');
+  const menuInicialGrid   = document.getElementById('menuInicialGrid');
+  const avisoZoom         = document.getElementById('avisoZoom');
+  const btnMenu           = document.getElementById('btnMenu');
+  const menuLateral       = document.getElementById('menuLateral');
+  const menuLateralOverlay= document.getElementById('menuLateralOverlay');
+  const menuLateralCatalogos = document.getElementById('menuLateralCatalogos');
+  const menuLateralHome   = document.getElementById('menuLateralHome');
+
+  // Monta os cartões da tela inicial (um por catálogo/aba)
+  ABAS.forEach(aba => {
+    const card = document.createElement('button');
+    card.className = 'menu-inicial-card';
+    card.innerHTML = `
+      ${aba.capa ? `<img src="${aba.capa}" alt="Catálogo ${aba.nome}" style="object-position:${aba.capaPosicao || 'center'};">` : ''}
+      <div class="menu-inicial-nome">${aba.nome}</div>
+    `;
+    card.addEventListener('click', () => abrirCatalogo(aba.id));
+    menuInicialGrid.appendChild(card);
+  });
+
+  // Monta os itens do menu lateral (mesmos catálogos das abas).
+  // A linha entre eles é feita pela regra CSS acima (#menuLateralCatalogos
+  // .menu-lateral-item:not(:last-child)), então qualquer aba nova que
+  // você adicionar no admin.html já entra aqui automaticamente com a linha.
+  ABAS.forEach(aba => {
+    const item = document.createElement('button');
+    item.className = 'menu-lateral-item';
+    item.dataset.catalogo = aba.id;
+    item.textContent = aba.nome;
+    item.addEventListener('click', () => abrirCatalogo(aba.id));
+    menuLateralCatalogos.appendChild(item);
+  });
+
+  function sincronizarMenuLateral(id) {
+    document.querySelectorAll('.menu-lateral-item[data-catalogo]').forEach(it => {
+      it.classList.toggle('ativo', it.dataset.catalogo === id);
+    });
+  }
+
+  function abrirCatalogo(id) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('ativo', b.dataset.painel === 'painel-' + id));
+    document.querySelectorAll('.painel').forEach(p => p.classList.toggle('ativo', p.id === 'painel-' + id));
+    sincronizarMenuLateral(id);
+    telaInicial.classList.add('escondido');
+    tabsContainer.classList.remove('escondido');
+    paineisContainer.classList.remove('escondido');
+    avisoZoom.classList.remove('escondido');
+    fecharMenuLateral();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function voltarMenuInicial() {
+    telaInicial.classList.remove('escondido');
+    tabsContainer.classList.add('escondido');
+    paineisContainer.classList.add('escondido');
+    avisoZoom.classList.add('escondido');
+    sincronizarMenuLateral(null);
+    fecharMenuLateral();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  menuLateralHome.addEventListener('click', voltarMenuInicial);
+
+  // Estado inicial: mostra a tela de menu, catálogo ainda escondido
+  telaInicial.classList.remove('escondido');
+  tabsContainer.classList.add('escondido');
+  paineisContainer.classList.add('escondido');
+  avisoZoom.classList.add('escondido');
+
+  // Abrir/fechar o menu lateral
+  function abrirMenuLateral() {
+    menuLateral.classList.add('aberto');
+    menuLateralOverlay.classList.add('aberta');
+    btnMenu.setAttribute('aria-expanded', 'true');
+  }
+  function fecharMenuLateral() {
+    menuLateral.classList.remove('aberto');
+    menuLateralOverlay.classList.remove('aberta');
+    btnMenu.setAttribute('aria-expanded', 'false');
+  }
+
+  // No computador (quem tem mouse/hover), o menu abre sozinho ao
+  // passar o cursor sobre o botão ou sobre a própria janela lateral,
+  // e fecha assim que o mouse sai dessa área — sem precisar clicar.
+  const suportaHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  if (suportaHover) {
+    btnMenu.addEventListener('mouseenter', abrirMenuLateral);
+    menuLateral.addEventListener('mouseenter', abrirMenuLateral);
+    btnMenu.addEventListener('mouseleave', () => {
+      // só fecha se o mouse não foi para dentro da própria janela
+      setTimeout(() => {
+        if (!menuLateral.matches(':hover') && !btnMenu.matches(':hover')) fecharMenuLateral();
+      }, 40);
+    });
+    menuLateral.addEventListener('mouseleave', fecharMenuLateral);
+  }
+
+  // No celular/tablet (sem hover), o botão funciona por toque:
+  // toca para abrir, toca de novo (ou fora) para fechar.
+  btnMenu.addEventListener('click', () => {
+    if (menuLateral.classList.contains('aberto')) fecharMenuLateral();
+    else abrirMenuLateral();
+  });
+  menuLateralOverlay.addEventListener('click', fecharMenuLateral);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') fecharMenuLateral();
   });
 
   function normalizar(s) {
