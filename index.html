@@ -103,6 +103,44 @@
 
   .escondido { display:none !important; }
 
+  /* ================= AVISO DE NOVA VERSÃO DISPONÍVEL ================= */
+  #avisoAtualizacao {
+    position:fixed;
+    left:50%;
+    bottom:20px;
+    transform:translateX(-50%);
+    background: var(--azul-escuro);
+    color:#fff;
+    padding:12px 16px;
+    border-radius:10px;
+    box-shadow:0 6px 22px rgba(0,0,0,.35);
+    display:flex;
+    align-items:center;
+    gap:14px;
+    z-index:300;
+    font-size:13.5px;
+    max-width:92vw;
+    flex-wrap:wrap;
+    justify-content:center;
+    animation: subirAviso .3s ease;
+  }
+  @keyframes subirAviso {
+    from { opacity:0; transform:translate(-50%, 12px); }
+    to   { opacity:1; transform:translate(-50%, 0); }
+  }
+  #avisoAtualizacao button {
+    background: var(--vermelho);
+    color:#fff;
+    border:none;
+    border-radius:7px;
+    padding:8px 14px;
+    font-weight:800;
+    font-size:13px;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  #avisoAtualizacao button:hover { filter:brightness(1.1); }
+
   /* ================= MENU INICIAL (tela de seleção de catálogo) ================= */
   #telaInicial {
     min-height: 70vh;
@@ -1824,6 +1862,7 @@
     zoomPane.style.display = 'none';
     resetZoomImagem();
     lightbox.classList.add('open');
+    btnMenu.classList.add('escondido');
   }
 
   ABAS.forEach(aba => {
@@ -1838,6 +1877,7 @@
       zoomPane.style.display = 'none';
       resetZoomImagem();
       lightbox.classList.add('open');
+      btnMenu.classList.add('escondido');
     });
   });
 
@@ -1845,12 +1885,14 @@
     lightbox.classList.remove('open');
     zoomPane.style.display = 'none';
     resetZoomImagem();
+    btnMenu.classList.remove('escondido');
   });
   lightbox.addEventListener('click', e => {
     if (e.target === lightbox) {
       lightbox.classList.remove('open');
       zoomPane.style.display = 'none';
       resetZoomImagem();
+      btnMenu.classList.remove('escondido');
     }
   });
 
@@ -2003,6 +2045,56 @@
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').then(reg => reg.update());
   }
+
+  // ==========================================================
+  // Verifica se uma nova versão do catálogo foi publicada no
+  // servidor (ex: depois de um git push + deploy no Netlify) e,
+  // se sim, mostra um avisinho pra pessoa atualizar quando quiser
+  // — sem recarregar sozinho, pra não interromper quem já está
+  // olhando um produto ou fazendo uma busca.
+  // ==========================================================
+  let versaoInicialPagina = null;
+
+  async function obterVersaoDoServidor() {
+    try {
+      const resposta = await fetch(location.pathname + '?_=' + Date.now(), { cache: 'no-store' });
+      return resposta.headers.get('etag') || resposta.headers.get('last-modified');
+    } catch (erro) {
+      return null;
+    }
+  }
+
+  async function verificarNovaVersao() {
+    const versaoAtual = await obterVersaoDoServidor();
+    if (!versaoAtual) return; // servidor não informou versão (ex: offline) — não faz nada
+    if (versaoInicialPagina === null) {
+      versaoInicialPagina = versaoAtual;
+      return;
+    }
+    if (versaoAtual !== versaoInicialPagina) {
+      mostrarAvisoAtualizacao();
+    }
+  }
+
+  function mostrarAvisoAtualizacao() {
+    if (document.getElementById('avisoAtualizacao')) return; // já está sendo mostrado
+    const aviso = document.createElement('div');
+    aviso.id = 'avisoAtualizacao';
+    aviso.innerHTML = `
+      <span>🔄 Uma nova versão do catálogo está disponível.</span>
+      <button id="btnAtualizarAgora">Atualizar agora</button>
+    `;
+    document.body.appendChild(aviso);
+    document.getElementById('btnAtualizarAgora').addEventListener('click', () => location.reload());
+  }
+
+  verificarNovaVersao();
+  setInterval(verificarNovaVersao, 3 * 60 * 1000); // confere a cada 3 minutos
+
+  // Confere também assim que a pessoa volta pra aba (ex: trocou de app e voltou)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') verificarNovaVersao();
+  });
 </script>
 
 </body>
