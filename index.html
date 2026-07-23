@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>S-Fix Distribuindo Soluções | Catálogo Makita</title>
+<title>S-Fix Distribuindo Soluções | Catálogo</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0f5c8c">
 <style>
@@ -31,8 +31,6 @@
     --produto-font-familia: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
     --produto-font-tamanho: 14.5px;
     --produto-font-cor: #0a4468;
-    --capa-makita-posicao: center;
-    --capa-dewalt-posicao: center;
     /* ==LAYOUT-FIM== */
   }
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -100,11 +98,8 @@
     color:#fff;
   }
 
-  .painel { display:none; }
+  .painel { display:none; min-height: 65vh; }
   .painel.ativo { display:block; }
-  #painel-dewalt {
-    min-height: 65vh;
-  }
 
   @media (max-width: 480px) {
     .tab-btn { font-size:13px; padding:10px 12px; min-width:0; }
@@ -155,8 +150,6 @@
     display:block;
     object-fit:cover;
   }
-  #introCoverImgMakita { object-position: var(--capa-makita-posicao); }
-  #introCoverImgDewalt { object-position: var(--capa-dewalt-posicao); }
 
   .search-wrap {
     max-width: 1100px;
@@ -186,7 +179,7 @@
     background:transparent;
   }
   .search-box input::placeholder { color:#9ca3af; }
-  #clearSearch, #clearSearchDewalt {
+  .clear-search-btn {
     border:none;
     background:#e5e7eb;
     color:#4b5563;
@@ -228,7 +221,7 @@
     .search-box { flex: none; }
     .sort-box { justify-content:space-between; }
   }
-  #noResults, .sem-resultados {
+  .sem-resultados {
     display:none;
     text-align:center;
     color: var(--cinza);
@@ -321,19 +314,9 @@
   }
 
   /* layout alternativo: foto ao lado do nome (ativado via classe no body) */
-  body.layout-foto-lateral .card {
-    flex-direction: row;
-  }
-  body.layout-foto-lateral .card img {
-    width:110px;
-    min-width:110px;
-    aspect-ratio: 1 / 1;
-  }
-  body.layout-foto-lateral .card .info {
-    border-top:none;
-    border-left: 3px solid var(--teal);
-    flex:1;
-  }
+  body.layout-foto-lateral .card { flex-direction: row; }
+  body.layout-foto-lateral .card img { width:110px; min-width:110px; aspect-ratio: 1 / 1; }
+  body.layout-foto-lateral .card .info { border-top:none; border-left: 3px solid var(--teal); flex:1; }
 
   footer {
     background: var(--vermelho);
@@ -418,15 +401,8 @@
     border-radius:8px;
   }
   @media (max-width: 900px) {
-    .lightbox-main {
-      flex-direction: column;
-      align-items: center;
-    }
-    .zoom-pane {
-      width: min(85vw, 340px);
-      height: min(85vw, 340px);
-      margin-top: 2px;
-    }
+    .lightbox-main { flex-direction: column; align-items: center; }
+    .zoom-pane { width: min(85vw, 340px); height: min(85vw, 340px); margin-top: 2px; }
   }
 
   @media (max-width: 480px) {
@@ -449,76 +425,8 @@
 <div class="aviso">Clique na imagem para ampliar</div>
 <div id="statusBar"><span id="dot"></span><span id="statusText">Verificando conexão...</span></div>
 
-<div class="tabs">
-  <button class="tab-btn ativo" id="tabMakita" data-painel="painel-makita">MAKITA</button>
-  <button class="tab-btn" id="tabDewalt" data-painel="painel-dewalt">DEWALT &amp; STANLEY</button>
-</div>
-
-<div id="painel-makita" class="painel ativo">
-
-  <div class="intro-wrap">
-    <button class="intro-cover" id="introCover" aria-label="Ampliar página de introdução Makita">
-      <img id="introCoverImgMakita" src="assets/intro-makita.jpg" alt="Catálogo Makita - página de introdução">
-    </button>
-  </div>
-
-  <div class="search-wrap">
-    <div class="search-box">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="searchInput" placeholder="Buscar por nome, código ou voltagem (ex: GA9020, 220v)">
-      <button id="clearSearch" aria-label="Limpar busca">✕</button>
-    </div>
-    <div class="sort-box">
-      <label for="sortSelect">Ordenar:</label>
-      <select id="sortSelect">
-        <option value="">Padrão</option>
-        <option value="nome">Nome (A-Z)</option>
-        <option value="codigo">Código</option>
-        <option value="voltagem">Voltagem</option>
-      </select>
-    </div>
-  </div>
-
-  <main>
-    <div class="grid" id="grid"></div>
-    <div id="noResults">Nenhum produto encontrado para essa busca.</div>
-  </main>
-
-  <footer>TELEVENDAS 66 3515-0909</footer>
-
-</div>
-
-<div id="painel-dewalt" class="painel">
-  <div class="intro-wrap">
-    <button class="intro-cover" id="introDewalt" aria-label="Ampliar página de introdução Dewalt e Stanley">
-      <img id="introCoverImgDewalt" src="assets/capa-dewalt.jpg" alt="Catálogo Dewalt e Stanley - página de introdução">
-    </button>
-  </div>
-
-  <div class="search-wrap">
-    <div class="search-box">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="searchInputDewalt" placeholder="Buscar por nome, código ou voltagem">
-      <button id="clearSearchDewalt" aria-label="Limpar busca">✕</button>
-    </div>
-    <div class="sort-box">
-      <label for="sortSelectDewalt">Ordenar:</label>
-      <select id="sortSelectDewalt">
-        <option value="">Padrão</option>
-        <option value="nome">Nome (A-Z)</option>
-        <option value="codigo">Código</option>
-        <option value="voltagem">Voltagem</option>
-      </select>
-    </div>
-  </div>
-
-  <main>
-    <div class="grid" id="gridDewalt"></div>
-    <div id="noResultsDewalt" class="sem-resultados">Nenhum produto encontrado para essa busca.</div>
-  </main>
-
-  <footer>TELEVENDAS 66 3515-0909</footer>
-</div>
+<div class="tabs" id="tabsContainer"></div>
+<div id="paineisContainer"></div>
 
 <div class="lightbox" id="lightbox">
   <button class="close-btn" id="closeBtn"><img src="assets/seta-voltar.png" alt="Voltar"></button>
@@ -537,886 +445,947 @@
 
 <script>
   // ==========================================================
-  // DADOS DOS PRODUTOS — edite aqui para adicionar/atualizar itens
+  // DADOS DO CATÁLOGO — cada item do array é uma aba (Makita,
+  // Dewalt & Stanley, ou qualquer outra que você criar no painel
+  // admin.html). Edite aqui só em último caso — o normal é usar
+  // o admin.html, que reescreve este bloco sozinho.
   // ==========================================================
-  // ==PRODUTOS-INICIO==
-  const produtos = [
-    {
-      nome: "Esmerilhadeira Makita 4.1/2\" M9510B",
-      imagem: "assets/produtos/1-m9510b.png",
-      codigos: [
-        { voltagem: "127v", codigo: "3300 115 110" },
-        { voltagem: "220v", codigo: "3300 115 220" }
-      ]
-    },
-    {
-      nome: "Esmerilhadeira Makita Angular 7\" M0920B",
-      imagem: "assets/produtos/2-m0920b.png",
-      codigos: [
-        { voltagem: "127v", codigo: "3300 100 110" },
-        { voltagem: "220v", codigo: "3300 100 220" }
-      ]
-    },
-    {
-      nome: "Esmerilhadeira Makita Angular 9\" GA9020",
-      imagem: "assets/produtos/3-ga9020.png",
-      codigos: [
-        { voltagem: "220v", codigo: "3300 230 220" }
-      ]
-    },
-    {
-      nome: "Esmerilhadeira Makita 125mm 18v DGA517Z",
-      imagem: "assets/produtos/4-dga517z.png",
-      codigos: [
-        { voltagem: "Bat. 18v", codigo: "3300 517" }
-      ]
-    },
-    {
-      nome: "Esmerilhadeira Makita 125mm 18v DGA504Z",
-      imagem: "assets/produtos/5-dga504z.png",
-      codigos: [
-        { voltagem: "Bat. 18v", codigo: "3300 125" }
-      ]
-    },
-    {
-      nome: "Lixadeira Angular Makita SA7021",
-      imagem: "assets/produtos/6-sa7021.png",
-      codigos: [
-        { voltagem: "127v", codigo: "3301 127" },
-        { voltagem: "220v", codigo: "3301 220" }
-      ]
-    },
-    {
-      nome: "Lixadeira Eletronica Makita SA7000C",
-      imagem: "assets/produtos/7-sa7000c.png",
-      codigos: [
-        { voltagem: "127v", codigo: "3304 110" },
-        { voltagem: "220v", codigo: "3304 220" }
-      ]
-    },
-    {
-      nome: "Lixadeira Úmido 125mm",
-      imagem: "assets/produtos/8-lixadeira-umido-125mm.png",
-      codigos: [
-        { voltagem: "220v", codigo: "3301 125" }
-      ]
-    },
-    {
-      nome: "Serra Mármore Makita",
-      imagem: "assets/produtos/9-serra-marmore.png",
-      codigos: [
-        { voltagem: "127v", codigo: "3300 127" },
-        { voltagem: "220v", codigo: "3300 220 1" }
-      ]
-    },
-    {
-      nome: "Serra Circular Makita 185mm HS7010",
-      imagem: "assets/produtos/10-hs7010.png",
-      codigos: [
-        { voltagem: "127v", codigo: "3300 185 127" },
-        { voltagem: "220v", codigo: "3300 185 220" }
-      ]
-    },
-    {
-      nome: "Serra Mármore Makita Úmida 4100NH2R",
-      imagem: "assets/produtos/11-4100nh2r-a.png",
-      codigos: [
-        { voltagem: "220v", codigo: "3300 220 2" }
-      ]
-    },
-    {
-      nome: "Serra Mármore Makita Úmida 4100NH2R",
-      imagem: "assets/produtos/12-4100nh2r-b.png",
-      codigos: [
-        { voltagem: "220v", codigo: "3300 45 220" }
-      ]
-    },
-    {
-      nome: "Fresadora Makita ACM/Alumínio CA5000XJ",
-      imagem: "assets/produtos/13-ca5000xj.png",
-      codigos: [
-        { voltagem: "220v", codigo: "3300 5010" }
-      ]
-    },
-    {
-      nome: "Serra Mármore Bat. 18v DCC500ZKX1",
-      imagem: "assets/produtos/14-dcc500zkx1-a.png",
-      codigos: [
-        { voltagem: "Bat. 18v", codigo: "3301 470" }
-      ]
-    },
-    {
-      nome: "Carrinho Base Inclinada Corte 45°",
-      imagem: "assets/produtos/15-carrinho-base-45.png",
-      codigos: [
-        { voltagem: "", codigo: "020884" }
-      ]
-    },
-    {
-      nome: "Carrinho Base Inclinada rodinha Makita",
-      imagem: "assets/produtos/16-dcc500zkx1-b.png",
-      codigos: [
-        { voltagem: "", codigo: "3300 199" }
-      ]
-    },
-    {
-      nome: "Serra de Esquadria Makita 260mm LS1110F",
-      imagem: "assets/produtos/17-ls1110f.png",
-      codigos: [
-        { voltagem: "127v", codigo: "3302 11 127" },
-        { voltagem: "220v", codigo: "3302 11 220" }
-      ]
-    },
-    {
-      nome: "Serra de Esquadria Makita 255mm",
-      imagem: "assets/produtos/18-esquadria-255mm.png",
-      codigos: [
-        { voltagem: "127v", codigo: "3302 127" },
-        { voltagem: "220v", codigo: "3302 220" }
-      ]
-    },
-    {
-      nome: "Serra de Esquadria Deslizante Makita 216mm LS0816F",
-      imagem: "assets/produtos/19-ls0816f.png",
-      codigos: [
-        { voltagem: "220v", codigo: "3302 08 220" }
-      ]
-    },
-    {
-      nome: "Serra Tico-Tico Makita M4302B",
-      imagem: "assets/produtos/20-m4302b.png",
-      codigos: [
-        { voltagem: "127v", codigo: "3302 11 127" },
-        { voltagem: "220v", codigo: "3302 11 220" }
-      ]
-    },
-    {
-      nome: "Serra Tico-Tico Makita Bat. 18v DJV182z",
-      imagem: "assets/produtos/21-djv182z.png",
-      codigos: [
-        { voltagem: "Bat. 18v", codigo: "3301 469" }
-      ]
-    },
-    {
-      nome: "Tupia 6mm M3700B",
-      imagem: "assets/produtos/22-m3700b.png",
-      codigos: [
-        { voltagem: "127v", codigo: "3300 14 127" },
-        { voltagem: "220v", codigo: "3300 14 220" }
-      ]
-    },
-    {
-      nome: "Tupia Makita Bateria 18v DRT50Z",
-      imagem: "assets/produtos/23-drt50z.png",
-      codigos: [
-        { voltagem: "Bat. 18v", codigo: "3300 505" }
-      ]
-    },
-    {
-      nome: "Soprador Térmico Makita HG5030k",
-      imagem: "assets/produtos/24-hg5030k.png",
-      codigos: [
-        { voltagem: "127v", codigo: "3300 1400" }
-      ]
-    },
-    {
-      nome: "Soprador Térmico Makita HG6531CK",
-      imagem: "assets/produtos/25-hg6531ck.png",
-      codigos: [
-        { voltagem: "127v", codigo: "3300 1600" }
-      ]
-    },
-    {
-      nome: "Soprador Térmico Makita Bateria LXT 18v DHG180ZK",
-      imagem: "assets/produtos/26-dhg180zk.png",
-      codigos: [
-        { voltagem: "Bat.18v", codigo: "3300 018" }
-      ]
-    },
-    {
-      nome: "Lixadeira Orbital C/ Coletor B04557",
-      imagem: "assets/produtos/27-b04557.png",
-      codigos: [
-        { voltagem: "220v", codigo: "3300 4 220" }
-      ]
-    },
-    {
-      nome: "Lixadeira de Cinta Makita 100x610mm M9400B",
-      imagem: "assets/produtos/28-m9400b.png",
-      codigos: [
-        { voltagem: "220v", codigo: "3302 100 220" }
-      ]
-    },
-    {
-      nome: "Lixadeira de Cinta Makita 76x610mm 9920",
-      imagem: "assets/produtos/29-cinta-9920.png",
-      codigos: [
-        { voltagem: "220v", codigo: "3302 76 220" }
-      ]
-    },
-    {
-      nome: "Lixadeira de Cinta Makita Tamanho P 9031",
-      imagem: "assets/produtos/30-cinta-p9031.png",
-      codigos: [
-        { voltagem: "220v", codigo: "3302 230" }
-      ]
-    },
-    {
-      nome: "Plaina Makita 82mm M1909B",
-      imagem: "assets/produtos/31-plaina-m1909b.png",
-      codigos: [
-        { voltagem: "220v", codigo: "3301 467" }
-      ]
-    },
-    {
-      nome: "Parafusadeira de Impacto 12v HP333DWYX3",
-      imagem: "assets/produtos/32-hp333dwyx3.png",
-      codigos: [
-        { voltagem: "Bat. 12v", codigo: "3300 200" }
-      ]
-    },
-    {
-      nome: "Chave de Impacto 1/2 18v DTW300Z",
-      imagem: "assets/produtos/33-dtw300z.png",
-      codigos: [
-        { voltagem: "Bat. 18v", codigo: "3300 301" }
-      ]
-    },
-    {
-      nome: "Parafusadeira de Impacto 18v DTD173Z",
-      imagem: "assets/produtos/34-dtd173z.png",
-      codigos: [
-        { voltagem: "Bat. 18v", codigo: "3300 301" }
-      ]
-    },
-    {
-      nome: "Parafusadeira de Impacto 18v DTD156Z+Carreg.+Bat",
-      imagem: "assets/produtos/35-dtd156z.png",
-      codigos: [
-        { voltagem: "Bat. 18v", codigo: "3300 301" }
-      ]
-    },
-    {
-      nome: "Parafusadeira de Impacto 18v DHP482Z",
-      imagem: "assets/produtos/36-dhp482z.png",
-      codigos: [
-        { voltagem: "Bat. 18v", codigo: "3300 200" }
-      ]
-    },
-    {
-      nome: "Paraf/Furad. Impacto 18v DHP490Z+Bat e Carregador",
-      imagem: "assets/produtos/37-dhp490z.png",
-      codigos: [
-        { voltagem: "Bat. 18v", codigo: "3300 301" }
-      ]
-    },
-    {
-      nome: "Parafusadeira de Impacto 18v DHP489Z+Bat e Carregador",
-      imagem: "assets/produtos/38-dhp489z.png",
-      codigos: [
-        { voltagem: "Bat. 18v", codigo: "3300 301" }
-      ]
-    },
-    {
-      nome: "Parafusadeira de Impacto 18v DHP486Z",
-      imagem: "assets/produtos/39-dhp486z.png",
-      codigos: [
-        { voltagem: "Bat. 18v", codigo: "3300 301" }
-      ]
-    },
-    {
-      nome: "Parafusadeira/Furadeira de Impacto 12v CLX224SAX",
-      imagem: "assets/produtos/40-clx224sax.png",
-      codigos: [
-        { voltagem: "Bat. 12v", codigo: "3300 500" }
-      ]
-    },
-    {
-      nome: "Parafusadeira de Impacto 18v DHP490WVX",
-      imagem: "assets/produtos/41-dhp490wvx.png",
-      codigos: [
-        { voltagem: "Bat. 18v", codigo: "3300 490" }
-      ]
-    },
-    {
-      nome: "Parafusadeira de Impacto 18v DHP482SY",
-      imagem: "assets/produtos/42-dhp482sy.png",
-      codigos: [
-        { voltagem: "Bat. 18v", codigo: "3300 400" }
-      ]
-    },
-    {
-      nome: "Parafusadeira de Impacto 18v DHP485",
-      imagem: "assets/produtos/43-dhp485.png",
-      codigos: [
-        { voltagem: "Bat. 18v", codigo: "3300 485" }
-      ]
-    },
-    {
-      nome: "Combo Paraf.+Aspirador DHP485RF1J+DCL180Z",
-      imagem: "assets/produtos/combo-makita-dhp485f1j-dcl180z.png",
-      codigos: [
-        { voltagem: "Bat. 18v", codigo: "3300 4851" }
-      ]
-    },
-    {
-      nome: "Martelete Rotativo Rompedor Makita 18v DHR183Z",
-      imagem: "assets/produtos/45-dhr183z.png",
-      codigos: [
-        { voltagem: "Bat. 18v", codigo: "3303 183" }
-      ]
-    },
-    {
-      nome: "Martelete Rompedor HR140DZ 14mm 12v",
-      imagem: "assets/produtos/46-hr140dz.png",
-      codigos: [
-        { voltagem: "Bat. 12v", codigo: "3300 122" }
-      ]
-    },
-    {
-      nome: "Martelete Combinado 18v DHR202",
-      imagem: "assets/produtos/47-dhr202.png",
-      codigos: [
-        { voltagem: "Bat. 18v", codigo: "3300 226" }
-      ]
-    },
-    {
-      nome: "Martelete Combinado HR2470",
-      imagem: "assets/produtos/48-hr2470.png",
-      codigos: [
-        { voltagem: "220v", codigo: "3300 24 220" }
-      ]
-    },
-    {
-      nome: "Martelo Rompedor Makita SDS MAX HMC120",
-      imagem: "assets/produtos/49-hmc120.png",
-      codigos: [
-        { voltagem: "220v", codigo: "3300 16" }
-      ]
-    },
-    {
-      nome: "Martelo Demolidor Makita 17mm M8600B",
-      imagem: "assets/produtos/50-m8600b.png",
-      codigos: [
-        { voltagem: "220v", codigo: "3300 17 220" }
-      ]
-    },
-    {
-      nome: "Furadeira de Impacto 13mm M0801G",
-      imagem: "assets/produtos/51-m0801g.png",
-      codigos: [
-        { voltagem: "127v", codigo: "3300 110" },
-        { voltagem: "220v", codigo: "3300 220" }
-      ]
-    },
-    {
-      nome: "Mandril Makita",
-      imagem: "assets/produtos/52-mandril-makita.png",
-      codigos: [
-        { voltagem: "1/2\"", codigo: "0505 012" },
-        { voltagem: "3/8\"", codigo: "0505 038" }
-      ]
-    },
-    {
-      nome: "Mandril Aperto Rápido Metal Pesado",
-      imagem: "assets/produtos/mandril-aperto-rapido-metal-pesado.png",
-      codigos: [
-        { voltagem: "1/2\"", codigo: "0505 050" }
-      ]
-    },
-    {
-      nome: "Conjunto Mandril Makita",
-      imagem: "assets/produtos/conjunto-mandril-makita.png",
-      codigos: [
-        { voltagem: "13mm", codigo: "0505 013" }
-      ]
-    },
-    {
-      nome: "Adaptador SDS Mandril 1/2\" 20unf encaixe e PF",
-      imagem: "assets/produtos/55-adaptador-sds-mandril.png",
-      codigos: [
-        { voltagem: "1/2\"", codigo: "0011 529" }
-      ]
-    },
-    {
-      nome: "Chave Mandril Makita",
-      imagem: "assets/produtos/56-chave-mandril.png",
-      codigos: [
-        { voltagem: "1/2\"", codigo: "0505 040" },
-        { voltagem: "3/8\"", codigo: "0505 041" }
-      ]
-    },
-    {
-      nome: "Kit Makita DUB362+4BATAH",
-      imagem: "assets/produtos/57-dub362-4batah.png",
-      codigos: [
-        { voltagem: "Bat. 18v", codigo: "3305 1001" }
-      ]
-    },
-    {
-      nome: "Combo Makita 12v HP333+CLX248 ASP.+Paraf.",
-      imagem: "assets/produtos/combo-makita-12v-paraf.-asp.-sopra.png",
-      codigos: [
-        { voltagem: "Bat. 12v", codigo: "3300 0220" }
-      ]
-    },
-    {
-      nome: "Aspirador de pó DCL180 BAT 18v",
-      imagem: "assets/produtos/59-dcl180-bat.png",
-      codigos: [
-        { voltagem: "Bat. 18v", codigo: "3301 409" }
-      ]
-    },
-    {
-      nome: "Aspirador de Pó 18v DCL180Z",
-      imagem: "assets/produtos/60-dcl180z.png",
-      codigos: [
-        { voltagem: "Bat. 18v", codigo: "3301 401" }
-      ]
-    },
-    {
-      nome: "Soprador DCL184Z 18v",
-      imagem: "assets/produtos/61-dcl184z.png",
-      codigos: [
-        { voltagem: "Bat. 18v", codigo: "3301 466" }
-      ]
-    },
-    {
-      nome: "Soprador DUB362Z 18v",
-      imagem: "assets/produtos/62-dub362z.png",
-      codigos: [
-        { voltagem: "Bat. 18v", codigo: "3300 362" }
-      ]
-    },
-    {
-      nome: "Soprador DUB186Z Carr.+Bat",
-      imagem: "assets/produtos/63-dub186z.png",
-      codigos: [
-        { voltagem: "18v", codigo: "3300 1866" }
-      ]
-    },
-    {
-      nome: "Bateria Makita 12v Litium",
-      imagem: "assets/produtos/64-bateria-12v.png",
-      codigos: [
-        { voltagem: "1.5AH", codigo: "3300 615" },
-        { voltagem: "2AH", codigo: "3300 620" }
-      ]
-    },
-    {
-      nome: "Bateria Makita 18v Litium",
-      imagem: "assets/produtos/65-bateria-18v.png",
-      codigos: [
-        { voltagem: "5AH", codigo: "3300 550" },
-        { voltagem: "6AH", codigo: "3300 660" }
-      ]
-    },
-    {
-      nome: "Carregador de Bateria 12v",
-      imagem: "assets/produtos/66-carregador-12v.png",
-      codigos: [
-        { voltagem: "12v", codigo: "3300 1" }
-      ]
-    },
-    {
-      nome: "Carregador de Bateria 18v",
-      imagem: "assets/produtos/67-carregador-18v.png",
-      codigos: [
-        { voltagem: "18v", codigo: "3300 2" }
-      ]
-    },
-    {
-      nome: "Lanterna LED Makita 18v LTX DML812",
-      imagem: "assets/produtos/68-dml812.png",
-      codigos: [
-        { voltagem: "Bat. 18v", codigo: "3300 812" }
-      ]
-    },
-    {
-      nome: "Lanterna 18v DML815",
-      imagem: "assets/produtos/69-dml815.png",
-      codigos: [
-        { voltagem: "Bat. 18v", codigo: "3300 815" }
-      ]
-    },
-    {
-      nome: "Lav. de Pressão Portátil a Bat. Makita",
-      imagem: "assets/produtos/70-lav-pressao-bateria.png",
-      codigos: [
-        { voltagem: "Bat. 18v", codigo: "3300 183" }
-      ]
-    },
-    {
-      nome: "Trena a Laser Makita 30m",
-      imagem: "assets/produtos/71-trena-laser-30m.png",
-      codigos: [
-        { voltagem: "", codigo: "6030 030" }
-      ]
-    }
-  ];
-  // ==PRODUTOS-FIM==
-
-  // ==PRODUTOS-DEWALT-INICIO==
-  const produtosDewalt = [
-    {
-      nome: "Dewalt Esmerilhadeira 4.1/2\"-5\" 20v DCG413-B",
-      imagem: "assets/produtos/72-dcg413-b.png",
-      codigos: [
-        { voltagem: "Bat. 20v", codigo: "4400 413" }
-      ]
-    },
-    {
-      nome: "Dewalt Esmerilh. Reg. 4.1/2\" 950W DWE4118",
-      imagem: "assets/produtos/73-dwe4118.png",
-      codigos: [
-        { voltagem: "220v", codigo: "4400 412 220" }
-      ]
-    },
-    {
-      nome: "Dewalt Esmerilh. 9\" 2200w DWE490",
-      imagem: "assets/produtos/74-dwe490.png",
-      codigos: [
-        { voltagem: "220v", codigo: "4400 922 490" }
-      ]
-    },
-    {
-      nome: "Dewalt Esmerilh. 5\" 1500w DWE4336",
-      imagem: "assets/produtos/75-dwe4336.png",
-      codigos: [
-        { voltagem: "220v", codigo: "4400 436 220" }
-      ]
-    },
-    {
-      nome: "Dewalt Esmerilh. 4.1/2\" 900w DWE4120",
-      imagem: "assets/produtos/76-dwe4120.png",
-      codigos: [
-        { voltagem: "220v", codigo: "4400 9220" }
-      ]
-    },
-    {
-      nome: "Dewalt Nível Laser Verde DW088CG",
-      imagem: "assets/produtos/77-dw088cg.png",
-      codigos: [
-        { voltagem: "30m", codigo: "4400 088" }
-      ]
-    },
-    {
-      nome: "Dewalt Trena Laser",
-      imagem: "assets/produtos/78-trena-laser.png",
-      codigos: [
-        { voltagem: "30m", codigo: "4400 30" }
-      ]
-    },
-    {
-      nome: "Dewalt Ventosa Bateria 20v DCE592B",
-      imagem: "assets/produtos/79-dce592b.png",
-      codigos: [
-        { voltagem: "Bat. 20v", codigo: "4400 413" }
-      ]
-    },
-    {
-      nome: "Dewalt Paraf./Fur. 20v DCD7781-B",
-      imagem: "assets/produtos/80-dcd7781-b.png",
-      codigos: [
-        { voltagem: "Bat. 20v", codigo: "4400 17 789" }
-      ]
-    },
-    {
-      nome: "Dewalt Paraf./Imp. 1/4\" 20v Max Li-on DCF7871-B S/Bat",
-      imagem: "assets/produtos/81-dcf7871-b.png",
-      codigos: [
-        { voltagem: "Bat. 20v", codigo: "4400 78 713" }
-      ]
-    },
-    {
-      nome: "Dewalt Paraf./Imp. 1/4\" 20v DCF887-B",
-      imagem: "assets/produtos/82-dcf887-b.png",
-      codigos: [
-        { voltagem: "Bat. 20v", codigo: "4400 1887" }
-      ]
-    },
-    {
-      nome: "Dewalt Combo McLaren DCK200ME2GT",
-      imagem: "assets/produtos/83-dck200me2gt.png",
-      codigos: [
-        { voltagem: "", codigo: "4400 200" }
-      ]
-    },
-    {
-      nome: "Dewalt Combo DCD7781+DCF787 20v",
-      imagem: "assets/produtos/84-combo-dcd7781-dcf787.png",
-      codigos: [
-        { voltagem: "Bat. 20v", codigo: "4400 276" }
-      ]
-    },
-    {
-      nome: "Dewalt Paraf./Fur Imp 20v 2bat-2AH DCD805D2",
-      imagem: "assets/produtos/85-dcd805d2.png",
-      codigos: [
-        { voltagem: "Bat. 20v", codigo: "4400 805" }
-      ]
-    },
-    {
-      nome: "Dewalt Paraf./Fur. 20v Max 2bat 2AH DCD7781D2",
-      imagem: "assets/produtos/86-dcd7781d2.png",
-      codigos: [
-        { voltagem: "Bat. 20v", codigo: "4400 17 781" }
-      ]
-    },
-    {
-      nome: "Dewalt Paraf./Fur. 20v DCD7781D1 1bat 2AH",
-      imagem: "assets/produtos/87-dcd7781d1.png",
-      codigos: [
-        { voltagem: "Bat. 20v", codigo: "4400 17 772" }
-      ]
-    },
-    {
-      nome: "Dewalt Paraf./Imp. 1/4\" 20v DCF887M2",
-      imagem: "assets/produtos/88-dcf887m2.png",
-      codigos: [
-        { voltagem: "Bat. 20v", codigo: "4400 887" }
-      ]
-    },
-    {
-      nome: "Dewalt Paraf./Imp. 1/4\" 20v Max 2bat 2AH DCF781D2",
-      imagem: "assets/produtos/89-dcf781d2.png",
-      codigos: [
-        { voltagem: "Bat. 20v", codigo: "4400 78 712" }
-      ]
-    },
-    {
-      nome: "Dewalt Martelete SDS PLUS 800W D25133",
-      imagem: "assets/produtos/90-d25133.png",
-      codigos: [
-        { voltagem: "127v", codigo: "4400 127 800" },
-        { voltagem: "220v", codigo: "4400 220 800" }
-      ]
-    },
-    {
-      nome: "Dewalt Martelete SDS PLUS 20v DCH263-B",
-      imagem: "assets/produtos/91-dch263-b.png",
-      codigos: [
-        { voltagem: "Bat. 20v", codigo: "4400 263" }
-      ]
-    },
-    {
-      nome: "Dewalt Martelete Rompedor 20v DCH133B-B3",
-      imagem: "assets/produtos/92-dch133b-b3.png",
-      codigos: [
-        { voltagem: "Bat. 20v", codigo: "4400 134" }
-      ]
-    },
-    {
-      nome: "Dewalt Carregador 12v-20v Bivolt DCB1102",
-      imagem: "assets/produtos/dewalt-carregador-12-20v-bivolt-dcb1102.png",
-      codigos: [
-        { voltagem: "", codigo: "4400 1220" }
-      ]
-    },
-    {
-      nome: "Dewalt Carregador 12-20v Bivolt 4AH",
-      imagem: "assets/produtos/dewalt-carregador-12-20v-bivolt-4ah.png",
-      codigos: [
-        { voltagem: "", codigo: "4400 1224" }
-      ]
-    },
-    {
-      nome: "Dewalt Bateria Max LI-ION 20v",
-      imagem: "assets/produtos/dewalt-bateria-max-li-ion-20v-5-ah.png",
-      codigos: [
-        { voltagem: "2AH", codigo: "4400 2" },
-        { voltagem: "4AH", codigo: "4400 4" },
-        { voltagem: "5AH", codigo: "4400 5" },
-        { voltagem: "9AH", codigo: "4400 9" }
-      ]
-    },
-    {
-      nome: "Dewalt Bateria 20v TABLESS",
-      imagem: "assets/produtos/dewalt-bateria-20v-tabless-4ah.png",
-      codigos: [
-        { voltagem: "4AH", codigo: "4400 44" }
-      ]
-    },
-    {
-      nome: "Dewalt Kit 2Bat 5AH C/Carregador e Bolsa",
-      imagem: "assets/produtos/dewalt-kit-2bat-5ah-c-carregador-e-bolsa.png",
-      codigos: [
-        { voltagem: "", codigo: "4400 205" }
-      ]
-    },
-    {
-      nome: "Dewalt Serra Mármore 125mm DW862B2 1400w",
-      imagem: "assets/produtos/dewalt-serra-marmore-125mm-dw862b2.png",
-      codigos: [
-        { voltagem: "220v", codigo: "4400 125 220" }
-      ]
-    },
-    {
-      nome: "Dewalt Serra Esquadria 10\" 1650w",
-      imagem: "assets/produtos/99-serra-esquadria-10.png",
-      codigos: [
-        { voltagem: "220v", codigo: "4400 010" }
-      ]
-    },
-    {
-      nome: "Dewalt Serra Esquadria 12\" 1600w DWS715",
-      imagem: "assets/produtos/dewalt-serra-esquadria-12-220v-dws715.png",
-      codigos: [
-        { voltagem: "220v", codigo: "4400 11 220" }
-      ]
-    },
-    {
-      nome: "Dewalt Fur./Imp. 1/2\" 710w",
-      imagem: "assets/produtos/101-furadeira-impacto-710w.png",
-      codigos: [
-        { voltagem: "127v", codigo: "4400 121 28" },
-        { voltagem: "220v", codigo: "4400 12 220" }
-      ]
-    },
-    {
-      nome: "Dewalt Soprador 20v MAX",
-      imagem: "assets/produtos/102-soprador-20v.png",
-      codigos: [
-        { voltagem: "Bat. 20v", codigo: "4400 722" }
-      ]
-    },
-    {
-      nome: "Stanley Esmerilhadeira Ang. 115mm SBG700M2k",
-      imagem: "assets/produtos/stanley-esmerilhadeira-ang.-115mm-sbg700m2k.png",
-      codigos: [
-        { voltagem: "Bat. 20v", codigo: "4440 700" }
-      ]
-    },
-    {
-      nome: "Stanley Esmerilhadeira Ang. 4.1/2\" 900w",
-      imagem: "assets/produtos/stanley-esmerilhadeira-ang.-4.1-2-900w.png",
-      codigos: [
-        { voltagem: "127v", codigo: "4440 412 127" },
-        { voltagem: "220v", codigo: "4440 412 220" }
-      ]
-    },
-    {
-      nome: "Stanley Esmerilhadeira Ang. 4.1/2\" 750w SG7115-BR",
-      imagem: "assets/produtos/stanley-esmerilhadeira-ang.-4.1-2-750w-sg7115-br.png",
-      codigos: [
-        { voltagem: "127v", codigo: "4440 4127" },
-        { voltagem: "220v", codigo: "4440 4220" }
-      ]
-    },
-    {
-      nome: "Stanley Esmerilhadeira Ang. 2200w 220v",
-      imagem: "assets/produtos/stanley-esmerilhadeira-ang-2200w-220v.png",
-      codigos: [
-        { voltagem: "127v", codigo: "4440 7220" },
-        { voltagem: "220v", codigo: "4440 9220" }
-      ]
-    },
-    {
-      nome: "Stanley Martelete 800w SHR263K-B2",
-      imagem: "assets/produtos/stanley-martelete-800w-shr263k-b2.png",
-      codigos: [
-        { voltagem: "220v", codigo: "4440 263 220" }
-      ]
-    },
-    {
-      nome: "Stanley Martelete SDS PLUS SBH900M2K",
-      imagem: "assets/produtos/stanley-martelete-sds-plus-sbh900m2k.png",
-      codigos: [
-        { voltagem: "Bat. 20v", codigo: "4440 900" }
-      ]
-    },
-    {
-      nome: "Stanley Furadeira de Impacto 13mm 710w",
-      imagem: "assets/produtos/stanley-furadeira-de-impacto-710w-13mm-127v-sdh710ka.png",
-      codigos: [
-        { voltagem: "127v", codigo: "4440 711" },
-        { voltagem: "220v", codigo: "4440 712" }
-      ]
-    },
-    {
-      nome: "Stanley Furadeira de Bancada 1/2\" SBT2513-B2",
-      imagem: "assets/produtos/stanley-furadeira-de-bancada-sbt2513-b2.png",
-      codigos: [
-        { voltagem: "", codigo: "4440 12" }
-      ]
-    },
-    {
-      nome: "Stanley Carregador 20v SC400 4AH",
-      imagem: "assets/produtos/stanley-carregador-20v-sc400-4ah.png",
-      codigos: [
-        { voltagem: "Bivolt", codigo: "4400 1224" }
-      ]
-    },
-    {
-      nome: "Stanley Bateria 20v",
-      imagem: "assets/produtos/stanley-bateria-20v-4ah.png",
-      codigos: [
-        { voltagem: "4ah", codigo: "4401 4" }
-      ]
-    },
-    {
-      nome: "Stanley Serra Mármore 115mm SPT115B2",
-      imagem: "assets/produtos/stanley-serra-marmore-115mm-spt115b2.png",
-      codigos: [
-        { voltagem: "220v", codigo: "4440 115 220" }
-      ]
-    },
-    {
-      nome: "Stanley Serra Corte Rápido 2200w SSC22B2",
-      imagem: "assets/produtos/stanley-serra-corte-rapido-2200w-ssc22b2.png",
-      codigos: [
-        { voltagem: "220v", codigo: "4440 12 220" }
-      ]
-    },
-    {
-      nome: "Stanley Tripé 1/4\" Telescópico",
-      imagem: "assets/produtos/stanley-tripe-1-4-telescopico.png",
-      codigos: [
-        { voltagem: "", codigo: "4400 14" }
-      ]
-    },
-    {
-      nome: "Stanley Caixa de Ferramentes C/ Tampa Organizadora",
-      imagem: "assets/produtos/stanley-caixa-de-ferramentas-c-tampa-organ.png",
-      codigos: [
-        { voltagem: "", codigo: "4400 19 061" }
-      ]
-    },
-    {
-      nome: "Stanley Soprador Térmico 1800w",
-      imagem: "assets/produtos/stanley-soprador-termico-1800w.png",
-      codigos: [
-        { voltagem: "220v", codigo: "4440 18 022" }
-      ]
-    },
-    {
-      nome: "Stanley Organizador TSTAK 10 Compartimentos",
-      imagem: "assets/produtos/stanley-organizador-tstak-10-compartimento.png",
-      codigos: [
-        { voltagem: "", codigo: "4400 14 010" }
-      ]
-    }
-  ];
-  // ==PRODUTOS-DEWALT-FIM==
+  // ==ABAS-INICIO==
+  const ABAS = [
+  {
+    id: "makita",
+    nome: "MAKITA",
+    capa: "assets/intro-makita.jpg",
+    capaPosicao: "center",
+    produtos:
+    [
+      {
+        nome: "Esmerilhadeira Makita 4.1/2\" M9510B",
+        imagem: "assets/produtos/1-m9510b.png",
+        codigos: [
+          { voltagem: "127v", codigo: "3300 115 110" },
+          { voltagem: "220v", codigo: "3300 115 220" }
+        ]
+      },
+      {
+        nome: "Esmerilhadeira Makita Angular 7\" M0920B",
+        imagem: "assets/produtos/2-m0920b.png",
+        codigos: [
+          { voltagem: "127v", codigo: "3300 100 110" },
+          { voltagem: "220v", codigo: "3300 100 220" }
+        ]
+      },
+      {
+        nome: "Esmerilhadeira Makita Angular 9\" GA9020",
+        imagem: "assets/produtos/3-ga9020.png",
+        codigos: [
+          { voltagem: "220v", codigo: "3300 230 220" }
+        ]
+      },
+      {
+        nome: "Esmerilhadeira Makita 125mm 18v DGA517Z",
+        imagem: "assets/produtos/4-dga517z.png",
+        codigos: [
+          { voltagem: "Bat. 18v", codigo: "3300 517" }
+        ]
+      },
+      {
+        nome: "Esmerilhadeira Makita 125mm 18v DGA504Z",
+        imagem: "assets/produtos/5-dga504z.png",
+        codigos: [
+          { voltagem: "Bat. 18v", codigo: "3300 125" }
+        ]
+      },
+      {
+        nome: "Lixadeira Angular Makita SA7021",
+        imagem: "assets/produtos/6-sa7021.png",
+        codigos: [
+          { voltagem: "127v", codigo: "3301 127" },
+          { voltagem: "220v", codigo: "3301 220" }
+        ]
+      },
+      {
+        nome: "Lixadeira Eletronica Makita SA7000C",
+        imagem: "assets/produtos/7-sa7000c.png",
+        codigos: [
+          { voltagem: "127v", codigo: "3304 110" },
+          { voltagem: "220v", codigo: "3304 220" }
+        ]
+      },
+      {
+        nome: "Lixadeira Úmido 125mm",
+        imagem: "assets/produtos/8-lixadeira-umido-125mm.png",
+        codigos: [
+          { voltagem: "220v", codigo: "3301 125" }
+        ]
+      },
+      {
+        nome: "Serra Mármore Makita",
+        imagem: "assets/produtos/9-serra-marmore.png",
+        codigos: [
+          { voltagem: "127v", codigo: "3300 127" },
+          { voltagem: "220v", codigo: "3300 220 1" }
+        ]
+      },
+      {
+        nome: "Serra Circular Makita 185mm HS7010",
+        imagem: "assets/produtos/10-hs7010.png",
+        codigos: [
+          { voltagem: "127v", codigo: "3300 185 127" },
+          { voltagem: "220v", codigo: "3300 185 220" }
+        ]
+      },
+      {
+        nome: "Serra Mármore Makita Úmida 4100NH2R",
+        imagem: "assets/produtos/11-4100nh2r-a.png",
+        codigos: [
+          { voltagem: "220v", codigo: "3300 220 2" }
+        ]
+      },
+      {
+        nome: "Serra Mármore Makita Úmida 4100NH2R",
+        imagem: "assets/produtos/12-4100nh2r-b.png",
+        codigos: [
+          { voltagem: "220v", codigo: "3300 45 220" }
+        ]
+      },
+      {
+        nome: "Fresadora Makita ACM/Alumínio CA5000XJ",
+        imagem: "assets/produtos/13-ca5000xj.png",
+        codigos: [
+          { voltagem: "220v", codigo: "3300 5010" }
+        ]
+      },
+      {
+        nome: "Serra Mármore Bat. 18v DCC500ZKX1",
+        imagem: "assets/produtos/14-dcc500zkx1-a.png",
+        codigos: [
+          { voltagem: "Bat. 18v", codigo: "3301 470" }
+        ]
+      },
+      {
+        nome: "Carrinho Base Inclinada Corte 45°",
+        imagem: "assets/produtos/15-carrinho-base-45.png",
+        codigos: [
+          { voltagem: "", codigo: "020884" }
+        ]
+      },
+      {
+        nome: "Carrinho Base Inclinada rodinha Makita",
+        imagem: "assets/produtos/16-dcc500zkx1-b.png",
+        codigos: [
+          { voltagem: "", codigo: "3300 199" }
+        ]
+      },
+      {
+        nome: "Serra de Esquadria Makita 260mm LS1110F",
+        imagem: "assets/produtos/17-ls1110f.png",
+        codigos: [
+          { voltagem: "127v", codigo: "3302 11 127" },
+          { voltagem: "220v", codigo: "3302 11 220" }
+        ]
+      },
+      {
+        nome: "Serra de Esquadria Makita 255mm",
+        imagem: "assets/produtos/18-esquadria-255mm.png",
+        codigos: [
+          { voltagem: "127v", codigo: "3302 127" },
+          { voltagem: "220v", codigo: "3302 220" }
+        ]
+      },
+      {
+        nome: "Serra de Esquadria Deslizante Makita 216mm LS0816F",
+        imagem: "assets/produtos/19-ls0816f.png",
+        codigos: [
+          { voltagem: "220v", codigo: "3302 08 220" }
+        ]
+      },
+      {
+        nome: "Serra Tico-Tico Makita M4302B",
+        imagem: "assets/produtos/20-m4302b.png",
+        codigos: [
+          { voltagem: "127v", codigo: "3302 11 127" },
+          { voltagem: "220v", codigo: "3302 11 220" }
+        ]
+      },
+      {
+        nome: "Serra Tico-Tico Makita Bat. 18v DJV182z",
+        imagem: "assets/produtos/21-djv182z.png",
+        codigos: [
+          { voltagem: "Bat. 18v", codigo: "3301 469" }
+        ]
+      },
+      {
+        nome: "Tupia 6mm M3700B",
+        imagem: "assets/produtos/22-m3700b.png",
+        codigos: [
+          { voltagem: "127v", codigo: "3300 14 127" },
+          { voltagem: "220v", codigo: "3300 14 220" }
+        ]
+      },
+      {
+        nome: "Tupia Makita Bateria 18v DRT50Z",
+        imagem: "assets/produtos/23-drt50z.png",
+        codigos: [
+          { voltagem: "Bat. 18v", codigo: "3300 505" }
+        ]
+      },
+      {
+        nome: "Soprador Térmico Makita HG5030k",
+        imagem: "assets/produtos/24-hg5030k.png",
+        codigos: [
+          { voltagem: "127v", codigo: "3300 1400" }
+        ]
+      },
+      {
+        nome: "Soprador Térmico Makita HG6531CK",
+        imagem: "assets/produtos/25-hg6531ck.png",
+        codigos: [
+          { voltagem: "127v", codigo: "3300 1600" }
+        ]
+      },
+      {
+        nome: "Soprador Térmico Makita Bateria LXT 18v DHG180ZK",
+        imagem: "assets/produtos/26-dhg180zk.png",
+        codigos: [
+          { voltagem: "Bat.18v", codigo: "3300 018" }
+        ]
+      },
+      {
+        nome: "Lixadeira Orbital C/ Coletor B04557",
+        imagem: "assets/produtos/27-b04557.png",
+        codigos: [
+          { voltagem: "220v", codigo: "3300 4 220" }
+        ]
+      },
+      {
+        nome: "Lixadeira de Cinta Makita 100x610mm M9400B",
+        imagem: "assets/produtos/28-m9400b.png",
+        codigos: [
+          { voltagem: "220v", codigo: "3302 100 220" }
+        ]
+      },
+      {
+        nome: "Lixadeira de Cinta Makita 76x610mm 9920",
+        imagem: "assets/produtos/29-cinta-9920.png",
+        codigos: [
+          { voltagem: "220v", codigo: "3302 76 220" }
+        ]
+      },
+      {
+        nome: "Lixadeira de Cinta Makita Tamanho P 9031",
+        imagem: "assets/produtos/30-cinta-p9031.png",
+        codigos: [
+          { voltagem: "220v", codigo: "3302 230" }
+        ]
+      },
+      {
+        nome: "Plaina Makita 82mm M1909B",
+        imagem: "assets/produtos/31-plaina-m1909b.png",
+        codigos: [
+          { voltagem: "220v", codigo: "3301 467" }
+        ]
+      },
+      {
+        nome: "Parafusadeira de Impacto 12v HP333DWYX3",
+        imagem: "assets/produtos/32-hp333dwyx3.png",
+        codigos: [
+          { voltagem: "Bat. 12v", codigo: "3300 200" }
+        ]
+      },
+      {
+        nome: "Chave de Impacto 1/2 18v DTW300Z",
+        imagem: "assets/produtos/33-dtw300z.png",
+        codigos: [
+          { voltagem: "Bat. 18v", codigo: "3300 301" }
+        ]
+      },
+      {
+        nome: "Parafusadeira de Impacto 18v DTD173Z",
+        imagem: "assets/produtos/34-dtd173z.png",
+        codigos: [
+          { voltagem: "Bat. 18v", codigo: "3300 301" }
+        ]
+      },
+      {
+        nome: "Parafusadeira de Impacto 18v DTD156Z+Carreg.+Bat",
+        imagem: "assets/produtos/35-dtd156z.png",
+        codigos: [
+          { voltagem: "Bat. 18v", codigo: "3300 301" }
+        ]
+      },
+      {
+        nome: "Parafusadeira de Impacto 18v DHP482Z",
+        imagem: "assets/produtos/36-dhp482z.png",
+        codigos: [
+          { voltagem: "Bat. 18v", codigo: "3300 200" }
+        ]
+      },
+      {
+        nome: "Paraf/Furad. Impacto 18v DHP490Z+Bat e Carregador",
+        imagem: "assets/produtos/37-dhp490z.png",
+        codigos: [
+          { voltagem: "Bat. 18v", codigo: "3300 301" }
+        ]
+      },
+      {
+        nome: "Parafusadeira de Impacto 18v DHP489Z+Bat e Carregador",
+        imagem: "assets/produtos/38-dhp489z.png",
+        codigos: [
+          { voltagem: "Bat. 18v", codigo: "3300 301" }
+        ]
+      },
+      {
+        nome: "Parafusadeira de Impacto 18v DHP486Z",
+        imagem: "assets/produtos/39-dhp486z.png",
+        codigos: [
+          { voltagem: "Bat. 18v", codigo: "3300 301" }
+        ]
+      },
+      {
+        nome: "Parafusadeira/Furadeira de Impacto 12v CLX224SAX",
+        imagem: "assets/produtos/40-clx224sax.png",
+        codigos: [
+          { voltagem: "Bat. 12v", codigo: "3300 500" }
+        ]
+      },
+      {
+        nome: "Parafusadeira de Impacto 18v DHP490WVX",
+        imagem: "assets/produtos/41-dhp490wvx.png",
+        codigos: [
+          { voltagem: "Bat. 18v", codigo: "3300 490" }
+        ]
+      },
+      {
+        nome: "Parafusadeira de Impacto 18v DHP482SY",
+        imagem: "assets/produtos/42-dhp482sy.png",
+        codigos: [
+          { voltagem: "Bat. 18v", codigo: "3300 400" }
+        ]
+      },
+      {
+        nome: "Parafusadeira de Impacto 18v DHP485",
+        imagem: "assets/produtos/43-dhp485.png",
+        codigos: [
+          { voltagem: "Bat. 18v", codigo: "3300 485" }
+        ]
+      },
+      {
+        nome: "Combo Paraf.+Aspirador DHP485RF1J+DCL180Z",
+        imagem: "assets/produtos/combo-makita-dhp485f1j-dcl180z.png",
+        codigos: [
+          { voltagem: "Bat. 18v", codigo: "3300 4851" }
+        ]
+      },
+      {
+        nome: "Martelete Rotativo Rompedor Makita 18v DHR183Z",
+        imagem: "assets/produtos/45-dhr183z.png",
+        codigos: [
+          { voltagem: "Bat. 18v", codigo: "3303 183" }
+        ]
+      },
+      {
+        nome: "Martelete Rompedor HR140DZ 14mm 12v",
+        imagem: "assets/produtos/46-hr140dz.png",
+        codigos: [
+          { voltagem: "Bat. 12v", codigo: "3300 122" }
+        ]
+      },
+      {
+        nome: "Martelete Combinado 18v DHR202",
+        imagem: "assets/produtos/47-dhr202.png",
+        codigos: [
+          { voltagem: "Bat. 18v", codigo: "3300 226" }
+        ]
+      },
+      {
+        nome: "Martelete Combinado HR2470",
+        imagem: "assets/produtos/48-hr2470.png",
+        codigos: [
+          { voltagem: "220v", codigo: "3300 24 220" }
+        ]
+      },
+      {
+        nome: "Martelo Rompedor Makita SDS MAX HMC120",
+        imagem: "assets/produtos/49-hmc120.png",
+        codigos: [
+          { voltagem: "220v", codigo: "3300 16" }
+        ]
+      },
+      {
+        nome: "Martelo Demolidor Makita 17mm M8600B",
+        imagem: "assets/produtos/50-m8600b.png",
+        codigos: [
+          { voltagem: "220v", codigo: "3300 17 220" }
+        ]
+      },
+      {
+        nome: "Furadeira de Impacto 13mm M0801G",
+        imagem: "assets/produtos/51-m0801g.png",
+        codigos: [
+          { voltagem: "127v", codigo: "3300 110" },
+          { voltagem: "220v", codigo: "3300 220" }
+        ]
+      },
+      {
+        nome: "Mandril Makita",
+        imagem: "assets/produtos/52-mandril-makita.png",
+        codigos: [
+          { voltagem: "1/2\"", codigo: "0505 012" },
+          { voltagem: "3/8\"", codigo: "0505 038" }
+        ]
+      },
+      {
+        nome: "Mandril Aperto Rápido Metal Pesado",
+        imagem: "assets/produtos/mandril-aperto-rapido-metal-pesado.png",
+        codigos: [
+          { voltagem: "1/2\"", codigo: "0505 050" }
+        ]
+      },
+      {
+        nome: "Conjunto Mandril Makita",
+        imagem: "assets/produtos/conjunto-mandril-makita.png",
+        codigos: [
+          { voltagem: "13mm", codigo: "0505 013" }
+        ]
+      },
+      {
+        nome: "Adaptador SDS Mandril 1/2\" 20unf encaixe e PF",
+        imagem: "assets/produtos/55-adaptador-sds-mandril.png",
+        codigos: [
+          { voltagem: "1/2\"", codigo: "0011 529" }
+        ]
+      },
+      {
+        nome: "Chave Mandril Makita",
+        imagem: "assets/produtos/56-chave-mandril.png",
+        codigos: [
+          { voltagem: "1/2\"", codigo: "0505 040" },
+          { voltagem: "3/8\"", codigo: "0505 041" }
+        ]
+      },
+      {
+        nome: "Kit Makita DUB362+4BATAH",
+        imagem: "assets/produtos/57-dub362-4batah.png",
+        codigos: [
+          { voltagem: "Bat. 18v", codigo: "3305 1001" }
+        ]
+      },
+      {
+        nome: "Combo Makita 12v HP333+CLX248 ASP.+Paraf.",
+        imagem: "assets/produtos/combo-makita-12v-paraf.-asp.-sopra.png",
+        codigos: [
+          { voltagem: "Bat. 12v", codigo: "3300 0220" }
+        ]
+      },
+      {
+        nome: "Aspirador de pó DCL180 BAT 18v",
+        imagem: "assets/produtos/59-dcl180-bat.png",
+        codigos: [
+          { voltagem: "Bat. 18v", codigo: "3301 409" }
+        ]
+      },
+      {
+        nome: "Aspirador de Pó 18v DCL180Z",
+        imagem: "assets/produtos/60-dcl180z.png",
+        codigos: [
+          { voltagem: "Bat. 18v", codigo: "3301 401" }
+        ]
+      },
+      {
+        nome: "Soprador DCL184Z 18v",
+        imagem: "assets/produtos/61-dcl184z.png",
+        codigos: [
+          { voltagem: "Bat. 18v", codigo: "3301 466" }
+        ]
+      },
+      {
+        nome: "Soprador DUB362Z 18v",
+        imagem: "assets/produtos/62-dub362z.png",
+        codigos: [
+          { voltagem: "Bat. 18v", codigo: "3300 362" }
+        ]
+      },
+      {
+        nome: "Soprador DUB186Z Carr.+Bat",
+        imagem: "assets/produtos/63-dub186z.png",
+        codigos: [
+          { voltagem: "18v", codigo: "3300 1866" }
+        ]
+      },
+      {
+        nome: "Bateria Makita 12v Litium",
+        imagem: "assets/produtos/64-bateria-12v.png",
+        codigos: [
+          { voltagem: "1.5AH", codigo: "3300 615" },
+          { voltagem: "2AH", codigo: "3300 620" }
+        ]
+      },
+      {
+        nome: "Bateria Makita 18v Litium",
+        imagem: "assets/produtos/65-bateria-18v.png",
+        codigos: [
+          { voltagem: "5AH", codigo: "3300 550" },
+          { voltagem: "6AH", codigo: "3300 660" }
+        ]
+      },
+      {
+        nome: "Carregador de Bateria 12v",
+        imagem: "assets/produtos/66-carregador-12v.png",
+        codigos: [
+          { voltagem: "12v", codigo: "3300 1" }
+        ]
+      },
+      {
+        nome: "Carregador de Bateria 18v",
+        imagem: "assets/produtos/67-carregador-18v.png",
+        codigos: [
+          { voltagem: "18v", codigo: "3300 2" }
+        ]
+      },
+      {
+        nome: "Lanterna LED Makita 18v LTX DML812",
+        imagem: "assets/produtos/68-dml812.png",
+        codigos: [
+          { voltagem: "Bat. 18v", codigo: "3300 812" }
+        ]
+      },
+      {
+        nome: "Lanterna 18v DML815",
+        imagem: "assets/produtos/69-dml815.png",
+        codigos: [
+          { voltagem: "Bat. 18v", codigo: "3300 815" }
+        ]
+      },
+      {
+        nome: "Lav. de Pressão Portátil a Bat. Makita",
+        imagem: "assets/produtos/70-lav-pressao-bateria.png",
+        codigos: [
+          { voltagem: "Bat. 18v", codigo: "3300 183" }
+        ]
+      },
+      {
+        nome: "Trena a Laser Makita 30m",
+        imagem: "assets/produtos/71-trena-laser-30m.png",
+        codigos: [
+          { voltagem: "", codigo: "6030 030" }
+        ]
+      }
+    ]
+  },
+  {
+    id: "dewalt",
+    nome: "DEWALT & STANLEY",
+    capa: "assets/capa-dewalt.jpg",
+    capaPosicao: "center",
+    produtos:
+    [
+      {
+        nome: "Dewalt Esmerilhadeira 4.1/2\"-5\" 20v DCG413-B",
+        imagem: "assets/produtos/72-dcg413-b.png",
+        codigos: [
+          { voltagem: "Bat. 20v", codigo: "4400 413" }
+        ]
+      },
+      {
+        nome: "Dewalt Esmerilh. Reg. 4.1/2\" 950W DWE4118",
+        imagem: "assets/produtos/73-dwe4118.png",
+        codigos: [
+          { voltagem: "220v", codigo: "4400 412 220" }
+        ]
+      },
+      {
+        nome: "Dewalt Esmerilh. 9\" 2200w DWE490",
+        imagem: "assets/produtos/74-dwe490.png",
+        codigos: [
+          { voltagem: "220v", codigo: "4400 922 490" }
+        ]
+      },
+      {
+        nome: "Dewalt Esmerilh. 5\" 1500w DWE4336",
+        imagem: "assets/produtos/75-dwe4336.png",
+        codigos: [
+          { voltagem: "220v", codigo: "4400 436 220" }
+        ]
+      },
+      {
+        nome: "Dewalt Esmerilh. 4.1/2\" 900w DWE4120",
+        imagem: "assets/produtos/76-dwe4120.png",
+        codigos: [
+          { voltagem: "220v", codigo: "4400 9220" }
+        ]
+      },
+      {
+        nome: "Dewalt Nível Laser Verde DW088CG",
+        imagem: "assets/produtos/77-dw088cg.png",
+        codigos: [
+          { voltagem: "30m", codigo: "4400 088" }
+        ]
+      },
+      {
+        nome: "Dewalt Trena Laser",
+        imagem: "assets/produtos/78-trena-laser.png",
+        codigos: [
+          { voltagem: "30m", codigo: "4400 30" }
+        ]
+      },
+      {
+        nome: "Dewalt Ventosa Bateria 20v DCE592B",
+        imagem: "assets/produtos/79-dce592b.png",
+        codigos: [
+          { voltagem: "Bat. 20v", codigo: "4400 413" }
+        ]
+      },
+      {
+        nome: "Dewalt Paraf./Fur. 20v DCD7781-B",
+        imagem: "assets/produtos/80-dcd7781-b.png",
+        codigos: [
+          { voltagem: "Bat. 20v", codigo: "4400 17 789" }
+        ]
+      },
+      {
+        nome: "Dewalt Paraf./Imp. 1/4\" 20v Max Li-on DCF7871-B S/Bat",
+        imagem: "assets/produtos/81-dcf7871-b.png",
+        codigos: [
+          { voltagem: "Bat. 20v", codigo: "4400 78 713" }
+        ]
+      },
+      {
+        nome: "Dewalt Paraf./Imp. 1/4\" 20v DCF887-B",
+        imagem: "assets/produtos/82-dcf887-b.png",
+        codigos: [
+          { voltagem: "Bat. 20v", codigo: "4400 1887" }
+        ]
+      },
+      {
+        nome: "Dewalt Combo McLaren DCK200ME2GT",
+        imagem: "assets/produtos/83-dck200me2gt.png",
+        codigos: [
+          { voltagem: "", codigo: "4400 200" }
+        ]
+      },
+      {
+        nome: "Dewalt Combo DCD7781+DCF787 20v",
+        imagem: "assets/produtos/84-combo-dcd7781-dcf787.png",
+        codigos: [
+          { voltagem: "Bat. 20v", codigo: "4400 276" }
+        ]
+      },
+      {
+        nome: "Dewalt Paraf./Fur Imp 20v 2bat-2AH DCD805D2",
+        imagem: "assets/produtos/85-dcd805d2.png",
+        codigos: [
+          { voltagem: "Bat. 20v", codigo: "4400 805" }
+        ]
+      },
+      {
+        nome: "Dewalt Paraf./Fur. 20v Max 2bat 2AH DCD7781D2",
+        imagem: "assets/produtos/86-dcd7781d2.png",
+        codigos: [
+          { voltagem: "Bat. 20v", codigo: "4400 17 781" }
+        ]
+      },
+      {
+        nome: "Dewalt Paraf./Fur. 20v DCD7781D1 1bat 2AH",
+        imagem: "assets/produtos/87-dcd7781d1.png",
+        codigos: [
+          { voltagem: "Bat. 20v", codigo: "4400 17 772" }
+        ]
+      },
+      {
+        nome: "Dewalt Paraf./Imp. 1/4\" 20v DCF887M2",
+        imagem: "assets/produtos/88-dcf887m2.png",
+        codigos: [
+          { voltagem: "Bat. 20v", codigo: "4400 887" }
+        ]
+      },
+      {
+        nome: "Dewalt Paraf./Imp. 1/4\" 20v Max 2bat 2AH DCF781D2",
+        imagem: "assets/produtos/89-dcf781d2.png",
+        codigos: [
+          { voltagem: "Bat. 20v", codigo: "4400 78 712" }
+        ]
+      },
+      {
+        nome: "Dewalt Martelete SDS PLUS 800W D25133",
+        imagem: "assets/produtos/90-d25133.png",
+        codigos: [
+          { voltagem: "127v", codigo: "4400 127 800" },
+          { voltagem: "220v", codigo: "4400 220 800" }
+        ]
+      },
+      {
+        nome: "Dewalt Martelete SDS PLUS 20v DCH263-B",
+        imagem: "assets/produtos/91-dch263-b.png",
+        codigos: [
+          { voltagem: "Bat. 20v", codigo: "4400 263" }
+        ]
+      },
+      {
+        nome: "Dewalt Martelete Rompedor 20v DCH133B-B3",
+        imagem: "assets/produtos/92-dch133b-b3.png",
+        codigos: [
+          { voltagem: "Bat. 20v", codigo: "4400 134" }
+        ]
+      },
+      {
+        nome: "Dewalt Carregador 12v-20v Bivolt DCB1102",
+        imagem: "assets/produtos/dewalt-carregador-12-20v-bivolt-dcb1102.png",
+        codigos: [
+          { voltagem: "", codigo: "4400 1220" }
+        ]
+      },
+      {
+        nome: "Dewalt Carregador 12-20v Bivolt 4AH",
+        imagem: "assets/produtos/dewalt-carregador-12-20v-bivolt-4ah.png",
+        codigos: [
+          { voltagem: "", codigo: "4400 1224" }
+        ]
+      },
+      {
+        nome: "Dewalt Bateria Max LI-ION 20v",
+        imagem: "assets/produtos/dewalt-bateria-max-li-ion-20v-5-ah.png",
+        codigos: [
+          { voltagem: "2AH", codigo: "4400 2" },
+          { voltagem: "4AH", codigo: "4400 4" },
+          { voltagem: "5AH", codigo: "4400 5" },
+          { voltagem: "9AH", codigo: "4400 9" }
+        ]
+      },
+      {
+        nome: "Dewalt Bateria 20v TABLESS",
+        imagem: "assets/produtos/dewalt-bateria-20v-tabless-4ah.png",
+        codigos: [
+          { voltagem: "4AH", codigo: "4400 44" }
+        ]
+      },
+      {
+        nome: "Dewalt Kit 2Bat 5AH C/Carregador e Bolsa",
+        imagem: "assets/produtos/dewalt-kit-2bat-5ah-c-carregador-e-bolsa.png",
+        codigos: [
+          { voltagem: "", codigo: "4400 205" }
+        ]
+      },
+      {
+        nome: "Dewalt Serra Mármore 125mm DW862B2 1400w",
+        imagem: "assets/produtos/dewalt-serra-marmore-125mm-dw862b2.png",
+        codigos: [
+          { voltagem: "220v", codigo: "4400 125 220" }
+        ]
+      },
+      {
+        nome: "Dewalt Serra Esquadria 10\" 1650w",
+        imagem: "assets/produtos/99-serra-esquadria-10.png",
+        codigos: [
+          { voltagem: "220v", codigo: "4400 010" }
+        ]
+      },
+      {
+        nome: "Dewalt Serra Esquadria 12\" 1600w DWS715",
+        imagem: "assets/produtos/dewalt-serra-esquadria-12-220v-dws715.png",
+        codigos: [
+          { voltagem: "220v", codigo: "4400 11 220" }
+        ]
+      },
+      {
+        nome: "Dewalt Fur./Imp. 1/2\" 710w",
+        imagem: "assets/produtos/101-furadeira-impacto-710w.png",
+        codigos: [
+          { voltagem: "127v", codigo: "4400 121 28" },
+          { voltagem: "220v", codigo: "4400 12 220" }
+        ]
+      },
+      {
+        nome: "Dewalt Soprador 20v MAX",
+        imagem: "assets/produtos/102-soprador-20v.png",
+        codigos: [
+          { voltagem: "Bat. 20v", codigo: "4400 722" }
+        ]
+      },
+      {
+        nome: "Stanley Esmerilhadeira Ang. 115mm SBG700M2k",
+        imagem: "assets/produtos/stanley-esmerilhadeira-ang.-115mm-sbg700m2k.png",
+        codigos: [
+          { voltagem: "Bat. 20v", codigo: "4440 700" }
+        ]
+      },
+      {
+        nome: "Stanley Esmerilhadeira Ang. 4.1/2\" 900w",
+        imagem: "assets/produtos/stanley-esmerilhadeira-ang.-4.1-2-900w.png",
+        codigos: [
+          { voltagem: "127v", codigo: "4440 412 127" },
+          { voltagem: "220v", codigo: "4440 412 220" }
+        ]
+      },
+      {
+        nome: "Stanley Esmerilhadeira Ang. 4.1/2\" 750w SG7115-BR",
+        imagem: "assets/produtos/stanley-esmerilhadeira-ang.-4.1-2-750w-sg7115-br.png",
+        codigos: [
+          { voltagem: "127v", codigo: "4440 4127" },
+          { voltagem: "220v", codigo: "4440 4220" }
+        ]
+      },
+      {
+        nome: "Stanley Esmerilhadeira Ang. 2200w 220v",
+        imagem: "assets/produtos/stanley-esmerilhadeira-ang-2200w-220v.png",
+        codigos: [
+          { voltagem: "127v", codigo: "4440 7220" },
+          { voltagem: "220v", codigo: "4440 9220" }
+        ]
+      },
+      {
+        nome: "Stanley Martelete 800w SHR263K-B2",
+        imagem: "assets/produtos/stanley-martelete-800w-shr263k-b2.png",
+        codigos: [
+          { voltagem: "220v", codigo: "4440 263 220" }
+        ]
+      },
+      {
+        nome: "Stanley Martelete SDS PLUS SBH900M2K",
+        imagem: "assets/produtos/stanley-martelete-sds-plus-sbh900m2k.png",
+        codigos: [
+          { voltagem: "Bat. 20v", codigo: "4440 900" }
+        ]
+      },
+      {
+        nome: "Stanley Furadeira de Impacto 13mm 710w",
+        imagem: "assets/produtos/stanley-furadeira-de-impacto-710w-13mm-127v-sdh710ka.png",
+        codigos: [
+          { voltagem: "127v", codigo: "4440 711" },
+          { voltagem: "220v", codigo: "4440 712" }
+        ]
+      },
+      {
+        nome: "Stanley Furadeira de Bancada 1/2\" SBT2513-B2",
+        imagem: "assets/produtos/stanley-furadeira-de-bancada-sbt2513-b2.png",
+        codigos: [
+          { voltagem: "", codigo: "4440 12" }
+        ]
+      },
+      {
+        nome: "Stanley Carregador 20v SC400 4AH",
+        imagem: "assets/produtos/stanley-carregador-20v-sc400-4ah.png",
+        codigos: [
+          { voltagem: "Bivolt", codigo: "4400 1224" }
+        ]
+      },
+      {
+        nome: "Stanley Bateria 20v",
+        imagem: "assets/produtos/stanley-bateria-20v-4ah.png",
+        codigos: [
+          { voltagem: "4ah", codigo: "4401 4" }
+        ]
+      },
+      {
+        nome: "Stanley Serra Mármore 115mm SPT115B2",
+        imagem: "assets/produtos/stanley-serra-marmore-115mm-spt115b2.png",
+        codigos: [
+          { voltagem: "220v", codigo: "4440 115 220" }
+        ]
+      },
+      {
+        nome: "Stanley Serra Corte Rápido 2200w SSC22B2",
+        imagem: "assets/produtos/stanley-serra-corte-rapido-2200w-ssc22b2.png",
+        codigos: [
+          { voltagem: "220v", codigo: "4440 12 220" }
+        ]
+      },
+      {
+        nome: "Stanley Tripé 1/4\" Telescópico",
+        imagem: "assets/produtos/stanley-tripe-1-4-telescopico.png",
+        codigos: [
+          { voltagem: "", codigo: "4400 14" }
+        ]
+      },
+      {
+        nome: "Stanley Caixa de Ferramentes C/ Tampa Organizadora",
+        imagem: "assets/produtos/stanley-caixa-de-ferramentas-c-tampa-organ.png",
+        codigos: [
+          { voltagem: "", codigo: "4400 19 061" }
+        ]
+      },
+      {
+        nome: "Stanley Soprador Térmico 1800w",
+        imagem: "assets/produtos/stanley-soprador-termico-1800w.png",
+        codigos: [
+          { voltagem: "220v", codigo: "4440 18 022" }
+        ]
+      },
+      {
+        nome: "Stanley Organizador TSTAK 10 Compartimentos",
+        imagem: "assets/produtos/stanley-organizador-tstak-10-compartimento.png",
+        codigos: [
+          { voltagem: "", codigo: "4400 14 010" }
+        ]
+      }
+    ]
+  }
+];
+  // ==ABAS-FIM==
 
   // ==========================================================
-  // Abas (Makita / Dewalt & Stanley) — troca qual painel aparece
+  // Monta as abas (botões + painéis) dinamicamente a partir de ABAS
+  // ==========================================================
+  const tabsContainer = document.getElementById('tabsContainer');
+  const paineisContainer = document.getElementById('paineisContainer');
+
+  ABAS.forEach((aba, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn' + (idx === 0 ? ' ativo' : '');
+    btn.dataset.painel = 'painel-' + aba.id;
+    btn.textContent = aba.nome;
+    tabsContainer.appendChild(btn);
+
+    const painel = document.createElement('div');
+    painel.id = 'painel-' + aba.id;
+    painel.className = 'painel' + (idx === 0 ? ' ativo' : '');
+
+    const introHtml = aba.capa ? `
+      <div class="intro-wrap">
+        <button class="intro-cover" id="introCover-${aba.id}" aria-label="Ampliar página de introdução ${aba.nome}">
+          <img id="introCoverImg-${aba.id}" src="${aba.capa}" alt="Catálogo ${aba.nome} - página de introdução" style="object-position:${aba.capaPosicao || 'center'};">
+        </button>
+      </div>` : '';
+
+    painel.innerHTML = `
+      ${introHtml}
+      <div class="search-wrap">
+        <div class="search-box">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="searchInput-${aba.id}" placeholder="Buscar por nome, código ou voltagem">
+          <button class="clear-search-btn" id="clearSearch-${aba.id}" aria-label="Limpar busca">✕</button>
+        </div>
+        <div class="sort-box">
+          <label for="sortSelect-${aba.id}">Ordenar:</label>
+          <select id="sortSelect-${aba.id}">
+            <option value="">Padrão</option>
+            <option value="nome">Nome (A-Z)</option>
+            <option value="codigo">Código</option>
+            <option value="voltagem">Voltagem</option>
+          </select>
+        </div>
+      </div>
+      <main>
+        <div class="grid" id="grid-${aba.id}"></div>
+        <div id="noResults-${aba.id}" class="sem-resultados">Nenhum produto encontrado para essa busca.</div>
+      </main>
+      <footer>TELEVENDAS 66 3515-0909</footer>
+    `;
+    paineisContainer.appendChild(painel);
+  });
+
+  // ==========================================================
+  // Troca de aba
   // ==========================================================
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('ativo'));
       document.querySelectorAll('.painel').forEach(p => p.classList.remove('ativo'));
-
       btn.classList.add('ativo');
       document.getElementById(btn.dataset.painel).classList.add('ativo');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   });
-
-  const grid = document.getElementById('grid');
-  const noResults = document.getElementById('noResults');
-  const gridDewalt = document.getElementById('gridDewalt');
-  const noResultsDewalt = document.getElementById('noResultsDewalt');
 
   function normalizar(s) {
     return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -1433,7 +1402,7 @@
 
   // ==========================================================
   // Monta os cards de uma lista de produtos dentro de um grid
-  // (função genérica — usada para Makita e Dewalt & Stanley)
+  // (função genérica — usada por todas as abas)
   // ==========================================================
   function montarGrid(lista, gridEl) {
     lista.forEach((p, i) => {
@@ -1474,22 +1443,25 @@
     });
   }
 
-  montarGrid(produtos, grid);
-  montarGrid(produtosDewalt, gridDewalt);
+  ABAS.forEach(aba => {
+    montarGrid(aba.produtos, document.getElementById('grid-' + aba.id));
+  });
 
   // ==========================================================
-  // Página de introdução Makita: some suavemente (fade + leve
+  // Página de introdução de cada aba: some suavemente (fade + leve
   // encolhimento) conforme o usuário rola a página para baixo
   // ==========================================================
-  const introCoverEl = document.getElementById('introCover');
+  const introCovers = ABAS.filter(aba => aba.capa).map(aba => document.getElementById('introCover-' + aba.id));
 
   function aplicarFadeIntro() {
-    const rect = introCoverEl.getBoundingClientRect();
-    const altura = rect.height || 1;
-    // progresso de 0 (totalmente visível) a 1 (já saiu de cena)
-    const progresso = Math.min(Math.max(-rect.top / altura, 0), 1);
-    introCoverEl.style.opacity = String(1 - progresso);
-    introCoverEl.style.transform = `translateY(${progresso * -30}px) scale(${1 - progresso * 0.06})`;
+    introCovers.forEach(introCoverEl => {
+      if (!introCoverEl) return;
+      const rect = introCoverEl.getBoundingClientRect();
+      const altura = rect.height || 1;
+      const progresso = Math.min(Math.max(-rect.top / altura, 0), 1);
+      introCoverEl.style.opacity = String(1 - progresso);
+      introCoverEl.style.transform = `translateY(${progresso * -30}px) scale(${1 - progresso * 0.06})`;
+    });
   }
 
   window.addEventListener('scroll', aplicarFadeIntro, { passive: true });
@@ -1499,7 +1471,7 @@
   // ==========================================================
   // Busca por nome, código ou voltagem — funciona 100% offline,
   // pois compara apenas os dados já carregados na página
-  // (função genérica — usada para Makita e Dewalt & Stanley)
+  // (função genérica — usada por todas as abas)
   // ==========================================================
   function configurarBusca(inputEl, clearBtnEl, gridEl, noResultsEl) {
     function aplicarBusca() {
@@ -1521,22 +1493,9 @@
     });
   }
 
-  configurarBusca(
-    document.getElementById('searchInput'),
-    document.getElementById('clearSearch'),
-    grid,
-    noResults
-  );
-  configurarBusca(
-    document.getElementById('searchInputDewalt'),
-    document.getElementById('clearSearchDewalt'),
-    gridDewalt,
-    noResultsDewalt
-  );
-
   // ==========================================================
   // Ordenação dos cards por Nome, Código ou Voltagem
-  // (função genérica — usada para Makita e Dewalt & Stanley)
+  // (função genérica — usada por todas as abas)
   // ==========================================================
   function configurarOrdenacao(selectEl, gridEl) {
     if (!selectEl) return;
@@ -1560,8 +1519,15 @@
     });
   }
 
-  configurarOrdenacao(document.getElementById('sortSelect'), grid);
-  configurarOrdenacao(document.getElementById('sortSelectDewalt'), gridDewalt);
+  ABAS.forEach(aba => {
+    configurarBusca(
+      document.getElementById('searchInput-' + aba.id),
+      document.getElementById('clearSearch-' + aba.id),
+      document.getElementById('grid-' + aba.id),
+      document.getElementById('noResults-' + aba.id)
+    );
+    configurarOrdenacao(document.getElementById('sortSelect-' + aba.id), document.getElementById('grid-' + aba.id));
+  });
 
   const lightbox = document.getElementById('lightbox');
   const lightboxImg = document.getElementById('lightboxImg');
@@ -1578,25 +1544,20 @@
     resetZoomImagem();
     lightbox.classList.add('open');
   }
-  document.getElementById('introCover').addEventListener('click', () => {
-    const src = document.getElementById('introCoverImgMakita').getAttribute('src');
-    lightboxImg.src = src;
-    lightboxImg.alt = 'Catálogo Makita - página de introdução';
-    lightboxTitle.textContent = '';
-    zoomPane.style.backgroundImage = `url(${src})`;
-    zoomPane.style.display = 'none';
-    resetZoomImagem();
-    lightbox.classList.add('open');
-  });
-  document.getElementById('introDewalt').addEventListener('click', () => {
-    const src = document.getElementById('introCoverImgDewalt').getAttribute('src');
-    lightboxImg.src = src;
-    lightboxImg.alt = 'Catálogo Dewalt e Stanley - página de introdução';
-    lightboxTitle.textContent = '';
-    zoomPane.style.backgroundImage = `url(${src})`;
-    zoomPane.style.display = 'none';
-    resetZoomImagem();
-    lightbox.classList.add('open');
+
+  ABAS.forEach(aba => {
+    if (!aba.capa) return;
+    const el = document.getElementById('introCover-' + aba.id);
+    el.addEventListener('click', () => {
+      const src = document.getElementById('introCoverImg-' + aba.id).getAttribute('src');
+      lightboxImg.src = src;
+      lightboxImg.alt = 'Catálogo ' + aba.nome + ' - página de introdução';
+      lightboxTitle.textContent = '';
+      zoomPane.style.backgroundImage = `url(${src})`;
+      zoomPane.style.display = 'none';
+      resetZoomImagem();
+      lightbox.classList.add('open');
+    });
   });
 
   document.getElementById('closeBtn').addEventListener('click', () => {
@@ -1677,21 +1638,18 @@
 
   lightboxImg.addEventListener('touchstart', e => {
     if (e.touches.length === 2) {
-      // Começa o zoom de pinça (2 dedos)
       zoomPane.style.display = 'none';
       modoToque = 'pinca';
       pinçaDistInicial = distanciaEntreToques(e.touches);
       pinçaEscalaInicial = escalaAtual;
     } else if (e.touches.length === 1) {
       if (escalaAtual > 1) {
-        // Já está com zoom de pinça ativo: 1 dedo agora arrasta a imagem
         modoToque = 'arrastar';
         arrastarInicioX = e.touches[0].clientX;
         arrastarInicioY = e.touches[0].clientY;
         arrastarDeslocXInicial = deslocX;
         arrastarDeslocYInicial = deslocY;
       } else if (!podeUsarHover) {
-        // Comportamento original: 1 dedo abre a lupa lateral/inferior
         modoToque = 'lupa';
         zoomPane.style.display = 'block';
         posicionarZoomPorToque(e);
@@ -1723,20 +1681,17 @@
       zoomPane.style.display = 'none';
     }
     if (e.touches.length === 0) {
-      // Toque duplo rápido sem zoom de pinça: volta a imagem ao tamanho normal
       const agora = Date.now();
       if (modoToque !== 'pinca' && modoToque !== 'arrastar' && escalaAtual > 1 && (agora - ultimoToqueTempo) < 300) {
         resetZoomImagem();
         aplicarTransformImagem(true);
       }
       if (modoToque === 'lupa') ultimoToqueTempo = agora;
-      // Se a pinça terminou com escala <= 1, garante que volte ao normal
       if (escalaAtual <= 1) {
         resetZoomImagem();
       }
       modoToque = null;
     } else if (e.touches.length === 1) {
-      // Ainda sobrou 1 dedo depois de uma pinça: passa a arrastar a imagem
       modoToque = 'arrastar';
       arrastarInicioX = e.touches[0].clientX;
       arrastarInicioY = e.touches[0].clientY;
@@ -1764,7 +1719,6 @@
   window.addEventListener('offline', updateStatus);
   updateStatus();
 
-  // Registra o service worker (cache offline + atualização automática)
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').then(reg => reg.update());
   }

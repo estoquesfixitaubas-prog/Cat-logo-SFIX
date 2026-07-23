@@ -51,18 +51,30 @@
 
   #editorArea { display:none; }
 
-  /* ---------- abas MAKITA / DEWALT & STANLEY no painel admin ---------- */
-  .tabs-admin {
-    display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap;
+  /* ---------- abas (dinâmicas) no painel admin ---------- */
+  .tabs-admin-linha {
+    display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap; align-items:stretch;
   }
+  .tabs-admin { display:flex; gap:10px; flex-wrap:wrap; flex:1; }
   .tab-btn-admin {
-    flex:1; min-width:160px; background:#fff; color:var(--azul-escuro);
+    flex:1; min-width:140px; background:#fff; color:var(--azul-escuro);
     border:2px solid var(--azul-escuro); border-radius:10px; padding:12px 16px;
     font-weight:800; font-size:14px; text-align:center;
   }
   .tab-btn-admin.ativo { background:var(--azul-escuro); color:#fff; }
+  .tab-btn-admin.tab-layout { border-color:var(--cinza); color:var(--cinza); }
+  .tab-btn-admin.tab-layout.ativo { background:var(--cinza); color:#fff; }
+  #btnNovaAba {
+    flex:0 0 auto; min-width:120px; border:2px dashed var(--teal); background:#fff; color:var(--teal);
+    border-radius:10px; font-weight:800; font-size:14px;
+  }
   .secao-marca { display:none; }
   .secao-marca.ativo { display:block; }
+
+  .aba-topo-acoes {
+    display:flex; align-items:flex-end; gap:12px; flex-wrap:wrap; margin-bottom:6px;
+  }
+  .aba-topo-acoes > div:first-child { flex:1; min-width:220px; }
 
   /* ---------- pré-visualização da capa de introdução ---------- */
   .capa-preview-wrap {
@@ -73,6 +85,7 @@
   .capa-preview-wrap img.capa-preview {
     width:100%; height:100%; object-fit:cover; display:block;
   }
+  .capa-preview-wrap.vazia { font-size:12px; color:#999; text-align:center; padding:10px; }
 
   .produto-card {
     border:1px solid #e5e7eb; border-radius:10px; padding:16px; margin-bottom:14px;
@@ -122,7 +135,7 @@
 <header>
   <div>
     <h1>Painel do Catálogo</h1>
-    <p>Adicione, edite ou remova produtos sem mexer em código</p>
+    <p>Adicione, edite ou remova produtos e abas sem mexer em código</p>
   </div>
 </header>
 
@@ -170,47 +183,12 @@
       </div>
     </details>
 
-    <div class="tabs-admin">
-      <button type="button" class="tab-btn-admin ativo" data-marca="makita">MAKITA</button>
-      <button type="button" class="tab-btn-admin" data-marca="dewalt">DEWALT &amp; STANLEY</button>
-      <button type="button" class="tab-btn-admin" data-marca="layout">LAYOUT DO SITE</button>
+    <div class="tabs-admin-linha">
+      <div class="tabs-admin" id="tabsAdmin"></div>
+      <button type="button" id="btnNovaAba">+ Nova aba</button>
     </div>
 
-    <div id="secaoMakita" class="secao-marca ativo">
-      <div class="painel">
-        <h2>Capa da aba Makita</h2>
-        <p>Troque a imagem de capa que aparece ao abrir a aba Makita. Se não escolher um arquivo novo, a capa atual é mantida.</p>
-        <div class="capa-preview-wrap">
-          <img id="imgPreviewIntroMakita" class="capa-preview" src="">
-        </div>
-        <input type="file" accept="image/*" id="inputIntroMakita">
-      </div>
-
-      <div class="painel">
-        <h2>Produtos Makita</h2>
-        <p>Preencha nome, foto e os códigos de cada produto. Use os botões ↑ ↓ para reordenar.</p>
-        <div id="listaProdutosMakita"></div>
-        <button type="button" class="btn-secundaria" id="btnAddProdutoMakita">+ Adicionar produto</button>
-      </div>
-    </div>
-
-    <div id="secaoDewalt" class="secao-marca">
-      <div class="painel">
-        <h2>Capa da aba Dewalt &amp; Stanley</h2>
-        <p>Troque a imagem de capa que aparece ao abrir a aba Dewalt &amp; Stanley. Se não escolher um arquivo novo, a capa atual é mantida.</p>
-        <div class="capa-preview-wrap">
-          <img id="imgPreviewIntroDewalt" class="capa-preview" src="">
-        </div>
-        <input type="file" accept="image/*" id="inputIntroDewalt">
-      </div>
-
-      <div class="painel">
-        <h2>Produtos Dewalt &amp; Stanley</h2>
-        <p>Preencha nome, foto e os códigos de cada produto. Use os botões ↑ ↓ para reordenar.</p>
-        <div id="listaProdutosDewalt"></div>
-        <button type="button" class="btn-secundaria" id="btnAddProdutoDewalt">+ Adicionar produto</button>
-      </div>
-    </div>
+    <div id="secoesAbas"></div>
 
     <div id="secaoLayout" class="secao-marca">
 
@@ -232,7 +210,7 @@
             </label>
           </div>
           <div style="flex:1; min-width:200px;">
-            <label>Logo Makita</label>
+            <label>Logo secundária</label>
             <div class="capa-preview-wrap" style="height:90px; max-width:220px;">
               <img id="imgPreviewLogoMakita" class="capa-preview" style="object-fit:contain; background:#0f5c8c;" src="assets/logo-makita.png">
             </div>
@@ -258,7 +236,7 @@
           <div style="flex:1; min-width:200px;">
             <label>&nbsp;</label>
             <label style="display:flex; align-items:center; gap:8px; font-weight:400; margin-top:8px;">
-              <input type="checkbox" id="layoutHeaderInverter" style="width:auto;"> Inverter a ordem (Makita primeiro)
+              <input type="checkbox" id="layoutHeaderInverter" style="width:auto;"> Inverter a ordem
             </label>
           </div>
           <div style="flex:1; min-width:200px;">
@@ -316,29 +294,6 @@
         </select>
       </div>
 
-      <div class="painel">
-        <h2>Enquadramento das fotos de capa</h2>
-        <p>Ajusta qual parte da foto de capa fica visível quando ela é cortada para caber na largura da tela.</p>
-        <div style="display:flex; gap:20px; flex-wrap:wrap;">
-          <div style="flex:1; min-width:200px;">
-            <label>Capa Makita</label>
-            <select id="layoutCapaMakitaPos" style="width:100%; padding:8px 10px; border:1px solid #d1d5db; border-radius:6px; font-size:14px;">
-              <option value="top">Topo</option>
-              <option value="center" selected>Centro</option>
-              <option value="bottom">Base</option>
-            </select>
-          </div>
-          <div style="flex:1; min-width:200px;">
-            <label>Capa Dewalt &amp; Stanley</label>
-            <select id="layoutCapaDewaltPos" style="width:100%; padding:8px 10px; border:1px solid #d1d5db; border-radius:6px; font-size:14px;">
-              <option value="top">Topo</option>
-              <option value="center" selected>Centro</option>
-              <option value="bottom">Base</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
     </div>
 
     <div id="rodapeAcoes">
@@ -352,10 +307,8 @@
 </main>
 
 <script>
-  const MARK_START = '// ==PRODUTOS-INICIO==';
-  const MARK_END = '// ==PRODUTOS-FIM==';
-  const MARK_START_DEWALT = '// ==PRODUTOS-DEWALT-INICIO==';
-  const MARK_END_DEWALT = '// ==PRODUTOS-DEWALT-FIM==';
+  const ABAS_MARK_START = '// ==ABAS-INICIO==';
+  const ABAS_MARK_END = '// ==ABAS-FIM==';
   const SW_MARK_START = '// ==CACHE-INICIO==';
   const SW_MARK_END = '// ==CACHE-FIM==';
   const LAYOUT_MARK_START = '/* ==LAYOUT-INICIO== */';
@@ -374,9 +327,7 @@
     '--watermark-display': 'block',
     '--produto-font-familia': '-apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
     '--produto-font-tamanho': '14.5px',
-    '--produto-font-cor': '#0a4468',
-    '--capa-makita-posicao': 'center',
-    '--capa-dewalt-posicao': 'center'
+    '--produto-font-cor': '#0a4468'
   };
 
   const FIXED_SHELL = [
@@ -396,38 +347,24 @@
 
   document.getElementById('btnAbrirPasta').style.display = temFileSystemAccess ? '' : 'none';
 
-  let dirHandle = null;      // pasta raiz (modo automático)
-  let assetsHandle = null;   // pasta assets (modo automático)
-  let produtosHandle = null; // pasta assets/produtos (modo automático)
+  let dirHandle = null;
+  let assetsHandle = null;
+  let produtosHandle = null;
   let indexHtmlTexto = '';
   let swJsTexto = '';
-  let produtos = [];         // Makita — { nome, imagem, codigos:[{voltagem,codigo}], arquivoNovo: File|null, previewUrl }
-  let produtosDewalt = [];   // Dewalt & Stanley — mesma estrutura
   let modoManual = false;
 
-  // capas de introdução das abas (Makita / Dewalt & Stanley)
-  let introMakita = { caminhoAtual: 'assets/intro-makita.jpg', arquivoNovo: null, previewUrl: null };
-  let introDewalt = { caminhoAtual: 'assets/intro-dewalt.jpg', arquivoNovo: null, previewUrl: null };
+  // abas[] — cada item: { id, nome, capa, capaPosicao, arquivoNovoCapa, previewUrlCapa,
+  //                        produtos: [{ nome, imagem, codigos:[{voltagem,codigo}], arquivoNovo, previewUrl }] }
+  let abas = [];
+  let abaAtivaId = null; // 'layout' ou o id de uma aba
 
   // layout do site: variáveis CSS + arquivos de imagem fixos (logos/marca d'água)
   let layoutConfig = { ...LAYOUT_PADRAO };
-  let bodyClasseLayout = ''; // '' ou 'layout-foto-lateral'
+  let bodyClasseLayout = '';
   let logoSfixArquivoNovo = null;
   let logoMakitaArquivoNovo = null;
   let watermarkArquivoNovo = null;
-
-  // ---------- abas MAKITA / DEWALT & STANLEY do painel admin ----------
-
-  document.querySelectorAll('.tab-btn-admin').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.tab-btn-admin').forEach(b => b.classList.remove('ativo'));
-      document.querySelectorAll('.secao-marca').forEach(s => s.classList.remove('ativo'));
-      btn.classList.add('ativo');
-      const mapaSecoes = { makita: 'secaoMakita', dewalt: 'secaoDewalt', layout: 'secaoLayout' };
-      document.getElementById(mapaSecoes[btn.dataset.marca]).classList.add('ativo');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  });
 
   // ---------- Passo 1: abrir pasta ou arquivo ----------
 
@@ -461,23 +398,28 @@
     const file = e.target.files[0];
     if (!file) return;
     indexHtmlTexto = await file.text();
-    swJsTexto = ''; // no modo manual, sw.js é gerado do zero a partir do padrão conhecido
+    swJsTexto = '';
     carregarCatalogoDoTexto(indexHtmlTexto);
     abrirEditor();
   });
 
   // ---------- leitura dos dados atuais do index.html ----------
 
-  function extrairListaDoTexto(html, markStart, markEnd, nomeVar) {
-    const startIdx = html.indexOf(markStart);
-    const endIdx = html.indexOf(markEnd);
-    if (startIdx === -1 || endIdx === -1) return [];
-    const bloco = html.slice(startIdx + markStart.length, endIdx);
-    const match = bloco.match(new RegExp('const\\s+' + nomeVar + '\\s*=\\s*([\\s\\S]*);\\s*$'));
-    if (!match) return [];
+  function extrairAbasDoTexto(html) {
+    const s = html.indexOf(ABAS_MARK_START);
+    const e = html.indexOf(ABAS_MARK_END);
+    if (s === -1 || e === -1) return [];
+    const bloco = html.slice(s + ABAS_MARK_START.length, e);
+    const m = bloco.match(/const\s+ABAS\s*=\s*([\s\S]*);\s*$/);
+    if (!m) return [];
     try {
-      const lista = new Function('return ' + match[1])();
-      lista.forEach(p => { p.arquivoNovo = null; p.previewUrl = null; });
+      const lista = new Function('return ' + m[1])();
+      lista.forEach(aba => {
+        aba.arquivoNovoCapa = null;
+        aba.previewUrlCapa = null;
+        aba.capaPosicao = aba.capaPosicao || 'center';
+        (aba.produtos || []).forEach(p => { p.arquivoNovo = null; p.previewUrl = null; });
+      });
       return lista;
     } catch (err) {
       return [];
@@ -485,14 +427,12 @@
   }
 
   function carregarCatalogoDoTexto(html) {
-    carregarCapasDoTexto(html);
     carregarLayoutDoTexto(html);
-
-    if (html.indexOf(MARK_START) === -1 || html.indexOf(MARK_END) === -1) {
-      alert('Não encontrei os marcadores de produtos Makita nesse arquivo. Verifique se é o index.html correto.');
+    if (html.indexOf(ABAS_MARK_START) === -1 || html.indexOf(ABAS_MARK_END) === -1) {
+      alert('Não encontrei os marcadores de abas nesse arquivo. Verifique se é o index.html correto (gerado por esta versão do painel).');
     }
-    produtos = extrairListaDoTexto(html, MARK_START, MARK_END, 'produtos');
-    produtosDewalt = extrairListaDoTexto(html, MARK_START_DEWALT, MARK_END_DEWALT, 'produtosDewalt');
+    abas = extrairAbasDoTexto(html);
+    if (abas.length) abaAtivaId = abas[0].id;
   }
 
   // ---------- layout do site: leitura e escrita do bloco de variáveis CSS ----------
@@ -511,11 +451,6 @@
     }
     const mBody = html.match(/<body\s+class="([^"]*)"/);
     bodyClasseLayout = mBody ? mBody[1].trim() : '';
-  }
-
-  function extrairUrlDeValorCss(valor) {
-    const m = String(valor).match(/url\((['"]?)(.*?)\1\)/);
-    return m ? m[2] : '';
   }
 
   function renderizarLayoutForm() {
@@ -551,8 +486,6 @@
     document.getElementById('layoutFontCor').value = layoutConfig['--produto-font-cor'] || '#0a4468';
 
     document.getElementById('layoutFotoPosicao').value = bodyClasseLayout === 'layout-foto-lateral' ? 'lateral' : 'topo';
-    document.getElementById('layoutCapaMakitaPos').value = layoutConfig['--capa-makita-posicao'] || 'center';
-    document.getElementById('layoutCapaDewaltPos').value = layoutConfig['--capa-dewalt-posicao'] || 'center';
   }
 
   document.getElementById('inputLogoSfix').addEventListener('change', e => {
@@ -603,9 +536,7 @@
       '--watermark-display': watermarkAtiva ? 'block' : 'none',
       '--produto-font-familia': familia,
       '--produto-font-tamanho': tamanhoFonte.replace('px', '') + 'px',
-      '--produto-font-cor': document.getElementById('layoutFontCor').value,
-      '--capa-makita-posicao': document.getElementById('layoutCapaMakitaPos').value,
-      '--capa-dewalt-posicao': document.getElementById('layoutCapaDewaltPos').value
+      '--produto-font-cor': document.getElementById('layoutFontCor').value
     };
     bodyClasseLayout = document.getElementById('layoutFotoPosicao').value === 'lateral' ? 'layout-foto-lateral' : '';
     return layoutConfig;
@@ -616,41 +547,201 @@
     return LAYOUT_MARK_START + '\n' + linhas.join('\n') + '\n    ' + LAYOUT_MARK_END;
   }
 
-  function carregarCapasDoTexto(html) {
-    const mMakita = html.match(/id="introCoverImgMakita"\s+src="([^"]+)"/);
-    const mDewalt = html.match(/id="introCoverImgDewalt"\s+src="([^"]+)"/);
-    introMakita = { caminhoAtual: mMakita ? mMakita[1] : 'assets/intro-makita.jpg', arquivoNovo: null, previewUrl: null };
-    introDewalt = { caminhoAtual: mDewalt ? mDewalt[1] : 'assets/intro-dewalt.jpg', arquivoNovo: null, previewUrl: null };
+  // ---------- abas: gerar id único a partir do nome ----------
+
+  function gerarSlug(nome) {
+    return (nome || 'aba').toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'aba';
   }
 
-  function renderizarCapasPreview() {
-    const imgM = document.getElementById('imgPreviewIntroMakita');
-    const imgD = document.getElementById('imgPreviewIntroDewalt');
-    imgM.src = introMakita.previewUrl || introMakita.caminhoAtual;
-    imgD.src = introDewalt.previewUrl || introDewalt.caminhoAtual;
+  function gerarIdUnico(nome) {
+    const base = gerarSlug(nome);
+    let id = base;
+    let n = 2;
+    while (abas.some(a => a.id === id)) {
+      id = base + '-' + n;
+      n++;
+    }
+    return id;
   }
 
-  document.getElementById('inputIntroMakita').addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    introMakita.arquivoNovo = file;
-    introMakita.previewUrl = URL.createObjectURL(file);
-    renderizarCapasPreview();
-  });
-  document.getElementById('inputIntroDewalt').addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    introDewalt.arquivoNovo = file;
-    introDewalt.previewUrl = URL.createObjectURL(file);
-    renderizarCapasPreview();
+  // ---------- abas admin: renderização dos botões de aba + seções ----------
+
+  function renderizarTabsAdmin() {
+    const tabsWrap = document.getElementById('tabsAdmin');
+    tabsWrap.innerHTML = '';
+    abas.forEach(aba => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'tab-btn-admin' + (abaAtivaId === aba.id ? ' ativo' : '');
+      btn.textContent = aba.nome || '(sem nome)';
+      btn.dataset.abaId = aba.id;
+      btn.addEventListener('click', () => {
+        abaAtivaId = aba.id;
+        renderizarTabsAdmin();
+        renderizarSecoesVisiveis();
+      });
+      tabsWrap.appendChild(btn);
+    });
+    const btnLayout = document.createElement('button');
+    btnLayout.type = 'button';
+    btnLayout.className = 'tab-btn-admin tab-layout' + (abaAtivaId === 'layout' ? ' ativo' : '');
+    btnLayout.textContent = 'LAYOUT DO SITE';
+    btnLayout.addEventListener('click', () => {
+      abaAtivaId = 'layout';
+      renderizarTabsAdmin();
+      renderizarSecoesVisiveis();
+    });
+    tabsWrap.appendChild(btnLayout);
+  }
+
+  function renderizarSecoesVisiveis() {
+    document.querySelectorAll('.secao-marca').forEach(s => s.classList.remove('ativo'));
+    if (abaAtivaId === 'layout') {
+      document.getElementById('secaoLayout').classList.add('ativo');
+    } else {
+      const el = document.getElementById('secao-aba-' + abaAtivaId);
+      if (el) el.classList.add('ativo');
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function renderizarSecoesAbas() {
+    const container = document.getElementById('secoesAbas');
+    container.innerHTML = '';
+    abas.forEach(aba => container.appendChild(construirSecaoAba(aba)));
+    renderizarSecoesVisiveis();
+  }
+
+  function construirSecaoAba(aba) {
+    const secao = document.createElement('div');
+    secao.className = 'secao-marca';
+    secao.id = 'secao-aba-' + aba.id;
+
+    const painelCapa = document.createElement('div');
+    painelCapa.className = 'painel';
+    painelCapa.innerHTML = `
+      <div class="aba-topo-acoes">
+        <div>
+          <label>Nome desta aba (aparece no botão do catálogo)</label>
+          <input type="text" data-campo-nome-aba value="${escapeAttr(aba.nome || '')}">
+        </div>
+        <button type="button" class="btn-perigo" data-remover-aba>🗑 Remover esta aba</button>
+      </div>
+    `;
+
+    const blocoCapa = document.createElement('div');
+    blocoCapa.style.marginTop = '16px';
+    blocoCapa.innerHTML = `
+      <h2 style="font-size:14px; margin-bottom:6px;">Capa de introdução</h2>
+      <p style="margin-bottom:10px;">Imagem que aparece ao abrir esta aba. Se preferir não ter capa, deixe em branco.</p>
+      <div class="capa-preview-wrap" data-preview-capa-wrap></div>
+      <input type="file" accept="image/*" data-input-capa>
+      <label style="margin-top:10px;">Enquadramento da capa</label>
+      <select data-select-capa-posicao style="width:100%; max-width:360px; padding:8px 10px; border:1px solid #d1d5db; border-radius:6px; font-size:14px;">
+        <option value="top">Topo</option>
+        <option value="center">Centro</option>
+        <option value="bottom">Base</option>
+      </select>
+    `;
+    painelCapa.appendChild(blocoCapa);
+    secao.appendChild(painelCapa);
+
+    const painelProdutos = document.createElement('div');
+    painelProdutos.className = 'painel';
+    painelProdutos.innerHTML = `
+      <h2>Produtos — ${escapeAttr(aba.nome || '')}</h2>
+      <p>Preencha nome, foto e os códigos de cada produto. Use os botões ↑ ↓ para reordenar.</p>
+      <div data-lista-produtos></div>
+      <button type="button" class="btn-secundaria" data-add-produto>+ Adicionar produto</button>
+    `;
+    secao.appendChild(painelProdutos);
+
+    // ---- eventos ----
+    secao.querySelector('[data-campo-nome-aba]').addEventListener('input', e => {
+      aba.nome = e.target.value;
+      const btn = document.querySelector('.tab-btn-admin[data-aba-id="' + aba.id + '"]');
+      if (btn) btn.textContent = aba.nome || '(sem nome)';
+      const h2 = painelProdutos.querySelector('h2');
+      h2.textContent = 'Produtos — ' + (aba.nome || '');
+    });
+
+    secao.querySelector('[data-remover-aba]').addEventListener('click', () => {
+      if (abas.length <= 1) {
+        alert('Não é possível remover: o catálogo precisa ter pelo menos uma aba.');
+        return;
+      }
+      if (confirm(`Remover a aba "${aba.nome}" e todos os seus produtos?`)) {
+        abas = abas.filter(a => a.id !== aba.id);
+        if (abaAtivaId === aba.id) abaAtivaId = abas[0].id;
+        renderizarTabsAdmin();
+        renderizarSecoesAbas();
+      }
+    });
+
+    const previewWrap = secao.querySelector('[data-preview-capa-wrap]');
+    function atualizarPreviewCapa() {
+      const src = aba.previewUrlCapa || aba.capa;
+      if (src) {
+        previewWrap.classList.remove('vazia');
+        previewWrap.innerHTML = `<img class="capa-preview" src="${src}">`;
+      } else {
+        previewWrap.classList.add('vazia');
+        previewWrap.innerHTML = 'sem capa definida';
+      }
+    }
+    atualizarPreviewCapa();
+
+    secao.querySelector('[data-input-capa]').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      aba.arquivoNovoCapa = file;
+      aba.previewUrlCapa = URL.createObjectURL(file);
+      atualizarPreviewCapa();
+    });
+
+    const selectPos = secao.querySelector('[data-select-capa-posicao]');
+    selectPos.value = aba.capaPosicao || 'center';
+    selectPos.addEventListener('change', e => { aba.capaPosicao = e.target.value; });
+
+    const listaEl = painelProdutos.querySelector('[data-lista-produtos]');
+    renderizarProdutos(aba.produtos, listaEl);
+
+    painelProdutos.querySelector('[data-add-produto]').addEventListener('click', () => {
+      aba.produtos.push({ nome: '', imagem: '', codigos: [{ voltagem: '', codigo: '' }], arquivoNovo: null, previewUrl: null });
+      renderizarProdutos(aba.produtos, listaEl);
+    });
+
+    return secao;
+  }
+
+  document.getElementById('btnNovaAba').addEventListener('click', () => {
+    const nome = prompt('Nome da nova aba (ex: BOSCH, ferramentas manuais...):');
+    if (nome === null) return;
+    const nomeFinal = nome.trim();
+    if (!nomeFinal) { alert('Digite um nome para a aba.'); return; }
+    const novaAba = {
+      id: gerarIdUnico(nomeFinal),
+      nome: nomeFinal,
+      capa: '',
+      capaPosicao: 'center',
+      arquivoNovoCapa: null,
+      previewUrlCapa: null,
+      produtos: []
+    };
+    abas.push(novaAba);
+    abaAtivaId = novaAba.id;
+    renderizarTabsAdmin();
+    renderizarSecoesAbas();
   });
 
   function abrirEditor() {
     document.getElementById('editorArea').style.display = 'block';
     document.getElementById('painelInicio').style.display = 'none';
-    renderizarProdutos(produtos, document.getElementById('listaProdutosMakita'));
-    renderizarProdutos(produtosDewalt, document.getElementById('listaProdutosDewalt'));
-    renderizarCapasPreview();
+    renderizarTabsAdmin();
+    renderizarSecoesAbas();
     renderizarLayoutForm();
     carregarConfigGithub();
   }
@@ -799,7 +890,7 @@
   });
 
 
-  // ---------- Passo 2: editor de produtos (genérico — Makita e Dewalt & Stanley) ----------
+  // ---------- editor de produtos (genérico — funciona para qualquer aba) ----------
 
   function sanitizarNomeArquivo(nome) {
     return nome.toLowerCase()
@@ -845,12 +936,10 @@
         </div>
       `;
 
-      // nome
       card.querySelector('[data-campo="nome"]').addEventListener('input', e => {
         p.nome = e.target.value;
       });
 
-      // foto
       card.querySelector('[data-campo="foto"]').addEventListener('change', e => {
         const file = e.target.files[0];
         if (!file) return;
@@ -859,7 +948,6 @@
         renderizarProdutos(lista, containerEl);
       });
 
-      // códigos
       const codigosWrap = card.querySelector('[data-codigos]');
       function renderCodigos() {
         codigosWrap.innerHTML = '';
@@ -912,40 +1000,47 @@
     return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
   }
 
-  document.getElementById('btnAddProdutoMakita').addEventListener('click', () => {
-    produtos.push({ nome: '', imagem: '', codigos: [{ voltagem: '', codigo: '' }], arquivoNovo: null, previewUrl: null });
-    renderizarProdutos(produtos, document.getElementById('listaProdutosMakita'));
-  });
-  document.getElementById('btnAddProdutoDewalt').addEventListener('click', () => {
-    produtosDewalt.push({ nome: '', imagem: '', codigos: [{ voltagem: '', codigo: '' }], arquivoNovo: null, previewUrl: null });
-    renderizarProdutos(produtosDewalt, document.getElementById('listaProdutosDewalt'));
-  });
+  // ---------- salvar ----------
 
-  // ---------- Passo 3: salvar ----------
-
-  function serializarProdutos(lista, nomeVar) {
+  function serializarProdutos(lista) {
     const linhas = [];
-    linhas.push(`  const ${nomeVar} = [`);
+    linhas.push('    [');
     lista.forEach((p, i) => {
-      linhas.push('    {');
-      linhas.push(`      nome: ${JSON.stringify(p.nome || '')},`);
-      linhas.push(`      imagem: ${JSON.stringify(p.imagem || '')},`);
-      linhas.push('      codigos: [');
+      linhas.push('      {');
+      linhas.push(`        nome: ${JSON.stringify(p.nome || '')},`);
+      linhas.push(`        imagem: ${JSON.stringify(p.imagem || '')},`);
+      linhas.push('        codigos: [');
       p.codigos.forEach((c, j) => {
         const virgula = j < p.codigos.length - 1 ? ',' : '';
-        linhas.push(`        { voltagem: ${JSON.stringify(c.voltagem || '')}, codigo: ${JSON.stringify(c.codigo || '')} }${virgula}`);
+        linhas.push(`          { voltagem: ${JSON.stringify(c.voltagem || '')}, codigo: ${JSON.stringify(c.codigo || '')} }${virgula}`);
       });
-      linhas.push('      ]');
-      linhas.push(`    }${i < lista.length - 1 ? ',' : ''}`);
+      linhas.push('        ]');
+      linhas.push(`      }${i < lista.length - 1 ? ',' : ''}`);
     });
-    linhas.push('  ];');
+    linhas.push('    ]');
     return linhas.join('\n');
   }
 
-  function gerarNovoSwJs(swTextoBase, listaProdutos, caminhoIntroMakita, caminhoIntroDewalt) {
+  function serializarAbas(listaAbas) {
+    const linhas = ['['];
+    listaAbas.forEach((aba, i) => {
+      linhas.push('  {');
+      linhas.push(`    id: ${JSON.stringify(aba.id)},`);
+      linhas.push(`    nome: ${JSON.stringify(aba.nome || '')},`);
+      linhas.push(`    capa: ${JSON.stringify(aba.capaFinal || '')},`);
+      linhas.push(`    capaPosicao: ${JSON.stringify(aba.capaPosicao || 'center')},`);
+      linhas.push('    produtos:');
+      linhas.push(serializarProdutos(aba.produtos));
+      linhas.push(`  }${i < listaAbas.length - 1 ? ',' : ''}`);
+    });
+    linhas.push(']');
+    return linhas.join('\n');
+  }
+
+  function gerarNovoSwJs(swTextoBase, todosProdutos, capasFinais) {
     const shellFiles = FIXED_SHELL
-      .concat([caminhoIntroMakita, caminhoIntroDewalt].filter(Boolean).map(p => './' + p))
-      .concat(listaProdutos.map(p => './' + p.imagem));
+      .concat(capasFinais.filter(Boolean).map(p => './' + p))
+      .concat(todosProdutos.map(p => './' + p.imagem));
     const novoBloco = [
       SW_MARK_START,
       "const CACHE_NAME = 'catalogo-cache-v" + (proximaVersaoCache(swTextoBase)) + "';",
@@ -957,7 +1052,6 @@
     ].join('\n');
 
     if (!swTextoBase || swTextoBase.indexOf(SW_MARK_START) === -1) {
-      // gera um sw.js padrão do zero (fallback se não tínhamos o original)
       return novoBloco + `
 
 self.addEventListener('install', event => {
@@ -1001,52 +1095,39 @@ self.addEventListener('fetch', event => {
   }
 
   function montarArquivosFinais() {
-    // validação simples (Makita + Dewalt & Stanley)
-    for (const p of produtos.concat(produtosDewalt)) {
-      if (!p.nome.trim()) { alert('Tem um produto sem nome.'); return null; }
-      if (!p.imagem && !p.arquivoNovo) { alert(`O produto "${p.nome}" ainda não tem foto.`); return null; }
+    if (!abas.length) { alert('O catálogo precisa ter pelo menos uma aba.'); return null; }
+    for (const aba of abas) {
+      if (!aba.nome || !aba.nome.trim()) { alert('Tem uma aba sem nome. Preencha o nome de todas as abas.'); return null; }
+      for (const p of aba.produtos) {
+        if (!p.nome.trim()) { alert(`Tem um produto sem nome na aba "${aba.nome}".`); return null; }
+        if (!p.imagem && !p.arquivoNovo) { alert(`O produto "${p.nome}" (aba "${aba.nome}") ainda não tem foto.`); return null; }
+      }
     }
 
-    // define o caminho da imagem para produtos com foto nova
-    produtos.concat(produtosDewalt).forEach(p => {
-      if (p.arquivoNovo) {
-        const nomeArq = sanitizarNomeArquivo(p.arquivoNovo.name);
-        p.imagem = 'assets/produtos/' + nomeArq;
-      }
+    // caminho final de cada foto de produto (nova ou já existente)
+    abas.forEach(aba => {
+      aba.produtos.forEach(p => {
+        if (p.arquivoNovo) {
+          const nomeArq = sanitizarNomeArquivo(p.arquivoNovo.name);
+          p.imagem = 'assets/produtos/' + nomeArq;
+        }
+      });
     });
 
-    // define o caminho final das capas de introdução (novo arquivo ou o que já existia)
-    introMakita.caminhoFinal = introMakita.arquivoNovo
-      ? 'assets/' + sanitizarNomeArquivo(introMakita.arquivoNovo.name)
-      : introMakita.caminhoAtual;
-    introDewalt.caminhoFinal = introDewalt.arquivoNovo
-      ? 'assets/' + sanitizarNomeArquivo(introDewalt.arquivoNovo.name)
-      : introDewalt.caminhoAtual;
+    // caminho final da capa de cada aba (nova, já existente, ou vazio)
+    abas.forEach(aba => {
+      aba.capaFinal = aba.arquivoNovoCapa
+        ? 'assets/' + sanitizarNomeArquivo(aba.arquivoNovoCapa.name)
+        : (aba.capa || '');
+    });
 
-    // bloco de produtos Makita
-    const blocoMakita = MARK_START + '\n' + serializarProdutos(produtos, 'produtos') + '\n  ' + MARK_END;
-    const s1 = indexHtmlTexto.indexOf(MARK_START);
-    const e1 = indexHtmlTexto.indexOf(MARK_END) + MARK_END.length;
-    let novoIndexHtml = indexHtmlTexto.slice(0, s1) + blocoMakita + indexHtmlTexto.slice(e1);
+    // bloco de abas
+    const blocoAbas = ABAS_MARK_START + '\n  const ABAS = ' + serializarAbas(abas) + ';\n  ' + ABAS_MARK_END;
+    const s1 = indexHtmlTexto.indexOf(ABAS_MARK_START);
+    const e1 = indexHtmlTexto.indexOf(ABAS_MARK_END) + ABAS_MARK_END.length;
+    let novoIndexHtml = indexHtmlTexto.slice(0, s1) + blocoAbas + indexHtmlTexto.slice(e1);
 
-    // bloco de produtos Dewalt & Stanley
-    const blocoDewalt = MARK_START_DEWALT + '\n' + serializarProdutos(produtosDewalt, 'produtosDewalt') + '\n  ' + MARK_END_DEWALT;
-    const s2 = novoIndexHtml.indexOf(MARK_START_DEWALT);
-    const e2 = novoIndexHtml.indexOf(MARK_END_DEWALT) + MARK_END_DEWALT.length;
-    if (s2 !== -1 && e2 !== -1) {
-      novoIndexHtml = novoIndexHtml.slice(0, s2) + blocoDewalt + novoIndexHtml.slice(e2);
-    }
-
-    novoIndexHtml = novoIndexHtml.replace(
-      /id="introCoverImgMakita"\s+src="[^"]+"/,
-      `id="introCoverImgMakita" src="${introMakita.caminhoFinal}"`
-    );
-    novoIndexHtml = novoIndexHtml.replace(
-      /id="introCoverImgDewalt"\s+src="[^"]+"/,
-      `id="introCoverImgDewalt" src="${introDewalt.caminhoFinal}"`
-    );
-
-    // bloco de layout do site (logos, cores, fontes, marca d'água, posições)
+    // bloco de layout do site
     const configLayout = coletarLayoutDoFormulario();
     const lS = novoIndexHtml.indexOf(LAYOUT_MARK_START);
     const lE = novoIndexHtml.indexOf(LAYOUT_MARK_END) + LAYOUT_MARK_END.length;
@@ -1060,23 +1141,19 @@ self.addEventListener('fetch', event => {
       `<body class="${bodyClasseLayout}"`
     );
 
-    const novoSwJs = gerarNovoSwJs(
-      swJsTexto,
-      produtos.concat(produtosDewalt),
-      introMakita.caminhoFinal,
-      introDewalt.caminhoFinal
-    );
+    const todosProdutos = abas.flatMap(a => a.produtos);
+    const capasFinais = abas.map(a => a.capaFinal);
 
-    const fotosNovas = produtos.concat(produtosDewalt).filter(p => p.arquivoNovo);
-    const capasNovas = [
-      introMakita.arquivoNovo ? { label: 'Capa Makita', arquivo: introMakita.arquivoNovo, nomeArq: sanitizarNomeArquivo(introMakita.arquivoNovo.name) } : null,
-      introDewalt.arquivoNovo ? { label: 'Capa Dewalt & Stanley', arquivo: introDewalt.arquivoNovo, nomeArq: sanitizarNomeArquivo(introDewalt.arquivoNovo.name) } : null
-    ].filter(Boolean);
+    const novoSwJs = gerarNovoSwJs(swJsTexto, todosProdutos, capasFinais);
 
-    // arquivos de layout (logos sempre com o mesmo nome; marca d'água pode ter nome novo)
+    const fotosNovas = todosProdutos.filter(p => p.arquivoNovo);
+    const capasNovas = abas
+      .filter(a => a.arquivoNovoCapa)
+      .map(a => ({ label: 'Capa ' + a.nome, arquivo: a.arquivoNovoCapa, nomeArq: sanitizarNomeArquivo(a.arquivoNovoCapa.name) }));
+
     const layoutArquivosNovos = [
       logoSfixArquivoNovo ? { label: 'Logo S-Fix', arquivo: logoSfixArquivoNovo, nomeArq: 'logo-sfix.png' } : null,
-      logoMakitaArquivoNovo ? { label: 'Logo Makita', arquivo: logoMakitaArquivoNovo, nomeArq: 'logo-makita.png' } : null,
+      logoMakitaArquivoNovo ? { label: 'Logo secundária', arquivo: logoMakitaArquivoNovo, nomeArq: 'logo-makita.png' } : null,
       watermarkArquivoNovo ? { label: 'Marca d\'água de fundo', arquivo: watermarkArquivoNovo, nomeArq: 'watermark-tile.png' } : null
     ].filter(Boolean);
 
@@ -1087,46 +1164,35 @@ self.addEventListener('fetch', event => {
     const dados = montarArquivosFinais();
     if (!dados) return;
     const { novoIndexHtml, novoSwJs, fotosNovas, capasNovas, layoutArquivosNovos } = dados;
-    const produtosTodos = produtos.concat(produtosDewalt);
 
     const resultado = document.getElementById('resultado');
 
     if (!modoManual && dirHandle) {
       try {
-        // grava as fotos novas de produtos (Makita + Dewalt & Stanley)
-        for (const p of produtosTodos) {
-          if (p.arquivoNovo) {
-            const nomeArq = sanitizarNomeArquivo(p.arquivoNovo.name);
-            const fh = await produtosHandle.getFileHandle(nomeArq, { create: true });
-            const writable = await fh.createWritable();
-            await writable.write(p.arquivoNovo);
-            await writable.close();
-          }
+        for (const p of fotosNovas) {
+          const nomeArq = sanitizarNomeArquivo(p.arquivoNovo.name);
+          const fh = await produtosHandle.getFileHandle(nomeArq, { create: true });
+          const writable = await fh.createWritable();
+          await writable.write(p.arquivoNovo);
+          await writable.close();
         }
-        // grava as capas de introdução novas (se trocadas)
-        for (const capa of [introMakita, introDewalt]) {
-          if (capa.arquivoNovo) {
-            const nomeArq = sanitizarNomeArquivo(capa.arquivoNovo.name);
-            const fh = await assetsHandle.getFileHandle(nomeArq, { create: true });
-            const writable = await fh.createWritable();
-            await writable.write(capa.arquivoNovo);
-            await writable.close();
-          }
+        for (const capa of capasNovas) {
+          const fh = await assetsHandle.getFileHandle(capa.nomeArq, { create: true });
+          const writable = await fh.createWritable();
+          await writable.write(capa.arquivo);
+          await writable.close();
         }
-        // grava logos e marca d'água novos (layout do site)
         for (const item of layoutArquivosNovos) {
           const fh = await assetsHandle.getFileHandle(item.nomeArq, { create: true });
           const writable = await fh.createWritable();
           await writable.write(item.arquivo);
           await writable.close();
         }
-        // grava index.html
         const indexHandle = await dirHandle.getFileHandle('index.html', { create: true });
         const w1 = await indexHandle.createWritable();
         await w1.write(novoIndexHtml);
         await w1.close();
 
-        // grava sw.js
         const swHandle = await dirHandle.getFileHandle('sw.js', { create: true });
         const w2 = await swHandle.createWritable();
         await w2.write(novoSwJs);
@@ -1143,8 +1209,6 @@ self.addEventListener('fetch', event => {
         resultado.innerHTML = `<p style="color:#c81e2c">Erro ao salvar: ${err.message}</p>`;
       }
     } else {
-      // modo manual: monta um ZIP único já com os arquivos nos lugares certos
-      // (evita o usuário ter que renomear/mover fotos manualmente, que é onde mais dá erro)
       resultado.innerHTML = `<p>Gerando o pacote atualizado…</p>`;
 
       try {
@@ -1166,10 +1230,6 @@ self.addEventListener('fetch', event => {
         const blobZip = await zip.generateAsync({ type: 'blob' });
         const urlZip = URL.createObjectURL(blobZip);
 
-        // sw.js vai separado, sem zipar: dentro de um ZIP ele era bloqueado por
-        // navegador/antivírus, e renomear .txt de volta para .js dá problema
-        // quando o Windows esconde a extensão de verdade (vira "sw.js.txt" sem avisar).
-        // Baixado sozinho, o arquivo já sai com o nome e a extensão corretos.
         const blobSw = new Blob([novoSwJs], { type: 'text/javascript' });
         const urlSw = URL.createObjectURL(blobSw);
 
