@@ -11,6 +11,7 @@ const SHELL_FILES = [
   "./assets/seta-voltar.png",
   "./assets/intro-makita.jpg",
   "./assets/capa-dewalt.jpg",
+  "./assets/capa-marmoraria-2026.png",
   "./assets/produtos/1-m9510b.png",
   "./assets/produtos/2-m0920b.png",
   "./assets/produtos/3-ga9020.png",
