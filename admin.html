@@ -173,6 +173,7 @@
     <div class="tabs-admin">
       <button type="button" class="tab-btn-admin ativo" data-marca="makita">MAKITA</button>
       <button type="button" class="tab-btn-admin" data-marca="dewalt">DEWALT &amp; STANLEY</button>
+      <button type="button" class="tab-btn-admin" data-marca="layout">LAYOUT DO SITE</button>
     </div>
 
     <div id="secaoMakita" class="secao-marca ativo">
@@ -211,6 +212,135 @@
       </div>
     </div>
 
+    <div id="secaoLayout" class="secao-marca">
+
+      <div class="painel">
+        <h2>Logos e cabeçalho</h2>
+        <p>Troque as imagens de logo, ajuste o tamanho de cada uma, a posição no cabeçalho e a cor de fundo. Se não escolher um arquivo novo, a logo atual é mantida.</p>
+
+        <div style="display:flex; gap:20px; flex-wrap:wrap; margin-bottom:14px;">
+          <div style="flex:1; min-width:200px;">
+            <label>Logo S-Fix</label>
+            <div class="capa-preview-wrap" style="height:90px; max-width:220px;">
+              <img id="imgPreviewLogoSfix" class="capa-preview" style="object-fit:contain; background:#0f5c8c;" src="assets/logo-sfix.png">
+            </div>
+            <input type="file" accept="image/*" id="inputLogoSfix">
+            <label style="margin-top:8px;">Altura da logo (px)</label>
+            <input type="text" id="layoutLogoSfixAltura" value="56">
+            <label style="display:flex; align-items:center; gap:8px; font-weight:400; margin-top:8px;">
+              <input type="checkbox" id="layoutLogoSfixAtiva" checked style="width:auto;"> Mostrar esta logo no cabeçalho
+            </label>
+          </div>
+          <div style="flex:1; min-width:200px;">
+            <label>Logo Makita</label>
+            <div class="capa-preview-wrap" style="height:90px; max-width:220px;">
+              <img id="imgPreviewLogoMakita" class="capa-preview" style="object-fit:contain; background:#0f5c8c;" src="assets/logo-makita.png">
+            </div>
+            <input type="file" accept="image/*" id="inputLogoMakita">
+            <label style="margin-top:8px;">Altura da logo (px)</label>
+            <input type="text" id="layoutLogoMakitaAltura" value="56">
+            <label style="display:flex; align-items:center; gap:8px; font-weight:400; margin-top:8px;">
+              <input type="checkbox" id="layoutLogoMakitaAtiva" checked style="width:auto;"> Mostrar esta logo no cabeçalho
+            </label>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:20px; flex-wrap:wrap;">
+          <div style="flex:1; min-width:200px;">
+            <label>Posição das logos no cabeçalho</label>
+            <select id="layoutHeaderJustify" style="width:100%; padding:8px 10px; border:1px solid #d1d5db; border-radius:6px; font-size:14px;">
+              <option value="space-between">Uma em cada ponta (padrão)</option>
+              <option value="center">Centralizadas</option>
+              <option value="flex-start">Ambas à esquerda</option>
+              <option value="flex-end">Ambas à direita</option>
+            </select>
+          </div>
+          <div style="flex:1; min-width:200px;">
+            <label>&nbsp;</label>
+            <label style="display:flex; align-items:center; gap:8px; font-weight:400; margin-top:8px;">
+              <input type="checkbox" id="layoutHeaderInverter" style="width:auto;"> Inverter a ordem (Makita primeiro)
+            </label>
+          </div>
+          <div style="flex:1; min-width:200px;">
+            <label>Cor de fundo do cabeçalho</label>
+            <input type="color" id="layoutHeaderBg" value="#0f5c8c" style="width:100%; height:38px; padding:2px; border:1px solid #d1d5db; border-radius:6px;">
+          </div>
+        </div>
+      </div>
+
+      <div class="painel">
+        <h2>Fundo com marca d'água</h2>
+        <p>É o padrão repetido que aparece atrás do conteúdo da página. Você pode trocar a imagem, ajustar a transparência ou desativar completamente.</p>
+        <label style="display:flex; align-items:center; gap:8px; font-weight:400; margin-bottom:10px;">
+          <input type="checkbox" id="layoutWatermarkAtiva" checked style="width:auto;"> Mostrar marca d'água de fundo
+        </label>
+        <label>Transparência (0 = invisível, 1 = totalmente visível)</label>
+        <input type="range" id="layoutWatermarkOpacidade" min="0" max="1" step="0.05" value="1" style="width:100%;">
+        <label style="margin-top:10px;">Trocar imagem da marca d'água</label>
+        <input type="file" accept="image/*" id="inputWatermark">
+      </div>
+
+      <div class="painel">
+        <h2>Fonte dos produtos</h2>
+        <p>Fonte, tamanho e cor usados no nome de cada produto na grade do catálogo.</p>
+        <div style="display:flex; gap:20px; flex-wrap:wrap;">
+          <div style="flex:1; min-width:200px;">
+            <label>Fonte</label>
+            <select id="layoutFontFamilia" style="width:100%; padding:8px 10px; border:1px solid #d1d5db; border-radius:6px; font-size:14px;">
+              <option value='-apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif'>Padrão do sistema</option>
+              <option value='Arial, sans-serif'>Arial</option>
+              <option value='Georgia, serif'>Georgia</option>
+              <option value='"Courier New", monospace'>Courier New</option>
+              <option value='"Arial Narrow", sans-serif'>Arial Narrow (condensada)</option>
+              <option value="__custom__">Outra (digitar abaixo)</option>
+            </select>
+            <input type="text" id="layoutFontFamiliaCustom" placeholder="ex: 'Roboto', sans-serif" style="margin-top:6px; display:none;">
+          </div>
+          <div style="flex:1; min-width:140px;">
+            <label>Tamanho (px)</label>
+            <input type="text" id="layoutFontTamanho" value="14.5">
+          </div>
+          <div style="flex:1; min-width:140px;">
+            <label>Cor</label>
+            <input type="color" id="layoutFontCor" value="#0a4468" style="width:100%; height:38px; padding:2px; border:1px solid #d1d5db; border-radius:6px;">
+          </div>
+        </div>
+      </div>
+
+      <div class="painel">
+        <h2>Posição da foto em cada produto</h2>
+        <p>Onde a foto aparece dentro do card de cada produto na grade.</p>
+        <select id="layoutFotoPosicao" style="width:100%; max-width:360px; padding:8px 10px; border:1px solid #d1d5db; border-radius:6px; font-size:14px;">
+          <option value="topo">Foto acima do nome (padrão)</option>
+          <option value="lateral">Foto ao lado do nome</option>
+        </select>
+      </div>
+
+      <div class="painel">
+        <h2>Enquadramento das fotos de capa</h2>
+        <p>Ajusta qual parte da foto de capa fica visível quando ela é cortada para caber na largura da tela.</p>
+        <div style="display:flex; gap:20px; flex-wrap:wrap;">
+          <div style="flex:1; min-width:200px;">
+            <label>Capa Makita</label>
+            <select id="layoutCapaMakitaPos" style="width:100%; padding:8px 10px; border:1px solid #d1d5db; border-radius:6px; font-size:14px;">
+              <option value="top">Topo</option>
+              <option value="center" selected>Centro</option>
+              <option value="bottom">Base</option>
+            </select>
+          </div>
+          <div style="flex:1; min-width:200px;">
+            <label>Capa Dewalt &amp; Stanley</label>
+            <select id="layoutCapaDewaltPos" style="width:100%; padding:8px 10px; border:1px solid #d1d5db; border-radius:6px; font-size:14px;">
+              <option value="top">Topo</option>
+              <option value="center" selected>Centro</option>
+              <option value="bottom">Base</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
     <div id="rodapeAcoes">
       <button class="btn-primaria" id="btnPublicar">🚀 Publicar automaticamente</button>
       <button class="btn-sucesso" id="btnSalvar">💾 Salvar alterações no catálogo</button>
@@ -228,6 +358,26 @@
   const MARK_END_DEWALT = '// ==PRODUTOS-DEWALT-FIM==';
   const SW_MARK_START = '// ==CACHE-INICIO==';
   const SW_MARK_END = '// ==CACHE-FIM==';
+  const LAYOUT_MARK_START = '/* ==LAYOUT-INICIO== */';
+  const LAYOUT_MARK_END = '/* ==LAYOUT-FIM== */';
+
+  const LAYOUT_PADRAO = {
+    '--logo-sfix-altura': '56px',
+    '--logo-makita-altura': '56px',
+    '--logo-sfix-display': 'block',
+    '--logo-makita-display': 'block',
+    '--header-justify': 'space-between',
+    '--header-direcao': 'row',
+    '--header-bg': '#0f5c8c',
+    '--watermark-url': 'url("assets/watermark-tile.png")',
+    '--watermark-opacidade': '1',
+    '--watermark-display': 'block',
+    '--produto-font-familia': '-apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
+    '--produto-font-tamanho': '14.5px',
+    '--produto-font-cor': '#0a4468',
+    '--capa-makita-posicao': 'center',
+    '--capa-dewalt-posicao': 'center'
+  };
 
   const FIXED_SHELL = [
     './',
@@ -259,6 +409,13 @@
   let introMakita = { caminhoAtual: 'assets/intro-makita.jpg', arquivoNovo: null, previewUrl: null };
   let introDewalt = { caminhoAtual: 'assets/intro-dewalt.jpg', arquivoNovo: null, previewUrl: null };
 
+  // layout do site: variáveis CSS + arquivos de imagem fixos (logos/marca d'água)
+  let layoutConfig = { ...LAYOUT_PADRAO };
+  let bodyClasseLayout = ''; // '' ou 'layout-foto-lateral'
+  let logoSfixArquivoNovo = null;
+  let logoMakitaArquivoNovo = null;
+  let watermarkArquivoNovo = null;
+
   // ---------- abas MAKITA / DEWALT & STANLEY do painel admin ----------
 
   document.querySelectorAll('.tab-btn-admin').forEach(btn => {
@@ -266,8 +423,8 @@
       document.querySelectorAll('.tab-btn-admin').forEach(b => b.classList.remove('ativo'));
       document.querySelectorAll('.secao-marca').forEach(s => s.classList.remove('ativo'));
       btn.classList.add('ativo');
-      const alvo = btn.dataset.marca === 'makita' ? 'secaoMakita' : 'secaoDewalt';
-      document.getElementById(alvo).classList.add('ativo');
+      const mapaSecoes = { makita: 'secaoMakita', dewalt: 'secaoDewalt', layout: 'secaoLayout' };
+      document.getElementById(mapaSecoes[btn.dataset.marca]).classList.add('ativo');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   });
@@ -329,12 +486,134 @@
 
   function carregarCatalogoDoTexto(html) {
     carregarCapasDoTexto(html);
+    carregarLayoutDoTexto(html);
 
     if (html.indexOf(MARK_START) === -1 || html.indexOf(MARK_END) === -1) {
       alert('Não encontrei os marcadores de produtos Makita nesse arquivo. Verifique se é o index.html correto.');
     }
     produtos = extrairListaDoTexto(html, MARK_START, MARK_END, 'produtos');
     produtosDewalt = extrairListaDoTexto(html, MARK_START_DEWALT, MARK_END_DEWALT, 'produtosDewalt');
+  }
+
+  // ---------- layout do site: leitura e escrita do bloco de variáveis CSS ----------
+
+  function carregarLayoutDoTexto(html) {
+    layoutConfig = { ...LAYOUT_PADRAO };
+    const s = html.indexOf(LAYOUT_MARK_START);
+    const e = html.indexOf(LAYOUT_MARK_END);
+    if (s !== -1 && e !== -1) {
+      const bloco = html.slice(s + LAYOUT_MARK_START.length, e);
+      const regexLinha = /--([a-z0-9-]+)\s*:\s*([^;]+);/gi;
+      let m;
+      while ((m = regexLinha.exec(bloco)) !== null) {
+        layoutConfig['--' + m[1]] = m[2].trim();
+      }
+    }
+    const mBody = html.match(/<body\s+class="([^"]*)"/);
+    bodyClasseLayout = mBody ? mBody[1].trim() : '';
+  }
+
+  function extrairUrlDeValorCss(valor) {
+    const m = String(valor).match(/url\((['"]?)(.*?)\1\)/);
+    return m ? m[2] : '';
+  }
+
+  function renderizarLayoutForm() {
+    document.getElementById('imgPreviewLogoSfix').src = logoSfixArquivoNovo
+      ? URL.createObjectURL(logoSfixArquivoNovo) : 'assets/logo-sfix.png?' + Date.now();
+    document.getElementById('imgPreviewLogoMakita').src = logoMakitaArquivoNovo
+      ? URL.createObjectURL(logoMakitaArquivoNovo) : 'assets/logo-makita.png?' + Date.now();
+
+    document.getElementById('layoutLogoSfixAltura').value = (layoutConfig['--logo-sfix-altura'] || '56px').replace('px', '');
+    document.getElementById('layoutLogoMakitaAltura').value = (layoutConfig['--logo-makita-altura'] || '56px').replace('px', '');
+    document.getElementById('layoutLogoSfixAtiva').checked = (layoutConfig['--logo-sfix-display'] || 'block') !== 'none';
+    document.getElementById('layoutLogoMakitaAtiva').checked = (layoutConfig['--logo-makita-display'] || 'block') !== 'none';
+    document.getElementById('layoutHeaderJustify').value = layoutConfig['--header-justify'] || 'space-between';
+    document.getElementById('layoutHeaderInverter').checked = (layoutConfig['--header-direcao'] || 'row') === 'row-reverse';
+    document.getElementById('layoutHeaderBg').value = layoutConfig['--header-bg'] || '#0f5c8c';
+
+    document.getElementById('layoutWatermarkAtiva').checked = (layoutConfig['--watermark-display'] || 'block') !== 'none';
+    document.getElementById('layoutWatermarkOpacidade').value = layoutConfig['--watermark-opacidade'] || '1';
+
+    const familiaAtual = layoutConfig['--produto-font-familia'] || LAYOUT_PADRAO['--produto-font-familia'];
+    const selectFamilia = document.getElementById('layoutFontFamilia');
+    const opcaoExiste = Array.from(selectFamilia.options).some(o => o.value === familiaAtual);
+    const customInput = document.getElementById('layoutFontFamiliaCustom');
+    if (opcaoExiste) {
+      selectFamilia.value = familiaAtual;
+      customInput.style.display = 'none';
+    } else {
+      selectFamilia.value = '__custom__';
+      customInput.style.display = 'block';
+      customInput.value = familiaAtual;
+    }
+    document.getElementById('layoutFontTamanho').value = (layoutConfig['--produto-font-tamanho'] || '14.5px').replace('px', '');
+    document.getElementById('layoutFontCor').value = layoutConfig['--produto-font-cor'] || '#0a4468';
+
+    document.getElementById('layoutFotoPosicao').value = bodyClasseLayout === 'layout-foto-lateral' ? 'lateral' : 'topo';
+    document.getElementById('layoutCapaMakitaPos').value = layoutConfig['--capa-makita-posicao'] || 'center';
+    document.getElementById('layoutCapaDewaltPos').value = layoutConfig['--capa-dewalt-posicao'] || 'center';
+  }
+
+  document.getElementById('inputLogoSfix').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    logoSfixArquivoNovo = file;
+    document.getElementById('imgPreviewLogoSfix').src = URL.createObjectURL(file);
+  });
+  document.getElementById('inputLogoMakita').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    logoMakitaArquivoNovo = file;
+    document.getElementById('imgPreviewLogoMakita').src = URL.createObjectURL(file);
+  });
+  document.getElementById('inputWatermark').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    watermarkArquivoNovo = file;
+  });
+  document.getElementById('layoutFontFamilia').addEventListener('change', e => {
+    document.getElementById('layoutFontFamiliaCustom').style.display = e.target.value === '__custom__' ? 'block' : 'none';
+  });
+
+  function coletarLayoutDoFormulario() {
+    const alturaSfix = document.getElementById('layoutLogoSfixAltura').value.trim() || '56';
+    const alturaMakita = document.getElementById('layoutLogoMakitaAltura').value.trim() || '56';
+    const tamanhoFonte = document.getElementById('layoutFontTamanho').value.trim() || '14.5';
+
+    const selectFamilia = document.getElementById('layoutFontFamilia');
+    const familia = selectFamilia.value === '__custom__'
+      ? (document.getElementById('layoutFontFamiliaCustom').value.trim() || LAYOUT_PADRAO['--produto-font-familia'])
+      : selectFamilia.value;
+
+    const watermarkAtiva = document.getElementById('layoutWatermarkAtiva').checked;
+
+    layoutConfig = {
+      '--logo-sfix-altura': alturaSfix.replace('px', '') + 'px',
+      '--logo-makita-altura': alturaMakita.replace('px', '') + 'px',
+      '--logo-sfix-display': document.getElementById('layoutLogoSfixAtiva').checked ? 'block' : 'none',
+      '--logo-makita-display': document.getElementById('layoutLogoMakitaAtiva').checked ? 'block' : 'none',
+      '--header-justify': document.getElementById('layoutHeaderJustify').value,
+      '--header-direcao': document.getElementById('layoutHeaderInverter').checked ? 'row-reverse' : 'row',
+      '--header-bg': document.getElementById('layoutHeaderBg').value,
+      '--watermark-url': watermarkArquivoNovo
+        ? `url("assets/watermark-tile.png")`
+        : (layoutConfig['--watermark-url'] || LAYOUT_PADRAO['--watermark-url']),
+      '--watermark-opacidade': document.getElementById('layoutWatermarkOpacidade').value,
+      '--watermark-display': watermarkAtiva ? 'block' : 'none',
+      '--produto-font-familia': familia,
+      '--produto-font-tamanho': tamanhoFonte.replace('px', '') + 'px',
+      '--produto-font-cor': document.getElementById('layoutFontCor').value,
+      '--capa-makita-posicao': document.getElementById('layoutCapaMakitaPos').value,
+      '--capa-dewalt-posicao': document.getElementById('layoutCapaDewaltPos').value
+    };
+    bodyClasseLayout = document.getElementById('layoutFotoPosicao').value === 'lateral' ? 'layout-foto-lateral' : '';
+    return layoutConfig;
+  }
+
+  function serializarLayout(config) {
+    const linhas = Object.entries(config).map(([chave, valor]) => `    ${chave}: ${valor};`);
+    return LAYOUT_MARK_START + '\n' + linhas.join('\n') + '\n    ' + LAYOUT_MARK_END;
   }
 
   function carregarCapasDoTexto(html) {
@@ -372,6 +651,7 @@
     renderizarProdutos(produtos, document.getElementById('listaProdutosMakita'));
     renderizarProdutos(produtosDewalt, document.getElementById('listaProdutosDewalt'));
     renderizarCapasPreview();
+    renderizarLayoutForm();
     carregarConfigGithub();
   }
 
@@ -452,7 +732,7 @@
 
     const dados = montarArquivosFinais();
     if (!dados) return;
-    const { novoIndexHtml, novoSwJs, fotosNovas, capasNovas } = dados;
+    const { novoIndexHtml, novoSwJs, fotosNovas, capasNovas, layoutArquivosNovos } = dados;
 
     salvarConfigGithub({ token, repo, branch, subpasta });
 
@@ -491,6 +771,15 @@
           caminho: `${prefixo}assets/${c.nomeArq}`,
           conteudoBase64: base64,
           mensagem: `Atualiza capa: ${c.label}`
+        });
+      }
+      for (const item of layoutArquivosNovos) {
+        const base64 = await arquivoParaBase64(item.arquivo);
+        await publicarArquivoNoGithub({
+          token, repo, branch,
+          caminho: `${prefixo}assets/${item.nomeArq}`,
+          conteudoBase64: base64,
+          mensagem: `Atualiza layout: ${item.label}`
         });
       }
 
@@ -757,6 +1046,20 @@ self.addEventListener('fetch', event => {
       `id="introCoverImgDewalt" src="${introDewalt.caminhoFinal}"`
     );
 
+    // bloco de layout do site (logos, cores, fontes, marca d'água, posições)
+    const configLayout = coletarLayoutDoFormulario();
+    const lS = novoIndexHtml.indexOf(LAYOUT_MARK_START);
+    const lE = novoIndexHtml.indexOf(LAYOUT_MARK_END) + LAYOUT_MARK_END.length;
+    if (lS !== -1 && lE !== -1) {
+      novoIndexHtml = novoIndexHtml.slice(0, lS) + serializarLayout(configLayout) + novoIndexHtml.slice(lE);
+    }
+
+    // classe do <body> (define se a foto do produto fica acima ou ao lado do nome)
+    novoIndexHtml = novoIndexHtml.replace(
+      /<body\s+class="[^"]*"/,
+      `<body class="${bodyClasseLayout}"`
+    );
+
     const novoSwJs = gerarNovoSwJs(
       swJsTexto,
       produtos.concat(produtosDewalt),
@@ -770,13 +1073,20 @@ self.addEventListener('fetch', event => {
       introDewalt.arquivoNovo ? { label: 'Capa Dewalt & Stanley', arquivo: introDewalt.arquivoNovo, nomeArq: sanitizarNomeArquivo(introDewalt.arquivoNovo.name) } : null
     ].filter(Boolean);
 
-    return { novoIndexHtml, novoSwJs, fotosNovas, capasNovas };
+    // arquivos de layout (logos sempre com o mesmo nome; marca d'água pode ter nome novo)
+    const layoutArquivosNovos = [
+      logoSfixArquivoNovo ? { label: 'Logo S-Fix', arquivo: logoSfixArquivoNovo, nomeArq: 'logo-sfix.png' } : null,
+      logoMakitaArquivoNovo ? { label: 'Logo Makita', arquivo: logoMakitaArquivoNovo, nomeArq: 'logo-makita.png' } : null,
+      watermarkArquivoNovo ? { label: 'Marca d\'água de fundo', arquivo: watermarkArquivoNovo, nomeArq: 'watermark-tile.png' } : null
+    ].filter(Boolean);
+
+    return { novoIndexHtml, novoSwJs, fotosNovas, capasNovas, layoutArquivosNovos };
   }
 
   document.getElementById('btnSalvar').addEventListener('click', async () => {
     const dados = montarArquivosFinais();
     if (!dados) return;
-    const { novoIndexHtml, novoSwJs, fotosNovas, capasNovas } = dados;
+    const { novoIndexHtml, novoSwJs, fotosNovas, capasNovas, layoutArquivosNovos } = dados;
     const produtosTodos = produtos.concat(produtosDewalt);
 
     const resultado = document.getElementById('resultado');
@@ -802,6 +1112,13 @@ self.addEventListener('fetch', event => {
             await writable.write(capa.arquivoNovo);
             await writable.close();
           }
+        }
+        // grava logos e marca d'água novos (layout do site)
+        for (const item of layoutArquivosNovos) {
+          const fh = await assetsHandle.getFileHandle(item.nomeArq, { create: true });
+          const writable = await fh.createWritable();
+          await writable.write(item.arquivo);
+          await writable.close();
         }
         // grava index.html
         const indexHandle = await dirHandle.getFileHandle('index.html', { create: true });
@@ -842,6 +1159,9 @@ self.addEventListener('fetch', event => {
         capasNovas.forEach(c => {
           zip.file('assets/' + c.nomeArq, c.arquivo);
         });
+        layoutArquivosNovos.forEach(item => {
+          zip.file('assets/' + item.nomeArq, item.arquivo);
+        });
 
         const blobZip = await zip.generateAsync({ type: 'blob' });
         const urlZip = URL.createObjectURL(blobZip);
@@ -855,15 +1175,16 @@ self.addEventListener('fetch', event => {
 
         const listaFotos = fotosNovas.map(p => `<li>${escapeAttr(p.nome)}</li>`).join('');
         const listaCapas = capasNovas.map(c => `<li>${escapeAttr(c.label)}</li>`).join('');
+        const listaLayout = layoutArquivosNovos.map(item => `<li>${escapeAttr(item.label)}</li>`).join('');
 
         resultado.innerHTML = `
           <p class="ok">✓ Arquivos prontos!</p>
           <a class="download-link" href="${urlZip}" download="catalogo-atualizado.zip">⬇ Baixar catalogo-atualizado.zip</a>
           <a class="download-link" href="${urlSw}" download="sw.js">⬇ Baixar sw.js</a>
-          ${(fotosNovas.length || capasNovas.length) ? `
+          ${(fotosNovas.length || capasNovas.length || layoutArquivosNovos.length) ? `
             <div class="lista-arquivos">
               <strong>Fotos incluídas no ZIP (já com o nome certo, na pasta certa):</strong>
-              <ul>${listaCapas}${listaFotos}</ul>
+              <ul>${listaCapas}${listaFotos}${listaLayout}</ul>
             </div>` : ''}
           <p style="margin-top:12px;"><strong>Como usar:</strong> baixe os dois arquivos. Extraia (descompacte) o ZIP — ele contém o <code>index.html</code> e a pasta <code>assets</code>. Depois arraste o <code>index.html</code>, a pasta <code>assets</code> extraída e o <code>sw.js</code> baixado separadamente para dentro da pasta <code>catalogo-pwa</code> do seu computador, substituindo os arquivos quando perguntar. Por fim, suba a pasta atualizada de novo na hospedagem (Netlify/Vercel).</p>
         `;

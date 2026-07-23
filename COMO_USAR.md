@@ -29,6 +29,14 @@ Abra o arquivo `admin.html` no navegador (dois cliques nele, ou publique-o junto
 - Remover um produto
 - Reordenar com as setas ↑ ↓
 
+Há também a aba **"LAYOUT DO SITE"**, onde dá pra mexer em tudo do visual sem código:
+- Trocar as logos (S-Fix e Makita), o tamanho de cada uma e a posição delas no cabeçalho
+- Cor de fundo do cabeçalho
+- Ativar/desativar a marca d'água de fundo, ajustar a transparência e trocar a imagem
+- Fonte, tamanho e cor do nome dos produtos
+- Se a foto do produto aparece acima do nome ou do lado
+- Enquadramento (topo/centro/base) das fotos de capa de cada aba
+
 Clique em **"Salvar alterações no catálogo"** — o painel grava tudo direto na pasta (o `index.html`, o `sw.js` e as fotos novas), sem precisar copiar nada manualmente. Depois é só subir a pasta atualizada de novo na hospedagem.
 
 **Se seu navegador não suportar esse modo automático** (Firefox, Safari, ou celular), use "usar modo manual": selecione o `index.html` atual, edite os produtos normalmente e, ao salvar, o painel gera para você um novo `index.html` e `sw.js` para baixar, além de uma lista dizendo exatamente em qual nome de arquivo salvar cada foto nova dentro de `assets/produtos/`.

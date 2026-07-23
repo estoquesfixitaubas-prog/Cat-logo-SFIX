@@ -16,27 +16,57 @@
     --card: #ffffff;
     --texto: #1c1c1c;
     --cinza: #6b7280;
+
+    /* ==LAYOUT-INICIO== */
+    --logo-sfix-altura: 60px;
+    --logo-makita-altura: 56px;
+    --logo-sfix-display: block;
+    --logo-makita-display: none;
+    --header-justify: flex-start;
+    --header-direcao: row;
+    --header-bg: #0f5c8c;
+    --watermark-url: url("assets/watermark-tile.png");
+    --watermark-opacidade: 1;
+    --watermark-display: block;
+    --produto-font-familia: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    --produto-font-tamanho: 14.5px;
+    --produto-font-cor: #0a4468;
+    --capa-makita-posicao: center;
+    --capa-dewalt-posicao: center;
+    /* ==LAYOUT-FIM== */
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
     background-color: var(--bg);
-    background-image: url("assets/watermark-tile.png");
-    background-repeat: repeat;
     color: var(--texto);
+    position: relative;
+  }
+  body::before {
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    pointer-events:none;
+    background-image: var(--watermark-url);
+    background-repeat: repeat;
+    opacity: var(--watermark-opacidade);
+    display: var(--watermark-display);
   }
 
   header {
-    background: var(--azul);
+    background: var(--header-bg);
     padding: 18px 20px;
     display:flex;
     align-items:center;
-    justify-content:space-between;
+    justify-content: var(--header-justify);
+    flex-direction: var(--header-direcao);
     gap:16px;
     flex-wrap:nowrap;
   }
-  header img { height:56px; object-fit:contain; max-width:42%; }
-  header img.makita { height:56px; }
+  header img { object-fit:contain; max-width:42%; }
+  header img.sfix { height: var(--logo-sfix-altura); display: var(--logo-sfix-display); }
+  header img.makita { height: var(--logo-makita-altura); display: var(--logo-makita-display); }
 
   .tabs {
     display:flex;
@@ -125,6 +155,8 @@
     display:block;
     object-fit:cover;
   }
+  #introCoverImgMakita { object-position: var(--capa-makita-posicao); }
+  #introCoverImgDewalt { object-position: var(--capa-dewalt-posicao); }
 
   .search-wrap {
     max-width: 1100px;
@@ -246,9 +278,10 @@
     border-top: 3px solid var(--teal);
   }
   .card h3 {
-    font-size:14.5px;
+    font-family: var(--produto-font-familia);
+    font-size: var(--produto-font-tamanho);
     line-height:1.3;
-    color: var(--azul-escuro);
+    color: var(--produto-font-cor);
     margin-bottom:8px;
     min-height:38px;
   }
@@ -285,6 +318,21 @@
   }
   .codigo-linha:not(:has(.voltagem)) .codigo {
     border-radius:6px;
+  }
+
+  /* layout alternativo: foto ao lado do nome (ativado via classe no body) */
+  body.layout-foto-lateral .card {
+    flex-direction: row;
+  }
+  body.layout-foto-lateral .card img {
+    width:110px;
+    min-width:110px;
+    aspect-ratio: 1 / 1;
+  }
+  body.layout-foto-lateral .card .info {
+    border-top:none;
+    border-left: 3px solid var(--teal);
+    flex:1;
   }
 
   footer {
@@ -385,10 +433,10 @@
   }
 </style>
 </head>
-<body>
+<body class="">
 
 <header>
-  <img src="assets/logo-sfix.png" alt="S-Fix Distribuindo Soluções">
+  <img class="sfix" src="assets/logo-sfix.png" alt="S-Fix Distribuindo Soluções">
   <img class="makita" src="assets/logo-makita.png" alt="Makita">
 </header>
 
