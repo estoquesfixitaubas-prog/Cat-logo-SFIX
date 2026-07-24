@@ -121,6 +121,19 @@
     margin: 0 -16px;
   }
 
+  #btnIrParaFim, #btnIrParaTopo {
+    position:fixed; right:20px; z-index:500;
+    width:52px; height:52px; border-radius:50%;
+    background:var(--azul); color:#fff; font-size:22px;
+    align-items:center; justify-content:center;
+    box-shadow:0 4px 14px rgba(0,0,0,.3);
+    display:none;
+  }
+  #btnIrParaFim { bottom:20px; }
+  #btnIrParaTopo { bottom:82px; }
+  #btnIrParaFim.mostrar, #btnIrParaTopo.mostrar { display:flex; }
+  #btnIrParaFim:hover, #btnIrParaTopo:hover { background:var(--azul-escuro); }
+
   #resultado { margin-top:16px; font-size:14px; line-height:1.6; }
   #resultado .ok { color:#065f52; font-weight:700; }
   #resultado .lista-arquivos { background:#f4f5f6; border-radius:8px; padding:12px; margin-top:8px; font-family:monospace; font-size:12.5px; }
@@ -194,43 +207,19 @@
 
       <div class="painel">
         <h2>Logos e cabeçalho</h2>
-        <p>Troque as imagens de logo, ajuste o tamanho de cada uma, a posição no cabeçalho e a cor de fundo. Se não escolher um arquivo novo, a logo atual é mantida.</p>
+        <p>Adicione quantas logos quiser no cabeçalho (o "título" do site), escolha a imagem, a altura e se ela fica visível. Use as setas para organizar a ordem em que aparecem.</p>
 
-        <div style="display:flex; gap:20px; flex-wrap:wrap; margin-bottom:14px;">
-          <div style="flex:1; min-width:200px;">
-            <label>Logo S-Fix</label>
-            <div class="capa-preview-wrap" style="height:90px; max-width:220px;">
-              <img id="imgPreviewLogoSfix" class="capa-preview" style="object-fit:contain; background:#0f5c8c;" src="assets/logo-sfix.png">
-            </div>
-            <input type="file" accept="image/*" id="inputLogoSfix">
-            <label style="margin-top:8px;">Altura da logo (px)</label>
-            <input type="text" id="layoutLogoSfixAltura" value="56">
-            <label style="display:flex; align-items:center; gap:8px; font-weight:400; margin-top:8px;">
-              <input type="checkbox" id="layoutLogoSfixAtiva" checked style="width:auto;"> Mostrar esta logo no cabeçalho
-            </label>
-          </div>
-          <div style="flex:1; min-width:200px;">
-            <label>Logo secundária</label>
-            <div class="capa-preview-wrap" style="height:90px; max-width:220px;">
-              <img id="imgPreviewLogoMakita" class="capa-preview" style="object-fit:contain; background:#0f5c8c;" src="assets/logo-makita.png">
-            </div>
-            <input type="file" accept="image/*" id="inputLogoMakita">
-            <label style="margin-top:8px;">Altura da logo (px)</label>
-            <input type="text" id="layoutLogoMakitaAltura" value="56">
-            <label style="display:flex; align-items:center; gap:8px; font-weight:400; margin-top:8px;">
-              <input type="checkbox" id="layoutLogoMakitaAtiva" checked style="width:auto;"> Mostrar esta logo no cabeçalho
-            </label>
-          </div>
-        </div>
+        <div id="listaLogos" style="display:flex; flex-direction:column; gap:14px; margin-bottom:12px;"></div>
+        <button type="button" class="btn-secundaria" id="btnAdicionarLogo" style="margin-bottom:6px;">+ Adicionar logo</button>
 
-        <div style="display:flex; gap:20px; flex-wrap:wrap;">
+        <div style="display:flex; gap:20px; flex-wrap:wrap; margin-top:14px; border-top:1px dashed #e0e0e0; padding-top:14px;">
           <div style="flex:1; min-width:200px;">
             <label>Posição das logos no cabeçalho</label>
             <select id="layoutHeaderJustify" style="width:100%; padding:8px 10px; border:1px solid #d1d5db; border-radius:6px; font-size:14px;">
               <option value="space-between">Uma em cada ponta (padrão)</option>
               <option value="center">Centralizadas</option>
-              <option value="flex-start">Ambas à esquerda</option>
-              <option value="flex-end">Ambas à direita</option>
+              <option value="flex-start">Todas à esquerda</option>
+              <option value="flex-end">Todas à direita</option>
             </select>
           </div>
           <div style="flex:1; min-width:200px;">
@@ -244,6 +233,13 @@
             <input type="color" id="layoutHeaderBg" value="#0f5c8c" style="width:100%; height:38px; padding:2px; border:1px solid #d1d5db; border-radius:6px;">
           </div>
         </div>
+      </div>
+
+      <div class="painel">
+        <h2>Barra de status ("Online")</h2>
+        <p>Cor de fundo da faixa fina no topo do site que mostra se o catálogo está online e atualizado.</p>
+        <label>Cor de fundo</label>
+        <input type="color" id="layoutStatusBarCor" value="#c81e2c" style="width:100%; max-width:220px; height:38px; padding:2px; border:1px solid #d1d5db; border-radius:6px;">
       </div>
 
       <div class="painel">
@@ -306,6 +302,9 @@
 
 </main>
 
+<button type="button" id="btnIrParaTopo" title="Voltar ao topo da página">⬆</button>
+<button type="button" id="btnIrParaFim" title="Ir para o final da página (salvar e baixar)">⬇</button>
+
 <script>
   const ABAS_MARK_START = '// ==ABAS-INICIO==';
   const ABAS_MARK_END = '// ==ABAS-FIM==';
@@ -313,15 +312,16 @@
   const SW_MARK_END = '// ==CACHE-FIM==';
   const LAYOUT_MARK_START = '/* ==LAYOUT-INICIO== */';
   const LAYOUT_MARK_END = '/* ==LAYOUT-FIM== */';
+  const LOGOS_MARK_START = '// ==LOGOS-INICIO==';
+  const LOGOS_MARK_END = '// ==LOGOS-FIM==';
+  const DATA_MARK_START = '// ==DATA-ATUALIZACAO-INICIO==';
+  const DATA_MARK_END = '// ==DATA-ATUALIZACAO-FIM==';
 
   const LAYOUT_PADRAO = {
-    '--logo-sfix-altura': '56px',
-    '--logo-makita-altura': '56px',
-    '--logo-sfix-display': 'block',
-    '--logo-makita-display': 'block',
     '--header-justify': 'space-between',
     '--header-direcao': 'row',
     '--header-bg': '#0f5c8c',
+    '--status-bar-cor': '#c81e2c',
     '--watermark-url': 'url("assets/watermark-tile.png")',
     '--watermark-opacidade': '1',
     '--watermark-display': 'block',
@@ -359,12 +359,14 @@
   let abas = [];
   let abaAtivaId = null; // 'layout' ou o id de uma aba
 
-  // layout do site: variáveis CSS + arquivos de imagem fixos (logos/marca d'água)
+  // layout do site: variáveis CSS + arquivo de imagem fixo (marca d'água)
   let layoutConfig = { ...LAYOUT_PADRAO };
   let bodyClasseLayout = '';
-  let logoSfixArquivoNovo = null;
-  let logoMakitaArquivoNovo = null;
   let watermarkArquivoNovo = null;
+
+  // logos[] — lista dinâmica de logos do cabeçalho, na ordem em que aparecem:
+  // { arquivo, alt, altura, ativa, arquivoNovo, previewUrl }
+  let logos = [];
 
   // ---------- Passo 1: abrir pasta ou arquivo ----------
 
@@ -428,11 +430,54 @@
 
   function carregarCatalogoDoTexto(html) {
     carregarLayoutDoTexto(html);
+    logos = extrairLogosDoTexto(html);
     if (html.indexOf(ABAS_MARK_START) === -1 || html.indexOf(ABAS_MARK_END) === -1) {
       alert('Não encontrei os marcadores de abas nesse arquivo. Verifique se é o index.html correto (gerado por esta versão do painel).');
     }
     abas = extrairAbasDoTexto(html);
     if (abas.length) abaAtivaId = abas[0].id;
+  }
+
+  // ---------- logos do cabeçalho: leitura do bloco dinâmico (com migração do formato antigo de 2 logos fixas) ----------
+
+  function extrairLogosDoTexto(html) {
+    const s = html.indexOf(LOGOS_MARK_START);
+    const e = html.indexOf(LOGOS_MARK_END);
+    if (s !== -1 && e !== -1) {
+      const bloco = html.slice(s + LOGOS_MARK_START.length, e);
+      const m = bloco.match(/const\s+LOGOS\s*=\s*([\s\S]*?);\s*$/);
+      if (m) {
+        try {
+          const lista = new Function('return ' + m[1])();
+          if (Array.isArray(lista) && lista.length) {
+            return lista.map(l => ({
+              arquivo: l.arquivo || '',
+              alt: l.alt || '',
+              altura: l.altura || '56px',
+              ativa: l.ativa !== false,
+              arquivoNovo: null,
+              previewUrl: null
+            }));
+          }
+        } catch (err) { /* cai para o formato antigo abaixo */ }
+      }
+    }
+    // Arquivo de uma versão antiga do painel, sem lista dinâmica de logos:
+    // reconstrói a partir das 2 logos fixas antigas (S-Fix + secundária).
+    return [
+      {
+        arquivo: 'assets/logo-sfix.png', alt: 'S-Fix Distribuindo Soluções',
+        altura: layoutConfig['--logo-sfix-altura'] || '65px',
+        ativa: (layoutConfig['--logo-sfix-display'] || 'block') !== 'none',
+        arquivoNovo: null, previewUrl: null
+      },
+      {
+        arquivo: 'assets/logo-makita.png', alt: 'Logo secundária',
+        altura: layoutConfig['--logo-makita-altura'] || '56px',
+        ativa: (layoutConfig['--logo-makita-display'] || 'block') !== 'none',
+        arquivoNovo: null, previewUrl: null
+      }
+    ];
   }
 
   // ---------- layout do site: leitura e escrita do bloco de variáveis CSS ----------
@@ -454,18 +499,12 @@
   }
 
   function renderizarLayoutForm() {
-    document.getElementById('imgPreviewLogoSfix').src = logoSfixArquivoNovo
-      ? URL.createObjectURL(logoSfixArquivoNovo) : 'assets/logo-sfix.png?' + Date.now();
-    document.getElementById('imgPreviewLogoMakita').src = logoMakitaArquivoNovo
-      ? URL.createObjectURL(logoMakitaArquivoNovo) : 'assets/logo-makita.png?' + Date.now();
+    renderizarLogos();
 
-    document.getElementById('layoutLogoSfixAltura').value = (layoutConfig['--logo-sfix-altura'] || '56px').replace('px', '');
-    document.getElementById('layoutLogoMakitaAltura').value = (layoutConfig['--logo-makita-altura'] || '56px').replace('px', '');
-    document.getElementById('layoutLogoSfixAtiva').checked = (layoutConfig['--logo-sfix-display'] || 'block') !== 'none';
-    document.getElementById('layoutLogoMakitaAtiva').checked = (layoutConfig['--logo-makita-display'] || 'block') !== 'none';
     document.getElementById('layoutHeaderJustify').value = layoutConfig['--header-justify'] || 'space-between';
     document.getElementById('layoutHeaderInverter').checked = (layoutConfig['--header-direcao'] || 'row') === 'row-reverse';
     document.getElementById('layoutHeaderBg').value = layoutConfig['--header-bg'] || '#0f5c8c';
+    document.getElementById('layoutStatusBarCor').value = layoutConfig['--status-bar-cor'] || '#c81e2c';
 
     document.getElementById('layoutWatermarkAtiva').checked = (layoutConfig['--watermark-display'] || 'block') !== 'none';
     document.getElementById('layoutWatermarkOpacidade').value = layoutConfig['--watermark-opacidade'] || '1';
@@ -488,18 +527,97 @@
     document.getElementById('layoutFotoPosicao').value = bodyClasseLayout === 'layout-foto-lateral' ? 'lateral' : 'topo';
   }
 
-  document.getElementById('inputLogoSfix').addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    logoSfixArquivoNovo = file;
-    document.getElementById('imgPreviewLogoSfix').src = URL.createObjectURL(file);
+  // ---------- logos do cabeçalho: renderização da lista dinâmica (adicionar/remover/reordenar) ----------
+
+  function renderizarLogos() {
+    const container = document.getElementById('listaLogos');
+    if (!container) return;
+    container.innerHTML = '';
+
+    logos.forEach((logo, i) => {
+      const card = document.createElement('div');
+      card.className = 'produto-card';
+
+      const previewSrc = logo.previewUrl || (logo.arquivo ? logo.arquivo + '?' + Date.now() : '');
+
+      card.innerHTML = `
+        <div class="produto-topo">
+          <div class="preview" data-preview style="background:#0f5c8c;">
+            ${previewSrc ? `<img src="${previewSrc}">` : 'sem imagem'}
+          </div>
+          <div class="campos">
+            <div>
+              <label>Imagem da logo ${logo.arquivo ? '(já tem uma — escolha só se quiser trocar)' : ''}</label>
+              <input type="file" accept="image/*" data-campo="arquivo">
+            </div>
+            <div>
+              <label>Texto alternativo (nome da logo, para acessibilidade)</label>
+              <input type="text" data-campo="alt" placeholder="ex: Logo Makita" value="${escapeAttr(logo.alt || '')}">
+            </div>
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+              <div style="flex:1; min-width:120px;">
+                <label>Altura (px)</label>
+                <input type="text" data-campo="altura" value="${(logo.altura || '56px').replace('px', '')}">
+              </div>
+              <div style="flex:1; min-width:180px;">
+                <label style="visibility:hidden;">Mostrar</label>
+                <label style="display:flex; align-items:center; gap:8px; font-weight:400;">
+                  <input type="checkbox" data-campo="ativa" ${logo.ativa !== false ? 'checked' : ''} style="width:auto;"> Mostrar esta logo no cabeçalho
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="produto-acoes">
+          <button type="button" class="btn-secundaria icone" data-mover="-1" ${i === 0 ? 'disabled' : ''}>↑ Mover para cima</button>
+          <button type="button" class="btn-secundaria icone" data-mover="1" ${i === logos.length - 1 ? 'disabled' : ''}>↓ Mover para baixo</button>
+          <button type="button" class="btn-perigo icone" data-remover-logo>🗑 Remover logo</button>
+        </div>
+      `;
+
+      card.querySelector('[data-campo="arquivo"]').addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        logo.arquivoNovo = file;
+        logo.previewUrl = URL.createObjectURL(file);
+        renderizarLogos();
+      });
+      card.querySelector('[data-campo="alt"]').addEventListener('input', e => {
+        logo.alt = e.target.value;
+      });
+      card.querySelector('[data-campo="altura"]').addEventListener('input', e => {
+        logo.altura = (e.target.value.trim() || '56').replace('px', '') + 'px';
+      });
+      card.querySelector('[data-campo="ativa"]').addEventListener('change', e => {
+        logo.ativa = e.target.checked;
+      });
+
+      card.querySelector('[data-remover-logo]').addEventListener('click', () => {
+        if (logos.length <= 1) { alert('É preciso manter pelo menos uma logo no cabeçalho.'); return; }
+        if (confirm('Remover esta logo do cabeçalho?')) {
+          logos.splice(i, 1);
+          renderizarLogos();
+        }
+      });
+      card.querySelector('[data-mover="-1"]').addEventListener('click', () => {
+        [logos[i - 1], logos[i]] = [logos[i], logos[i - 1]];
+        renderizarLogos();
+      });
+      card.querySelector('[data-mover="1"]').addEventListener('click', () => {
+        [logos[i + 1], logos[i]] = [logos[i], logos[i + 1]];
+        renderizarLogos();
+      });
+
+      container.appendChild(card);
+    });
+  }
+
+  document.getElementById('btnAdicionarLogo').addEventListener('click', () => {
+    logos.push({ arquivo: '', alt: '', altura: '56px', ativa: true, arquivoNovo: null, previewUrl: null });
+    renderizarLogos();
   });
-  document.getElementById('inputLogoMakita').addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    logoMakitaArquivoNovo = file;
-    document.getElementById('imgPreviewLogoMakita').src = URL.createObjectURL(file);
-  });
+
   document.getElementById('inputWatermark').addEventListener('change', e => {
     const file = e.target.files[0];
     if (!file) return;
@@ -510,8 +628,6 @@
   });
 
   function coletarLayoutDoFormulario() {
-    const alturaSfix = document.getElementById('layoutLogoSfixAltura').value.trim() || '56';
-    const alturaMakita = document.getElementById('layoutLogoMakitaAltura').value.trim() || '56';
     const tamanhoFonte = document.getElementById('layoutFontTamanho').value.trim() || '14.5';
 
     const selectFamilia = document.getElementById('layoutFontFamilia');
@@ -522,13 +638,10 @@
     const watermarkAtiva = document.getElementById('layoutWatermarkAtiva').checked;
 
     layoutConfig = {
-      '--logo-sfix-altura': alturaSfix.replace('px', '') + 'px',
-      '--logo-makita-altura': alturaMakita.replace('px', '') + 'px',
-      '--logo-sfix-display': document.getElementById('layoutLogoSfixAtiva').checked ? 'block' : 'none',
-      '--logo-makita-display': document.getElementById('layoutLogoMakitaAtiva').checked ? 'block' : 'none',
       '--header-justify': document.getElementById('layoutHeaderJustify').value,
       '--header-direcao': document.getElementById('layoutHeaderInverter').checked ? 'row-reverse' : 'row',
       '--header-bg': document.getElementById('layoutHeaderBg').value,
+      '--status-bar-cor': document.getElementById('layoutStatusBarCor').value,
       '--watermark-url': watermarkArquivoNovo
         ? `url("assets/watermark-tile.png")`
         : (layoutConfig['--watermark-url'] || LAYOUT_PADRAO['--watermark-url']),
@@ -545,6 +658,20 @@
   function serializarLayout(config) {
     const linhas = Object.entries(config).map(([chave, valor]) => `    ${chave}: ${valor};`);
     return LAYOUT_MARK_START + '\n' + linhas.join('\n') + '\n    ' + LAYOUT_MARK_END;
+  }
+
+  function serializarLogos(lista) {
+    const linhas = ['const LOGOS = ['];
+    lista.forEach((logo, i) => {
+      linhas.push('  {');
+      linhas.push(`    arquivo: ${JSON.stringify(logo.arquivoFinal || '')},`);
+      linhas.push(`    alt: ${JSON.stringify(logo.alt || '')},`);
+      linhas.push(`    altura: ${JSON.stringify(logo.altura || '56px')},`);
+      linhas.push(`    ativa: ${logo.ativa !== false ? 'true' : 'false'}`);
+      linhas.push(`  }${i < lista.length - 1 ? ',' : ''}`);
+    });
+    linhas.push('];');
+    return LOGOS_MARK_START + '\n  ' + linhas.join('\n  ') + '\n  ' + LOGOS_MARK_END;
   }
 
   // ---------- abas: gerar id único a partir do nome ----------
@@ -710,7 +837,7 @@
     renderizarProdutos(aba.produtos, listaEl);
 
     painelProdutos.querySelector('[data-add-produto]').addEventListener('click', () => {
-      aba.produtos.push({ nome: '', imagem: '', codigos: [{ voltagem: '', codigo: '' }], arquivoNovo: null, previewUrl: null });
+      aba.produtos.push({ nome: '', imagem: '', codigos: [{ voltagem: '', codigo: '' }], arquivoNovo: null, previewUrl: null, criadoEm: new Date().toISOString() });
       renderizarProdutos(aba.produtos, listaEl);
     });
 
@@ -729,7 +856,8 @@
       capaPosicao: 'center',
       arquivoNovoCapa: null,
       previewUrlCapa: null,
-      produtos: []
+      produtos: [],
+      criadoEm: new Date().toISOString()
     };
     abas.push(novaAba);
     abaAtivaId = novaAba.id;
@@ -744,7 +872,17 @@
     renderizarSecoesAbas();
     renderizarLayoutForm();
     carregarConfigGithub();
+    document.getElementById('btnIrParaFim').classList.add('mostrar');
+    document.getElementById('btnIrParaTopo').classList.add('mostrar');
   }
+
+  document.getElementById('btnIrParaFim').addEventListener('click', () => {
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  });
+
+  document.getElementById('btnIrParaTopo').addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
 
   // ---------- Publicação automática via GitHub ----------
 
@@ -1009,6 +1147,7 @@
       linhas.push('      {');
       linhas.push(`        nome: ${JSON.stringify(p.nome || '')},`);
       linhas.push(`        imagem: ${JSON.stringify(p.imagem || '')},`);
+      linhas.push(`        criadoEm: ${JSON.stringify(p.criadoEm || '')},`);
       linhas.push('        codigos: [');
       p.codigos.forEach((c, j) => {
         const virgula = j < p.codigos.length - 1 ? ',' : '';
@@ -1029,6 +1168,7 @@
       linhas.push(`    nome: ${JSON.stringify(aba.nome || '')},`);
       linhas.push(`    capa: ${JSON.stringify(aba.capaFinal || '')},`);
       linhas.push(`    capaPosicao: ${JSON.stringify(aba.capaPosicao || 'center')},`);
+      linhas.push(`    criadoEm: ${JSON.stringify(aba.criadoEm || '')},`);
       linhas.push('    produtos:');
       linhas.push(serializarProdutos(aba.produtos));
       linhas.push(`  }${i < listaAbas.length - 1 ? ',' : ''}`);
@@ -1037,10 +1177,11 @@
     return linhas.join('\n');
   }
 
-  function gerarNovoSwJs(swTextoBase, todosProdutos, capasFinais) {
+  function gerarNovoSwJs(swTextoBase, todosProdutos, capasFinais, logosFinais) {
     const shellFiles = FIXED_SHELL
       .concat(capasFinais.filter(Boolean).map(p => './' + p))
-      .concat(todosProdutos.map(p => './' + p.imagem));
+      .concat(todosProdutos.map(p => './' + p.imagem))
+      .concat((logosFinais || []).filter(Boolean).map(p => './' + p));
     const novoBloco = [
       SW_MARK_START,
       "const CACHE_NAME = 'catalogo-cache-v" + (proximaVersaoCache(swTextoBase)) + "';",
@@ -1103,6 +1244,17 @@ self.addEventListener('fetch', event => {
         if (!p.imagem && !p.arquivoNovo) { alert(`O produto "${p.nome}" (aba "${aba.nome}") ainda não tem foto.`); return null; }
       }
     }
+    if (!logos.length) { alert('O cabeçalho precisa ter pelo menos uma logo.'); return null; }
+    for (const logo of logos) {
+      if (!logo.arquivo && !logo.arquivoNovo) { alert('Uma das logos do cabeçalho ainda não tem imagem.'); return null; }
+    }
+
+    // caminho final de cada logo do cabeçalho (nova imagem enviada, ou já existente)
+    logos.forEach(logo => {
+      logo.arquivoFinal = logo.arquivoNovo
+        ? 'assets/' + sanitizarNomeArquivo(logo.arquivoNovo.name)
+        : (logo.arquivo || '');
+    });
 
     // caminho final de cada foto de produto (nova ou já existente)
     abas.forEach(aba => {
@@ -1127,12 +1279,34 @@ self.addEventListener('fetch', event => {
     const e1 = indexHtmlTexto.indexOf(ABAS_MARK_END) + ABAS_MARK_END.length;
     let novoIndexHtml = indexHtmlTexto.slice(0, s1) + blocoAbas + indexHtmlTexto.slice(e1);
 
+    // bloco de logos do cabeçalho
+    const blocoLogos = serializarLogos(logos);
+    const s2 = novoIndexHtml.indexOf(LOGOS_MARK_START);
+    const e2 = novoIndexHtml.indexOf(LOGOS_MARK_END) + LOGOS_MARK_END.length;
+    if (s2 !== -1 && e2 !== -1) {
+      novoIndexHtml = novoIndexHtml.slice(0, s2) + blocoLogos + novoIndexHtml.slice(e2);
+    } else {
+      // arquivo de uma versão antiga do painel, sem o bloco de logos: insere um novo logo antes do bloco de abas
+      novoIndexHtml = novoIndexHtml.replace(ABAS_MARK_START, blocoLogos + '\n  ' + ABAS_MARK_START);
+    }
+
     // bloco de layout do site
     const configLayout = coletarLayoutDoFormulario();
     const lS = novoIndexHtml.indexOf(LAYOUT_MARK_START);
     const lE = novoIndexHtml.indexOf(LAYOUT_MARK_END) + LAYOUT_MARK_END.length;
     if (lS !== -1 && lE !== -1) {
       novoIndexHtml = novoIndexHtml.slice(0, lS) + serializarLayout(configLayout) + novoIndexHtml.slice(lE);
+    }
+
+    // data/hora desta atualização (usada pela barra vermelha do rodapé)
+    const blocoData = DATA_MARK_START + '\n  const ULTIMA_ATUALIZACAO_ISO = ' + JSON.stringify(new Date().toISOString()) + ';\n  ' + DATA_MARK_END;
+    const dS = novoIndexHtml.indexOf(DATA_MARK_START);
+    const dE = novoIndexHtml.indexOf(DATA_MARK_END) + DATA_MARK_END.length;
+    if (dS !== -1 && dE !== -1) {
+      novoIndexHtml = novoIndexHtml.slice(0, dS) + blocoData + novoIndexHtml.slice(dE);
+    } else {
+      // arquivo de uma versão antiga do painel, sem o bloco de data: insere antes do bloco de abas
+      novoIndexHtml = novoIndexHtml.replace(ABAS_MARK_START, blocoData + '\n  ' + ABAS_MARK_START);
     }
 
     // classe do <body> (define se a foto do produto fica acima ou ao lado do nome)
@@ -1143,19 +1317,21 @@ self.addEventListener('fetch', event => {
 
     const todosProdutos = abas.flatMap(a => a.produtos);
     const capasFinais = abas.map(a => a.capaFinal);
+    const logosFinais = logos.map(l => l.arquivoFinal);
 
-    const novoSwJs = gerarNovoSwJs(swJsTexto, todosProdutos, capasFinais);
+    const novoSwJs = gerarNovoSwJs(swJsTexto, todosProdutos, capasFinais, logosFinais);
 
     const fotosNovas = todosProdutos.filter(p => p.arquivoNovo);
     const capasNovas = abas
       .filter(a => a.arquivoNovoCapa)
       .map(a => ({ label: 'Capa ' + a.nome, arquivo: a.arquivoNovoCapa, nomeArq: sanitizarNomeArquivo(a.arquivoNovoCapa.name) }));
+    const logosNovas = logos
+      .filter(l => l.arquivoNovo)
+      .map(l => ({ label: 'Logo: ' + (l.alt || l.arquivoFinal), arquivo: l.arquivoNovo, nomeArq: sanitizarNomeArquivo(l.arquivoNovo.name) }));
 
     const layoutArquivosNovos = [
-      logoSfixArquivoNovo ? { label: 'Logo S-Fix', arquivo: logoSfixArquivoNovo, nomeArq: 'logo-sfix.png' } : null,
-      logoMakitaArquivoNovo ? { label: 'Logo secundária', arquivo: logoMakitaArquivoNovo, nomeArq: 'logo-makita.png' } : null,
       watermarkArquivoNovo ? { label: 'Marca d\'água de fundo', arquivo: watermarkArquivoNovo, nomeArq: 'watermark-tile.png' } : null
-    ].filter(Boolean);
+    ].filter(Boolean).concat(logosNovas);
 
     return { novoIndexHtml, novoSwJs, fotosNovas, capasNovas, layoutArquivosNovos };
   }

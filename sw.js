@@ -1,5 +1,5 @@
 // ==CACHE-INICIO==
-const CACHE_NAME = 'catalogo-cache-v1';
+const CACHE_NAME = 'catalogo-cache-v2';
 
 const SHELL_FILES = [
   "./",
@@ -11,6 +11,7 @@ const SHELL_FILES = [
   "./assets/seta-voltar.png",
   "./assets/intro-makita.jpg",
   "./assets/capa-dewalt.jpg",
+  "./assets/capa-vidracaria.png",
   "./assets/produtos/1-m9510b.png",
   "./assets/produtos/2-m0920b.png",
   "./assets/produtos/3-ga9020.png",
@@ -128,7 +129,10 @@ const SHELL_FILES = [
   "./assets/produtos/stanley-tripe-1-4-telescopico.png",
   "./assets/produtos/stanley-caixa-de-ferramentas-c-tampa-organ.png",
   "./assets/produtos/stanley-soprador-termico-1800w.png",
-  "./assets/produtos/stanley-organizador-tstak-10-compartimento.png"
+  "./assets/produtos/stanley-organizador-tstak-10-compartimento.png",
+  "./assets/produtos/combo-paraf.-aspirador-dhp485rf1j-dcl180z.png",
+  "./assets/logo-sfix.png",
+  "./assets/logo-makita.png"
 ];
 // ==CACHE-FIM==
 
