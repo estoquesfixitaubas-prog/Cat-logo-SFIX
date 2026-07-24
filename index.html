@@ -18,9 +18,9 @@
     --cinza: #6b7280;
 
     /* ==LAYOUT-INICIO== */
-    --header-justify: flex-start;
+    --header-justify: center;
     --header-direcao: row;
-    --header-bg: #a3a3a3;
+    --header-bg: #e0e3e5;
     --status-bar-cor: #0f5c8c;
     --watermark-url: url("assets/watermark-tile.png");
     --watermark-opacidade: 1;
@@ -317,6 +317,19 @@
   .menu-lateral-item:hover { background:#f1f5f9; border-left-color: var(--teal); }
   .menu-lateral-item.ativo { background:#eef4f8; border-left-color: var(--vermelho); color: var(--vermelho); }
   .menu-lateral-item .icone { font-size:17px; }
+  .menu-lateral-item .badge-aba-nova-lateral {
+    display:inline-block;
+    margin-left:auto;
+    background:#22c55e;
+    color:#fff;
+    font-weight:800;
+    font-size:9.5px;
+    letter-spacing:.3px;
+    text-transform:uppercase;
+    padding:3px 9px;
+    border-radius:20px;
+    box-shadow:0 2px 6px rgba(0,0,0,.25);
+  }
   .menu-lateral-sep { height:1px; background:#e5e7eb; margin:8px 22px; }
   /* Regra automática: cria uma linha entre CADA aba/catálogo dentro do
      menu lateral, não importa quantas abas existam. Ao adicionar uma
@@ -410,6 +423,7 @@
     flex-shrink:0;
   }
   .sort-box {
+    position:relative;
     display:flex;
     align-items:center;
     gap:8px;
@@ -418,6 +432,23 @@
     padding:10px 14px;
     box-shadow: 0 1px 3px rgba(0,0,0,.15);
     flex:0 0 auto;
+  }
+  .badge-sort-novo {
+    position:absolute;
+    top:-9px;
+    right:-8px;
+    z-index:6;
+    background:#22c55e;
+    color:#fff;
+    font-weight:800;
+    font-size:9.5px;
+    letter-spacing:.3px;
+    text-transform:uppercase;
+    padding:4px 10px;
+    border-radius:20px;
+    box-shadow:0 3px 8px rgba(0,0,0,.3);
+    pointer-events:none;
+    white-space:nowrap;
   }
   .sort-box label {
     font-size:13px;
@@ -717,7 +748,7 @@
   // para mostrar "Atualizado hoje às HH:MM" / "Atualizado no dia X".
   // ==========================================================
   // ==DATA-ATUALIZACAO-INICIO==
-  const ULTIMA_ATUALIZACAO_ISO = "2026-07-24T19:45:06.816Z";
+  const ULTIMA_ATUALIZACAO_ISO = "2026-07-24T20:50:13.334Z";
   // ==DATA-ATUALIZACAO-FIM==
 
   // ==========================================================
@@ -1318,6 +1349,30 @@
         codigos: [
           { voltagem: "", codigo: "6030 030" }
         ]
+      },
+      {
+        nome: "as teste",
+        imagem: "assets/produtos/stanley-esmerilhadeira-ang.-115mm-sbg700m2k.png",
+        criadoEm: "2026-07-24T20:49:43.821Z",
+        codigos: [
+          { voltagem: "ad ", codigo: "a " }
+        ]
+      },
+      {
+        nome: "afr ",
+        imagem: "assets/produtos/esmerilhadeira-makita-ang-9-ga9020.png",
+        criadoEm: "2026-07-24T20:49:55.798Z",
+        codigos: [
+          { voltagem: "a ", codigo: "fa" }
+        ]
+      },
+      {
+        nome: "s r",
+        imagem: "assets/produtos/500x500.png",
+        criadoEm: "2026-07-24T20:50:04.805Z",
+        codigos: [
+          { voltagem: "f", codigo: "ae " }
+        ]
       }
     ]
   },
@@ -1752,6 +1807,11 @@
     return (Date.now() - t) <= LIMITE_NOVO_MS && (Date.now() - t) >= 0;
   }
 
+  // Data em que a opção "Produtos novos" foi adicionada ao Ordenar —
+  // o selo "Novo" da caixa de ordenação some sozinho depois de 48h,
+  // igual aos selos das abas/produtos.
+  const DATA_NOVIDADE_ORDENAR = "2026-07-24T20:00:00.000Z";
+
   // ==========================================================
   // Monta as abas (botões + painéis) dinamicamente a partir de ABAS
   // ==========================================================
@@ -1785,13 +1845,14 @@
           <button class="clear-search-btn" id="clearSearch-${aba.id}" aria-label="Limpar busca">✕</button>
         </div>
         <div class="sort-box">
+          ${estaDentroDe48h(DATA_NOVIDADE_ORDENAR) ? `<span class="badge-sort-novo">Novo</span>` : ''}
           <label for="sortSelect-${aba.id}">Ordenar:</label>
           <select id="sortSelect-${aba.id}">
             <option value="">Padrão</option>
             <option value="nome">Nome (A-Z)</option>
             <option value="codigo">Código</option>
             <option value="voltagem">Voltagem</option>
-            <option value="novos">Produtos novos</option>
+            <option value="novos">${estaDentroDe48h(DATA_NOVIDADE_ORDENAR) ? '🆕 ' : ''}Produtos novos</option>
           </select>
         </div>
       </div>
@@ -1851,7 +1912,7 @@
     const item = document.createElement('button');
     item.className = 'menu-lateral-item';
     item.dataset.catalogo = aba.id;
-    item.textContent = aba.nome;
+    item.innerHTML = `<span>${aba.nome}</span>${estaDentroDe48h(aba.criadoEm) ? `<span class="badge-aba-nova-lateral">Novo</span>` : ''}`;
     item.addEventListener('click', () => abrirCatalogo(aba.id));
     menuLateralCatalogos.appendChild(item);
   });
@@ -2263,25 +2324,19 @@
   const TEXTO_ONLINE = 'Online — catálogo atualizado';
   const TEXTO_OFFLINE = 'Offline — mostrando última versão salva';
 
-  // Monta "Atualizado hoje às HH:MM" (se for hoje) ou
-  // "Atualizado no dia DD/MM/AAAA" (se for outro dia), a partir
-  // do horário em que o catálogo foi salvo/publicado pelo admin.html
-  function formatarDataAtualizacao(iso) {
+  // Monta "Última versão: dia DD/MM às HH:MM" a partir do horário em
+  // que o catálogo foi salvo/publicado pelo admin.html. Funciona também
+  // offline, pois ULTIMA_ATUALIZACAO_ISO fica gravado no próprio HTML
+  // (que é cacheado pelo service worker).
+  function formatarUltimaVersao(iso) {
     if (!iso) return null;
     const data = new Date(iso);
     if (isNaN(data.getTime())) return null;
-    const agora = new Date();
-    const mesmoDia = data.getFullYear() === agora.getFullYear()
-      && data.getMonth() === agora.getMonth()
-      && data.getDate() === agora.getDate();
-    if (mesmoDia) {
-      const hh = String(data.getHours()).padStart(2, '0');
-      const mm = String(data.getMinutes()).padStart(2, '0');
-      return `Atualizado hoje às ${hh}:${mm}`;
-    }
     const dd = String(data.getDate()).padStart(2, '0');
     const mmNum = String(data.getMonth() + 1).padStart(2, '0');
-    return `Atualizado no dia ${dd}/${mmNum}/${data.getFullYear()}`;
+    const hh = String(data.getHours()).padStart(2, '0');
+    const mm = String(data.getMinutes()).padStart(2, '0');
+    return `Última versão: dia ${dd}/${mmNum} às ${hh}:${mm}`;
   }
 
   // Troca o texto da barra com um leve fade (some, troca o texto, aparece)
@@ -2293,30 +2348,41 @@
     }, 300);
   }
 
-  function updateStatus() {
-    if (navigator.onLine) {
-      dot.classList.remove('offline');
-      statusText.textContent = TEXTO_ONLINE;
-    } else {
-      dot.classList.add('offline');
-      statusText.textContent = TEXTO_OFFLINE;
+  // ----------------------------------------------------------
+  // Ciclo automático da barra de status: alterna a cada 15s entre
+  // "Online/Offline..." e "Última versão: dia X às Y", pra o
+  // cliente/vendedor sempre conseguir ver de qual versão ele está
+  // vendo o catálogo — mesmo offline.
+  // ----------------------------------------------------------
+  let statusCicloIndex = 0;
+  let statusCicloInterval = null;
+
+  function obterMensagensStatus() {
+    const textoVersao = formatarUltimaVersao(ULTIMA_ATUALIZACAO_ISO);
+    const textoBase = navigator.onLine ? TEXTO_ONLINE : TEXTO_OFFLINE;
+    return textoVersao ? [textoBase, textoVersao] : [textoBase];
+  }
+
+  function iniciarCicloStatus() {
+    if (statusCicloInterval) clearInterval(statusCicloInterval);
+    const mensagens = obterMensagensStatus();
+    statusCicloIndex = 0;
+    statusText.textContent = mensagens[0];
+    if (mensagens.length > 1) {
+      statusCicloInterval = setInterval(() => {
+        statusCicloIndex = (statusCicloIndex + 1) % mensagens.length;
+        trocarTextoStatusComFade(mensagens[statusCicloIndex]);
+      }, 15000);
     }
+  }
+
+  function updateStatus() {
+    dot.classList.toggle('offline', !navigator.onLine);
+    iniciarCicloStatus();
   }
   window.addEventListener('online', updateStatus);
   window.addEventListener('offline', updateStatus);
   updateStatus();
-
-  // Ao abrir a página online, mostra por 15s a data da última
-  // atualização do catálogo e depois volta ao texto normal.
-  if (navigator.onLine) {
-    const textoData = formatarDataAtualizacao(ULTIMA_ATUALIZACAO_ISO);
-    if (textoData) {
-      trocarTextoStatusComFade(textoData);
-      setTimeout(() => {
-        if (navigator.onLine) trocarTextoStatusComFade(TEXTO_ONLINE);
-      }, 15000);
-    }
-  }
 
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').then(reg => reg.update());
