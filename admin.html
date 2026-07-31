@@ -1,0 +1,2592 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel do Catálogo — S-Fix</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+  :root{
+    --azul:#0f5c8c; --azul-escuro:#0a4468; --vermelho:#c81e2c;
+    --teal:#00857c; --bg:#f4f5f6; --texto:#1c1c1c; --cinza:#6b7280;
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+    background:var(--bg); color:var(--texto);
+  }
+  header {
+    background:var(--azul); color:#fff; padding:18px 24px;
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;
+  }
+  header h1 { font-size:18px; margin:0; }
+  header p { margin:2px 0 0; font-size:13px; color:#cfe3f0; }
+
+  main { max-width:820px; margin:0 auto; padding:24px 16px 80px; }
+
+  .painel {
+    background:#fff; border-radius:10px; padding:20px; margin-bottom:20px;
+    box-shadow:0 1px 3px rgba(0,0,0,.1);
+  }
+  .painel h2 { font-size:16px; margin:0 0 10px; color:var(--azul-escuro); }
+  .painel p { font-size:13.5px; color:var(--cinza); line-height:1.5; margin:0 0 14px; }
+
+  button {
+    font-family:inherit; cursor:pointer; border:none; border-radius:8px;
+    padding:10px 16px; font-size:14px; font-weight:700;
+  }
+  .btn-primaria { background:var(--azul); color:#fff; }
+  .btn-primaria:hover { background:var(--azul-escuro); }
+  .btn-sucesso { background:var(--teal); color:#fff; }
+  .btn-perigo { background:#fde8e8; color:var(--vermelho); }
+  .btn-secundaria { background:#e5e7eb; color:#374151; }
+  .btn-secundaria.ativo-cor { background:#0f5c8c; color:#fff; }
+  button:disabled { opacity:.5; cursor:not-allowed; }
+  button.icone { padding:6px 10px; font-size:13px; }
+
+  #modoAviso {
+    font-size:13px; padding:10px 14px; border-radius:8px; margin-bottom:14px;
+  }
+  .aviso-ok { background:#e7f7f3; color:#065f52; }
+  .aviso-atencao { background:#fff4e5; color:#92620a; }
+
+  #editorArea { display:none; }
+
+  /* ---------- abas (dinâmicas) no painel admin ---------- */
+  .tabs-admin-linha {
+    display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap; align-items:stretch;
+  }
+  .tabs-admin { display:flex; gap:10px; flex-wrap:wrap; flex:1; }
+  .tab-btn-admin {
+    flex:1; min-width:140px; background:#fff; color:var(--azul-escuro);
+    border:2px solid var(--azul-escuro); border-radius:10px; padding:12px 16px;
+    font-weight:800; font-size:14px; text-align:center;
+  }
+  .tab-btn-admin.ativo { background:var(--azul-escuro); color:#fff; }
+  .tab-btn-admin.tab-layout { border-color:var(--cinza); color:var(--cinza); }
+  .tab-btn-admin.tab-layout.ativo { background:var(--cinza); color:#fff; }
+  #btnNovaAba {
+    flex:0 0 auto; min-width:120px; border:2px dashed var(--teal); background:#fff; color:var(--teal);
+    border-radius:10px; font-weight:800; font-size:14px;
+  }
+  .secao-marca { display:none; }
+  .secao-marca.ativo { display:block; }
+
+  .aba-topo-acoes {
+    display:flex; align-items:flex-end; gap:12px; flex-wrap:wrap; margin-bottom:6px;
+  }
+  .aba-topo-acoes > div:first-child { flex:1; min-width:220px; }
+
+  /* ---------- pré-visualização da capa de introdução ---------- */
+  .capa-preview-wrap {
+    width:100%; max-width:360px; height:160px; border-radius:8px;
+    background:#eee; overflow:hidden; margin-bottom:10px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .capa-preview-wrap img.capa-preview {
+    width:100%; height:100%; object-fit:cover; display:block;
+  }
+  .capa-preview-wrap.vazia { font-size:12px; color:#999; text-align:center; padding:10px; }
+
+  .produto-card {
+    border:1px solid #e5e7eb; border-radius:10px; padding:16px; margin-bottom:14px;
+    background:#fafbfc;
+  }
+  .produto-topo { display:flex; gap:14px; align-items:flex-start; }
+  .produto-topo .preview {
+    width:80px; height:80px; background:#eee; border-radius:8px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; overflow:hidden;
+    font-size:11px; color:#999; text-align:center;
+  }
+  .produto-topo .preview img { width:100%; height:100%; object-fit:contain; }
+  .campos { flex:1; display:flex; flex-direction:column; gap:8px; }
+  label { font-size:12px; font-weight:700; color:var(--cinza); display:block; margin-bottom:3px; }
+  input[type="text"] {
+    width:100%; padding:8px 10px; border:1px solid #d1d5db; border-radius:6px; font-size:14px;
+  }
+  input[type="file"] { font-size:13px; }
+
+  .codigos-lista { margin-top:10px; display:flex; flex-direction:column; gap:6px; }
+  .codigo-row { display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+  .codigo-row input[type="text"] { flex:1; min-width:100px; }
+  .codigo-row input.voltagem-input { max-width:90px; flex:none; }
+  .codigo-row input.multiplo-input { max-width:150px; flex:none; }
+  .multiplo-aviso-info {
+    font-size:11.5px; color:var(--teal); background:#e7f7f3; border-radius:6px;
+    padding:6px 9px; margin-top:4px; line-height:1.4;
+  }
+
+  .produto-acoes {
+    display:flex; gap:6px; margin-top:12px; padding-top:12px; border-top:1px dashed #e0e0e0;
+    flex-wrap:wrap;
+  }
+
+  #rodapeAcoes {
+    position:sticky; bottom:0; background:#fff; border-top:1px solid #e5e7eb;
+    padding:14px 16px; display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;
+    margin: 0 -16px;
+  }
+
+  #btnIrParaFim, #btnIrParaTopo {
+    position:fixed; right:20px; z-index:500;
+    width:52px; height:52px; border-radius:50%;
+    background:var(--azul); color:#fff; font-size:22px;
+    align-items:center; justify-content:center;
+    box-shadow:0 4px 14px rgba(0,0,0,.3);
+    display:none;
+  }
+  #btnIrParaFim { bottom:20px; }
+  #btnIrParaTopo { bottom:82px; }
+  #btnIrParaFim.mostrar, #btnIrParaTopo.mostrar { display:flex; }
+  #btnIrParaFim:hover, #btnIrParaTopo:hover { background:var(--azul-escuro); }
+
+  #resultado { margin-top:16px; font-size:14px; line-height:1.6; }
+  #resultado .ok { color:#065f52; font-weight:700; }
+  #resultado .lista-arquivos { background:#f4f5f6; border-radius:8px; padding:12px; margin-top:8px; font-family:monospace; font-size:12.5px; }
+  #resultado a.download-link {
+    display:inline-block; margin:6px 8px 0 0; background:var(--azul); color:#fff;
+    padding:8px 14px; border-radius:6px; text-decoration:none; font-size:13.5px; font-weight:700;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Painel do Catálogo</h1>
+    <p>Adicione, edite ou remova produtos e abas sem mexer em código</p>
+  </div>
+</header>
+
+<main>
+
+  <div class="painel" id="painelInicio">
+    <h2>Passo 1 — Abrir o catálogo</h2>
+    <p id="textoModo"></p>
+    <button class="btn-primaria" id="btnAbrirPasta">📁 Selecionar a pasta do catálogo</button>
+    <div style="margin-top:10px;">
+      <button class="btn-secundaria" id="btnModoManual">Não consigo — usar modo manual</button>
+    </div>
+
+    <div id="areaManual" style="display:none; margin-top:16px; border-top:1px dashed #ddd; padding-top:16px;">
+      <p><strong>Modo manual:</strong> selecione os arquivos abaixo, que estão dentro da pasta <code>catalogo-pwa</code>.</p>
+      <div style="margin-bottom:12px;">
+        <label style="display:block; font-size:13px; font-weight:700; margin-bottom:4px;">1) O arquivo <code>catalogo.html</code></label>
+        <input type="file" id="inputIndexManual" accept=".html">
+      </div>
+      <div style="margin-bottom:12px;">
+        <label style="display:block; font-size:13px; font-weight:700; margin-bottom:4px;">2) O arquivo <code>index.html</code> (a landing/página de entrada) — opcional</label>
+        <p style="margin:0 0 6px; font-size:12px; color:var(--cinza);">Selecione se também quiser editar a aparência da landing (aba "LANDING DO SITE") nesta sessão. Sem ele, só a parte do catálogo fica disponível.</p>
+        <input type="file" id="inputLandingManual" accept=".html">
+      </div>
+      <div style="margin-bottom:12px;">
+        <label style="display:block; font-size:13px; font-weight:700; margin-bottom:4px;">3) O arquivo <code>sw.js</code></label>
+        <p style="margin:0 0 6px; font-size:12px; color:var(--cinza);">Se não selecionar o seu <code>sw.js</code> atual aqui, o painel monta um novo do zero — o funcionamento offline continua correto, só o número da versão do cache reinicia em v1.</p>
+        <input type="file" id="inputSwManual" accept=".js">
+      </div>
+      <button type="button" class="btn-primaria" id="btnContinuarManual" disabled>Continuar</button>
+    </div>
+  </div>
+
+  <div id="editorArea">
+
+    <details id="publicacaoAuto" class="painel" style="padding:14px 20px;">
+      <summary style="cursor:pointer; font-weight:800; color:var(--azul-escuro);">🚀 Publicação automática no Netlify (opcional — configurar uma vez)</summary>
+      <div style="margin-top:12px;">
+        <p>Se o seu site no Netlify estiver conectado a um repositório do GitHub com "deploy automático" ativado, o painel pode publicar as mudanças direto nesse repositório — o Netlify detecta e atualiza o site sozinho, sem você entrar lá.</p>
+        <div style="display:flex; flex-direction:column; gap:8px; max-width:480px;">
+          <div>
+            <label>Token de acesso do GitHub (Personal Access Token)</label>
+            <input type="password" id="ghToken" placeholder="ghp_...">
+          </div>
+          <div>
+            <label>Repositório (ex: seu-usuario/seu-repositorio)</label>
+            <input type="text" id="ghRepo" placeholder="usuario/repositorio">
+          </div>
+          <div>
+            <label>Branch</label>
+            <input type="text" id="ghBranch" value="main">
+          </div>
+          <div>
+            <label>Subpasta dentro do repositório (deixe em branco se o site estiver na raiz)</label>
+            <input type="text" id="ghSubpasta" placeholder="ex: catalogo-pwa">
+          </div>
+        </div>
+        <p style="font-size:12px; color:var(--cinza); margin-top:8px;">Essas informações ficam salvas só neste navegador (nunca são enviadas para mim). Se você não configurar isso, use normalmente o botão "Salvar alterações" abaixo.</p>
+      </div>
+    </details>
+
+    <div class="tabs-admin-linha">
+      <div class="tabs-admin" id="tabsAdmin"></div>
+      <button type="button" id="btnNovaAba">+ Nova aba</button>
+    </div>
+
+    <div id="secoesAbas"></div>
+
+    <div id="secaoLayout" class="secao-marca">
+
+      <div class="painel">
+        <h2>Logos e cabeçalho</h2>
+        <p>Adicione quantas logos quiser no cabeçalho (o "título" do site), escolha a imagem, a altura e se ela fica visível. Use as setas para organizar a ordem em que aparecem.</p>
+
+        <div id="listaLogos" style="display:flex; flex-direction:column; gap:14px; margin-bottom:12px;"></div>
+        <button type="button" class="btn-secundaria" id="btnAdicionarLogo" style="margin-bottom:6px;">+ Adicionar logo</button>
+
+        <div style="display:flex; gap:20px; flex-wrap:wrap; margin-top:14px; border-top:1px dashed #e0e0e0; padding-top:14px;">
+          <div style="flex:1; min-width:200px;">
+            <label>Posição das logos no cabeçalho</label>
+            <select id="layoutHeaderJustify" style="width:100%; padding:8px 10px; border:1px solid #d1d5db; border-radius:6px; font-size:14px;">
+              <option value="space-between">Uma em cada ponta (padrão)</option>
+              <option value="center">Centralizadas</option>
+              <option value="flex-start">Todas à esquerda</option>
+              <option value="flex-end">Todas à direita</option>
+            </select>
+          </div>
+          <div style="flex:1; min-width:200px;">
+            <label>&nbsp;</label>
+            <label style="display:flex; align-items:center; gap:8px; font-weight:400; margin-top:8px;">
+              <input type="checkbox" id="layoutHeaderInverter" style="width:auto;"> Inverter a ordem
+            </label>
+          </div>
+          <div style="flex:1; min-width:200px;">
+            <label>Cor de fundo do cabeçalho</label>
+            <input type="color" id="layoutHeaderBg" value="#0f5c8c" style="width:100%; height:38px; padding:2px; border:1px solid #d1d5db; border-radius:6px;">
+          </div>
+        </div>
+      </div>
+
+      <div class="painel">
+        <h2>Barra de status ("Online")</h2>
+        <p>Cor de fundo da faixa fina no topo do site que mostra se o catálogo está online e atualizado.</p>
+        <label>Cor de fundo</label>
+        <input type="color" id="layoutStatusBarCor" value="#c81e2c" style="width:100%; max-width:220px; height:38px; padding:2px; border:1px solid #d1d5db; border-radius:6px;">
+      </div>
+
+      <div class="painel">
+        <h2>Fundo com marca d'água</h2>
+        <p>É o padrão repetido que aparece atrás do conteúdo da página. Você pode trocar a imagem, ajustar a transparência ou desativar completamente.</p>
+        <label style="display:flex; align-items:center; gap:8px; font-weight:400; margin-bottom:10px;">
+          <input type="checkbox" id="layoutWatermarkAtiva" checked style="width:auto;"> Mostrar marca d'água de fundo
+        </label>
+        <label>Transparência (0 = invisível, 1 = totalmente visível)</label>
+        <input type="range" id="layoutWatermarkOpacidade" min="0" max="1" step="0.05" value="1" style="width:100%;">
+        <label style="margin-top:10px;">Trocar imagem da marca d'água</label>
+        <input type="file" accept="image/*" id="inputWatermark">
+      </div>
+
+      <div class="painel">
+        <h2>Fonte dos produtos</h2>
+        <p>Fonte, tamanho e cor usados no nome de cada produto na grade do catálogo.</p>
+        <div style="display:flex; gap:20px; flex-wrap:wrap;">
+          <div style="flex:1; min-width:200px;">
+            <label>Fonte</label>
+            <select id="layoutFontFamilia" style="width:100%; padding:8px 10px; border:1px solid #d1d5db; border-radius:6px; font-size:14px;">
+              <option value='-apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif'>Padrão do sistema</option>
+              <option value='Arial, sans-serif'>Arial</option>
+              <option value='Georgia, serif'>Georgia</option>
+              <option value='"Courier New", monospace'>Courier New</option>
+              <option value='"Arial Narrow", sans-serif'>Arial Narrow (condensada)</option>
+              <option value="__custom__">Outra (digitar abaixo)</option>
+            </select>
+            <input type="text" id="layoutFontFamiliaCustom" placeholder="ex: 'Roboto', sans-serif" style="margin-top:6px; display:none;">
+          </div>
+          <div style="flex:1; min-width:140px;">
+            <label>Tamanho (px)</label>
+            <input type="text" id="layoutFontTamanho" value="14.5">
+          </div>
+          <div style="flex:1; min-width:140px;">
+            <label>Cor</label>
+            <input type="color" id="layoutFontCor" value="#0a4468" style="width:100%; height:38px; padding:2px; border:1px solid #d1d5db; border-radius:6px;">
+          </div>
+        </div>
+      </div>
+
+      <div class="painel">
+        <h2>Posição da foto em cada produto</h2>
+        <p>Onde a foto aparece dentro do card de cada produto na grade.</p>
+        <select id="layoutFotoPosicao" style="width:100%; max-width:360px; padding:8px 10px; border:1px solid #d1d5db; border-radius:6px; font-size:14px;">
+          <option value="topo">Foto acima do nome (padrão)</option>
+          <option value="lateral">Foto ao lado do nome</option>
+        </select>
+      </div>
+
+      <div class="painel">
+        <h2>Tamanho da foto do produto</h2>
+        <p>Ajuste o tamanho da foto dentro do card (caso perceba que alguma foto está pequena/grande demais).</p>
+        <div style="max-width:360px;">
+          <label>Tamanho da foto (preenchimento ao redor — quanto menor, maior a foto aparenta)</label>
+          <input type="range" id="layoutImagemPreenchimento" min="0" max="40" step="1" value="10" style="width:100%;">
+          <p style="margin:4px 0 0; font-size:12px; color:var(--cinza);"><span id="layoutImagemPreenchimentoValor">10</span>px de espaço ao redor da foto</p>
+        </div>
+      </div>
+
+      <div class="painel">
+        <h2>Ícone do botão de descrição (i)</h2>
+        <div>
+          <label>Ícone do botão "i" (imagem)</label>
+          <p style="margin:0 0 8px; font-size:12px; color:var(--cinza);">Por padrão é um círculo com "i". Se preferir, troque por uma imagem sua (logo, símbolo próprio etc). Uma imagem quadrada funciona melhor.</p>
+          <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <div id="previewIconeInfo" style="width:44px; height:44px; border-radius:50%; background:var(--teal); display:flex; align-items:center; justify-content:center; overflow:hidden; border:2px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,.25); flex-shrink:0;"></div>
+            <input type="file" accept="image/*" id="inputIconeInfo" style="flex:1; min-width:200px;">
+            <button type="button" class="btn-secundaria icone" id="btnRemoverIconeInfo" style="display:none;">🗑 Usar ícone padrão</button>
+          </div>
+          <label style="margin-top:14px;">Cor de fundo do ícone</label>
+          <p style="margin:0 0 8px; font-size:12px; color:var(--cinza);">Vale tanto pro ícone padrão (o círculo com "i") quanto pra imagem customizada acima, se ela tiver transparência.</p>
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <button type="button" class="btn-secundaria icone" id="btnFundoIconeTransparente">◻ Transparente</button>
+            <label for="inputFundoIconeCor" class="btn-secundaria icone" style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; margin:0;">
+              🎨 Escolher cor
+              <input type="color" id="inputFundoIconeCor" value="#00857c" style="width:26px; height:26px; padding:0; border:none; border-radius:4px; cursor:pointer; vertical-align:middle;">
+            </label>
+          </div>
+        </div>
+        <div style="margin-top:16px; padding-top:16px; border-top:1px solid #e5e7eb; max-width:360px;">
+          <label>Tamanho do botão "i" (px)</label>
+          <input type="range" id="layoutInfoBtnTamanho" min="20" max="56" step="1" value="36" style="width:100%;">
+          <p style="margin:4px 0 0; font-size:12px; color:var(--cinza);"><span id="layoutInfoBtnTamanhoValor">36</span>px</p>
+        </div>
+      </div>
+
+      <div class="painel">
+        <h2>Ícone do app (tela inicial do celular)</h2>
+        <p>É o ícone que aparece quando alguém usa "Instalar app" / "Adicionar à tela inicial" no celular. Use uma imagem quadrada (recomendado 512x512px), de preferência sem fundo transparente — muitos celulares colocam a imagem dentro de um círculo ou quadrado com fundo branco automaticamente.</p>
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+          <div id="previewIconeApp" style="width:64px; height:64px; border-radius:14px; background:#eee; display:flex; align-items:center; justify-content:center; overflow:hidden; border:2px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,.25); flex-shrink:0;"></div>
+          <input type="file" accept="image/*" id="inputIconeApp" style="flex:1; min-width:200px;">
+          <button type="button" class="btn-secundaria icone" id="btnRemoverIconeApp" style="display:none;">↩ Cancelar troca</button>
+        </div>
+        <p style="margin:10px 0 0; font-size:12px; color:var(--cinza);">Depois de gerar e publicar o pacote atualizado, quem já tinha instalado o app precisa remover o atalho da tela inicial e instalar de novo para ver o ícone novo — o celular guarda uma cópia do ícone antigo no momento da instalação.</p>
+      </div>
+
+      <div class="painel">
+        <h2>Ícone de favoritar (♥)</h2>
+        <p>Botão redondo no canto de cada produto, que a pessoa toca para salvar o item no carrinho de orçamento. Por padrão é o símbolo "♥". Se preferir, troque por uma imagem sua. Uma imagem quadrada funciona melhor.</p>
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+          <div id="previewIconeFavorito" style="width:44px; height:44px; border-radius:50%; background:rgba(255,255,255,.92); display:flex; align-items:center; justify-content:center; overflow:hidden; border:2px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,.25); flex-shrink:0; color:#c81e2c; font-size:19px;"></div>
+          <input type="file" accept="image/*" id="inputIconeFavorito" style="flex:1; min-width:200px;">
+          <button type="button" class="btn-secundaria icone" id="btnRemoverIconeFavorito" style="display:none;">🗑 Usar ícone padrão</button>
+        </div>
+        <div style="margin-top:16px; padding-top:16px; border-top:1px solid #e5e7eb; max-width:360px;">
+          <label>Tamanho do botão do coração (px)</label>
+          <input type="range" id="layoutFavoritoBtnTamanho" min="20" max="56" step="1" value="36" style="width:100%;">
+          <p style="margin:4px 0 0; font-size:12px; color:var(--cinza);"><span id="layoutFavoritoBtnTamanhoValor">36</span>px</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div id="secaoLanding" class="secao-marca">
+
+      <div class="painel" id="landingSemArquivo" style="display:none;">
+        <h2>Landing do site (index.html)</h2>
+        <p>Não encontrei o <code>index.html</code> (a página de entrada/landing) junto com o resto do catálogo. Se quiser editar a aparência dela agora, selecione o arquivo abaixo.</p>
+        <label>O arquivo <code>index.html</code> da landing</label>
+        <input type="file" accept=".html" id="inputLandingAgora">
+      </div>
+
+      <div id="landingCampos" style="display:none;">
+
+        <div class="painel">
+          <h2>Logo da landing</h2>
+          <p>Por padrão a landing mostra o nome da empresa em texto ("S-FIX"). Se preferir, envie uma imagem de logo — ela substitui o texto no cabeçalho e no rodapé.</p>
+          <div style="display:flex; gap:14px; align-items:center; flex-wrap:wrap; margin-bottom:12px;">
+            <div id="landingLogoPreviewWrap" class="capa-preview-wrap vazia" style="max-width:220px; height:70px;">sem imagem — usando texto "S-FIX"</div>
+          </div>
+          <label>Imagem da logo</label>
+          <input type="file" accept="image/*" id="inputLandingLogo">
+          <div style="display:flex; gap:20px; flex-wrap:wrap; margin-top:10px;">
+            <div style="flex:1; min-width:200px;">
+              <label>Texto alternativo (acessibilidade)</label>
+              <input type="text" id="landingLogoAlt" placeholder="ex: Logo da empresa">
+            </div>
+            <div style="flex:1; min-width:140px;">
+              <label>Altura da logo (px)</label>
+              <input type="text" id="landingLogoAltura" value="32">
+            </div>
+          </div>
+          <button type="button" class="btn-perigo icone" id="btnRemoverLandingLogo" style="margin-top:10px; display:none;">🗑 Voltar para o texto "S-FIX"</button>
+        </div>
+
+        <div class="painel">
+          <h2>Imagem de fundo do topo (hero)</h2>
+          <p>Por padrão o topo da página usa um degradê de cores. Se quiser, envie uma foto para usar como fundo (o painel aplica automaticamente uma camada escura por cima, pra manter o texto legível).</p>
+          <div class="capa-preview-wrap vazia" id="landingHeroPreviewWrap" style="max-width:360px;">sem imagem — usando o degradê de cores</div>
+          <input type="file" accept="image/*" id="inputLandingHero" style="margin-top:10px;">
+          <button type="button" class="btn-perigo icone" id="btnRemoverLandingHero" style="margin-top:10px; display:none;">🗑 Voltar para o degradê de cores</button>
+        </div>
+
+        <div class="painel">
+          <h2>Foto na seção "Sobre"</h2>
+          <p>Opcional: adiciona uma foto acima da lista de destaques, na seção "Quem somos".</p>
+          <div class="capa-preview-wrap vazia" id="landingSobrePreviewWrap" style="max-width:320px;">sem foto nessa seção</div>
+          <input type="file" accept="image/*" id="inputLandingSobre" style="margin-top:10px;">
+          <button type="button" class="btn-perigo icone" id="btnRemoverLandingSobre" style="margin-top:10px; display:none;">🗑 Remover foto</button>
+        </div>
+
+        <div class="painel">
+          <h2>Fontes</h2>
+          <p>Escolha um par de fontes (título + texto) para a landing.</p>
+          <select id="landingFontePreset" style="width:100%; max-width:420px; padding:8px 10px; border:1px solid #d1d5db; border-radius:6px; font-size:14px;">
+            <option value="padrao">Padrão (Barlow Condensed + Source Sans 3)</option>
+            <option value="moderna">Moderna (Poppins + Inter)</option>
+            <option value="classica">Clássica (Playfair Display + Lora)</option>
+            <option value="industrial">Industrial (Oswald + Roboto)</option>
+            <option value="custom">Outra (digitar abaixo)</option>
+          </select>
+          <div id="landingFonteCustomCampos" style="display:none; margin-top:12px; display:flex; flex-direction:column; gap:8px; max-width:520px;">
+            <div>
+              <label>Fonte do título (valor CSS, ex: 'Roboto Condensed', sans-serif)</label>
+              <input type="text" id="landingFonteTituloCustom">
+            </div>
+            <div>
+              <label>Fonte do texto (valor CSS)</label>
+              <input type="text" id="landingFonteTextoCustom">
+            </div>
+            <div>
+              <label>Link do Google Fonts (URL do &lt;link&gt;, deixe em branco se a fonte já for do sistema)</label>
+              <input type="text" id="landingFonteHrefCustom" placeholder="https://fonts.googleapis.com/css2?family=...">
+            </div>
+          </div>
+        </div>
+
+        <div class="painel">
+          <h2>Tamanhos de texto</h2>
+          <div style="display:flex; gap:20px; flex-wrap:wrap;">
+            <div style="flex:1; min-width:180px;">
+              <label>Título principal (px)</label>
+              <input type="text" id="landingTamanhoTituloHero" value="60">
+            </div>
+            <div style="flex:1; min-width:180px;">
+              <label>Títulos de seção (px)</label>
+              <input type="text" id="landingTamanhoTituloSecao" value="40">
+            </div>
+            <div style="flex:1; min-width:180px;">
+              <label>Texto normal (px)</label>
+              <input type="text" id="landingTamanhoTexto" value="16">
+            </div>
+          </div>
+        </div>
+
+        <div class="painel">
+          <h2>Cores</h2>
+          <p>A <strong>"Cor do cabeçalho"</strong> controla só a barra do topo. As outras cores (Azul, Azul escuro, etc.) controlam títulos, botões, rodapé e destaques — mudar uma não afeta as outras. Use o botão 💧 para capturar uma cor de qualquer lugar da tela (ex: de uma imagem ou do seu logo).</p>
+          <div style="display:flex; gap:20px; flex-wrap:wrap;">
+            <div style="flex:1; min-width:140px;">
+              <label>Cor do cabeçalho</label>
+              <div style="display:flex; gap:6px;">
+                <input type="color" id="landingCorCabecalho" value="#0a4468" style="flex:1; min-width:0; height:38px; padding:2px; border:1px solid #d1d5db; border-radius:6px;">
+                <button type="button" class="btn-secundaria icone btn-conta-gotas" data-alvo="landingCorCabecalho" title="Capturar cor com conta-gotas">💧</button>
+              </div>
+            </div>
+            <div style="flex:1; min-width:140px;">
+              <label>Azul principal</label>
+              <div style="display:flex; gap:6px;">
+                <input type="color" id="landingCorAzul" value="#0f5c8c" style="flex:1; min-width:0; height:38px; padding:2px; border:1px solid #d1d5db; border-radius:6px;">
+                <button type="button" class="btn-secundaria icone btn-conta-gotas" data-alvo="landingCorAzul" title="Capturar cor com conta-gotas">💧</button>
+              </div>
+            </div>
+            <div style="flex:1; min-width:140px;">
+              <label>Azul escuro</label>
+              <div style="display:flex; gap:6px;">
+                <input type="color" id="landingCorAzulEscuro" value="#0a4468" style="flex:1; min-width:0; height:38px; padding:2px; border:1px solid #d1d5db; border-radius:6px;">
+                <button type="button" class="btn-secundaria icone btn-conta-gotas" data-alvo="landingCorAzulEscuro" title="Capturar cor com conta-gotas">💧</button>
+              </div>
+            </div>
+            <div style="flex:1; min-width:140px;">
+              <label>Vermelho (destaque)</label>
+              <div style="display:flex; gap:6px;">
+                <input type="color" id="landingCorVermelho" value="#c81e2c" style="flex:1; min-width:0; height:38px; padding:2px; border:1px solid #d1d5db; border-radius:6px;">
+                <button type="button" class="btn-secundaria icone btn-conta-gotas" data-alvo="landingCorVermelho" title="Capturar cor com conta-gotas">💧</button>
+              </div>
+            </div>
+            <div style="flex:1; min-width:140px;">
+              <label>Teal (secundária)</label>
+              <div style="display:flex; gap:6px;">
+                <input type="color" id="landingCorTeal" value="#00857c" style="flex:1; min-width:0; height:38px; padding:2px; border:1px solid #d1d5db; border-radius:6px;">
+                <button type="button" class="btn-secundaria icone btn-conta-gotas" data-alvo="landingCorTeal" title="Capturar cor com conta-gotas">💧</button>
+              </div>
+            </div>
+            <div style="flex:1; min-width:140px;">
+              <label>Fundo</label>
+              <div style="display:flex; gap:6px;">
+                <input type="color" id="landingCorFundo" value="#f4f5f6" style="flex:1; min-width:0; height:38px; padding:2px; border:1px solid #d1d5db; border-radius:6px;">
+                <button type="button" class="btn-secundaria icone btn-conta-gotas" data-alvo="landingCorFundo" title="Capturar cor com conta-gotas">💧</button>
+              </div>
+            </div>
+            <div style="flex:1; min-width:140px;">
+              <label>Texto principal</label>
+              <div style="display:flex; gap:6px;">
+                <input type="color" id="landingCorTexto" value="#1c1c1c" style="flex:1; min-width:0; height:38px; padding:2px; border:1px solid #d1d5db; border-radius:6px;">
+                <button type="button" class="btn-secundaria icone btn-conta-gotas" data-alvo="landingCorTexto" title="Capturar cor com conta-gotas">💧</button>
+              </div>
+            </div>
+            <div style="flex:1; min-width:140px;">
+              <label>Texto secundário (cinza)</label>
+              <div style="display:flex; gap:6px;">
+                <input type="color" id="landingCorCinza" value="#6b7280" style="flex:1; min-width:0; height:38px; padding:2px; border:1px solid #d1d5db; border-radius:6px;">
+                <button type="button" class="btn-secundaria icone btn-conta-gotas" data-alvo="landingCorCinza" title="Capturar cor com conta-gotas">💧</button>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:16px; border-top:1px dashed #e0e0e0; padding-top:14px;">
+            <button type="button" class="btn-secundaria" id="btnRestaurarCoresPadrao">↺ Restaurar cores originais</button>
+          </div>
+        </div>
+
+        <div class="painel">
+          <h2>Marcas parceiras</h2>
+          <p>Essas marcas aparecem na landing só como uma vitrine — não são mais um link para o catálogo (esse redirecionamento foi desativado porque estava dando erro). Adicione, edite a ordem ou remova marcas quando quiser.</p>
+          <div id="listaMarcas"></div>
+          <button type="button" class="btn-secundaria" id="btnAdicionarMarca" style="margin-top:6px;">+ Adicionar marca</button>
+        </div>
+
+      </div>
+    </div>
+
+    <div id="rodapeAcoes">
+      <button class="btn-primaria" id="btnPublicar">🚀 Publicar automaticamente</button>
+      <button class="btn-sucesso" id="btnSalvar">💾 Salvar alterações no catálogo</button>
+    </div>
+
+    <div id="resultado"></div>
+  </div>
+
+</main>
+
+<button type="button" id="btnIrParaTopo" title="Voltar ao topo da página">⬆</button>
+<button type="button" id="btnIrParaFim" title="Ir para o final da página (salvar e baixar)">⬇</button>
+
+<script>
+  const ABAS_MARK_START = '// ==ABAS-INICIO==';
+  const ABAS_MARK_END = '// ==ABAS-FIM==';
+  const SW_MARK_START = '// ==CACHE-INICIO==';
+  const SW_MARK_END = '// ==CACHE-FIM==';
+  const LAYOUT_MARK_START = '/* ==LAYOUT-INICIO== */';
+  const LAYOUT_MARK_END = '/* ==LAYOUT-FIM== */';
+  const LOGOS_MARK_START = '// ==LOGOS-INICIO==';
+  const LOGOS_MARK_END = '// ==LOGOS-FIM==';
+  const DATA_MARK_START = '// ==DATA-ATUALIZACAO-INICIO==';
+  const DATA_MARK_END = '// ==DATA-ATUALIZACAO-FIM==';
+
+  const LAYOUT_PADRAO = {
+    '--header-justify': 'space-between',
+    '--header-direcao': 'row',
+    '--header-bg': '#0f5c8c',
+    '--status-bar-cor': '#c81e2c',
+    '--watermark-url': 'url("assets/watermark-tile.png")',
+    '--watermark-opacidade': '1',
+    '--watermark-display': 'block',
+    '--produto-font-familia': '-apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
+    '--produto-font-tamanho': '14.5px',
+    '--produto-font-cor': '#0a4468',
+    '--info-btn-tamanho': '36px',
+    '--produto-imagem-preenchimento': '10px',
+    '--info-icone-url': 'none',
+    '--info-icone-svg-display': 'block',
+    '--info-icone-fundo-cor': '#00857c',
+    '--favorito-icone-url': 'none',
+    '--favorito-icone-simbolo-display': 'flex',
+    '--favorito-icone-filtro-padrao': 'none',
+    '--favorito-btn-tamanho': '36px'
+  };
+
+  const FIXED_SHELL = [
+    './',
+    './index.html',
+    './catalogo.html',
+    './manifest.json',
+    './assets/logo-sfix.png',
+    './assets/logo-makita.png',
+    './assets/watermark-tile.png',
+    './assets/seta-voltar.png'
+  ];
+
+  const temFileSystemAccess = 'showDirectoryPicker' in window;
+  document.getElementById('textoModo').textContent = temFileSystemAccess
+    ? 'Seu navegador suporta o modo automático: a ferramenta lê e salva os arquivos direto na pasta do site, sem downloads manuais.'
+    : 'Seu navegador não suporta o modo automático (funciona melhor no Chrome ou Edge). Use o modo manual abaixo — você vai baixar os arquivos atualizados e copiar as fotos você mesmo.';
+
+  document.getElementById('btnAbrirPasta').style.display = temFileSystemAccess ? '' : 'none';
+
+  let dirHandle = null;
+  let assetsHandle = null;
+  let produtosHandle = null;
+  let indexHtmlTexto = '';
+  let swJsTexto = '';
+  let modoManual = false;
+
+  // ---- landing (index.html) ----
+  let landingHandle = null;       // FileSystemFileHandle do index.html, quando em modo automático
+  let landingHtmlTexto = '';      // conteúdo bruto do index.html carregado
+  let landingDisponivel = false;  // true quando um index.html válido foi carregado (tem os marcadores)
+  let landingConfig = {};         // config atual (ver LANDING_PADRAO)
+  let landingLogoArquivoNovo = null;
+  let landingLogoPreviewUrl = null;
+  let landingLogoRemovida = false;
+  let landingHeroArquivoNovo = null;
+  let landingHeroPreviewUrl = null;
+  let landingHeroRemovida = false;
+  let landingSobreArquivoNovo = null;
+  let landingSobrePreviewUrl = null;
+  let landingSobreRemovida = false;
+  let landingMarcasAtual = []; // lista de nomes (strings) em edição, ver renderizarLandingMarcas()
+
+  // abas[] — cada item: { id, nome, capa, capaPosicao, arquivoNovoCapa, previewUrlCapa,
+  //                        produtos: [{ nome, imagem, codigos:[{voltagem,codigo}], arquivoNovo, previewUrl }] }
+  let abas = [];
+  let abaAtivaId = null; // 'layout' ou o id de uma aba
+
+  // layout do site: variáveis CSS + arquivo de imagem fixo (marca d'água)
+  let layoutConfig = { ...LAYOUT_PADRAO };
+  let bodyClasseLayout = '';
+  let watermarkArquivoNovo = null;
+  let appIconeArquivoNovo = null;
+  let infoIconeArquivoNovo = null;
+  let infoIconeRemovido = false;
+  let infoIconeFundoAtual = '#00857c'; // cor atual do fundo do ícone: hex ou 'transparent'
+  let favoritoIconeArquivoNovo = null;
+  let favoritoIconeRemovido = false;
+
+  // logos[] — lista dinâmica de logos do cabeçalho, na ordem em que aparecem:
+  // { arquivo, alt, altura, ativa, arquivoNovo, previewUrl }
+  let logos = [];
+
+  // ---------- Passo 1: abrir pasta ou arquivo ----------
+
+  document.getElementById('btnModoManual').addEventListener('click', () => {
+    modoManual = true;
+    document.getElementById('areaManual').style.display = 'block';
+  });
+
+  document.getElementById('btnAbrirPasta').addEventListener('click', async () => {
+    try {
+      dirHandle = await window.showDirectoryPicker();
+      assetsHandle = await dirHandle.getDirectoryHandle('assets', { create: true });
+      produtosHandle = await assetsHandle.getDirectoryHandle('produtos', { create: true });
+
+      const catalogoFileHandle = await dirHandle.getFileHandle('catalogo.html');
+      indexHtmlTexto = await (await catalogoFileHandle.getFile()).text();
+
+      const swFileHandle = await dirHandle.getFileHandle('sw.js');
+      swJsTexto = await (await swFileHandle.getFile()).text();
+
+      try {
+        const landingFileHandle = await dirHandle.getFileHandle('index.html');
+        landingHandle = landingFileHandle;
+        landingHtmlTexto = await (await landingFileHandle.getFile()).text();
+      } catch (err) {
+        landingHandle = null;
+        landingHtmlTexto = '';
+      }
+
+      carregarCatalogoDoTexto(indexHtmlTexto);
+      carregarLandingDoTexto(landingHtmlTexto);
+      abrirEditor();
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        alert('Não consegui abrir essa pasta: ' + err.message);
+      }
+    }
+  });
+
+  let indexManualFile = null;
+  let swManualFile = null;
+
+  function atualizarBotaoContinuarManual() {
+    document.getElementById('btnContinuarManual').disabled = !indexManualFile;
+  }
+
+  document.getElementById('inputIndexManual').addEventListener('change', (e) => {
+    indexManualFile = e.target.files[0] || null;
+    atualizarBotaoContinuarManual();
+  });
+
+  document.getElementById('inputSwManual').addEventListener('change', (e) => {
+    swManualFile = e.target.files[0] || null;
+    atualizarBotaoContinuarManual();
+  });
+
+  let landingManualFile = null;
+  document.getElementById('inputLandingManual').addEventListener('change', (e) => {
+    landingManualFile = e.target.files[0] || null;
+  });
+
+  document.getElementById('btnContinuarManual').addEventListener('click', async () => {
+    if (!indexManualFile) return;
+    indexHtmlTexto = await indexManualFile.text();
+
+    if (swManualFile) {
+      swJsTexto = await swManualFile.text();
+    } else {
+      swJsTexto = '';
+      const confirmar = confirm('Você não selecionou o sw.js atual. Se continuar, o painel vai gerar um sw.js novo do zero (o tratamento offline continua correto — só o número da versão do cache reinicia em v1). Quer continuar mesmo assim?');
+      if (!confirmar) return;
+    }
+
+    if (landingManualFile) {
+      landingHtmlTexto = await landingManualFile.text();
+    } else {
+      landingHtmlTexto = '';
+    }
+    landingHandle = null; // modo manual nunca tem handle direto — sempre baixa/gera pra download
+
+    carregarCatalogoDoTexto(indexHtmlTexto);
+    carregarLandingDoTexto(landingHtmlTexto);
+    abrirEditor();
+  });
+
+  // ---------- leitura dos dados atuais do index.html ----------
+
+  function extrairAbasDoTexto(html) {
+    const s = html.indexOf(ABAS_MARK_START);
+    const e = html.indexOf(ABAS_MARK_END);
+    if (s === -1 || e === -1) return [];
+    const bloco = html.slice(s + ABAS_MARK_START.length, e);
+    const m = bloco.match(/const\s+ABAS\s*=\s*([\s\S]*);\s*$/);
+    if (!m) return [];
+    try {
+      const lista = new Function('return ' + m[1])();
+      lista.forEach(aba => {
+        aba.arquivoNovoCapa = null;
+        aba.previewUrlCapa = null;
+        aba.capaPosicao = aba.capaPosicao || 'center';
+        (aba.produtos || []).forEach(p => { p.arquivoNovo = null; p.previewUrl = null; });
+      });
+      return lista;
+    } catch (err) {
+      return [];
+    }
+  }
+
+  function carregarCatalogoDoTexto(html) {
+    carregarLayoutDoTexto(html);
+    logos = extrairLogosDoTexto(html);
+    if (html.indexOf(ABAS_MARK_START) === -1 || html.indexOf(ABAS_MARK_END) === -1) {
+      alert('Não encontrei os marcadores de abas nesse arquivo. Verifique se é o catalogo.html correto (gerado por esta versão do painel).');
+    }
+    abas = extrairAbasDoTexto(html);
+    if (abas.length) abaAtivaId = abas[0].id;
+  }
+
+  // ---------- logos do cabeçalho: leitura do bloco dinâmico (com migração do formato antigo de 2 logos fixas) ----------
+
+  function extrairLogosDoTexto(html) {
+    const s = html.indexOf(LOGOS_MARK_START);
+    const e = html.indexOf(LOGOS_MARK_END);
+    if (s !== -1 && e !== -1) {
+      const bloco = html.slice(s + LOGOS_MARK_START.length, e);
+      const m = bloco.match(/const\s+LOGOS\s*=\s*([\s\S]*?);\s*$/);
+      if (m) {
+        try {
+          const lista = new Function('return ' + m[1])();
+          if (Array.isArray(lista) && lista.length) {
+            return lista.map(l => ({
+              arquivo: l.arquivo || '',
+              alt: l.alt || '',
+              altura: l.altura || '56px',
+              ativa: l.ativa !== false,
+              arquivoNovo: null,
+              previewUrl: null
+            }));
+          }
+        } catch (err) { /* cai para o formato antigo abaixo */ }
+      }
+    }
+    // Arquivo de uma versão antiga do painel, sem lista dinâmica de logos:
+    // reconstrói a partir das 2 logos fixas antigas (S-Fix + secundária).
+    return [
+      {
+        arquivo: 'assets/logo-sfix.png', alt: 'S-Fix Distribuindo Soluções',
+        altura: layoutConfig['--logo-sfix-altura'] || '65px',
+        ativa: (layoutConfig['--logo-sfix-display'] || 'block') !== 'none',
+        arquivoNovo: null, previewUrl: null
+      },
+      {
+        arquivo: 'assets/logo-makita.png', alt: 'Logo secundária',
+        altura: layoutConfig['--logo-makita-altura'] || '56px',
+        ativa: (layoutConfig['--logo-makita-display'] || 'block') !== 'none',
+        arquivoNovo: null, previewUrl: null
+      }
+    ];
+  }
+
+  // ---------- layout do site: leitura e escrita do bloco de variáveis CSS ----------
+
+  function carregarLayoutDoTexto(html) {
+    layoutConfig = { ...LAYOUT_PADRAO };
+    const s = html.indexOf(LAYOUT_MARK_START);
+    const e = html.indexOf(LAYOUT_MARK_END);
+    if (s !== -1 && e !== -1) {
+      const bloco = html.slice(s + LAYOUT_MARK_START.length, e);
+      const regexLinha = /--([a-z0-9-]+)\s*:\s*([^;]+);/gi;
+      let m;
+      while ((m = regexLinha.exec(bloco)) !== null) {
+        layoutConfig['--' + m[1]] = m[2].trim();
+      }
+    }
+    const mBody = html.match(/<body\s+class="([^"]*)"/);
+    bodyClasseLayout = mBody ? mBody[1].trim() : '';
+  }
+
+  function renderizarLayoutForm() {
+    renderizarLogos();
+
+    document.getElementById('layoutHeaderJustify').value = layoutConfig['--header-justify'] || 'space-between';
+    document.getElementById('layoutHeaderInverter').checked = (layoutConfig['--header-direcao'] || 'row') === 'row-reverse';
+    document.getElementById('layoutHeaderBg').value = layoutConfig['--header-bg'] || '#0f5c8c';
+    document.getElementById('layoutStatusBarCor').value = layoutConfig['--status-bar-cor'] || '#c81e2c';
+
+    document.getElementById('layoutWatermarkAtiva').checked = (layoutConfig['--watermark-display'] || 'block') !== 'none';
+    document.getElementById('layoutWatermarkOpacidade').value = layoutConfig['--watermark-opacidade'] || '1';
+
+    const familiaAtual = layoutConfig['--produto-font-familia'] || LAYOUT_PADRAO['--produto-font-familia'];
+    const selectFamilia = document.getElementById('layoutFontFamilia');
+    const opcaoExiste = Array.from(selectFamilia.options).some(o => o.value === familiaAtual);
+    const customInput = document.getElementById('layoutFontFamiliaCustom');
+    if (opcaoExiste) {
+      selectFamilia.value = familiaAtual;
+      customInput.style.display = 'none';
+    } else {
+      selectFamilia.value = '__custom__';
+      customInput.style.display = 'block';
+      customInput.value = familiaAtual;
+    }
+    document.getElementById('layoutFontTamanho').value = (layoutConfig['--produto-font-tamanho'] || '14.5px').replace('px', '');
+    document.getElementById('layoutFontCor').value = layoutConfig['--produto-font-cor'] || '#0a4468';
+
+    document.getElementById('layoutFotoPosicao').value = bodyClasseLayout === 'layout-foto-lateral' ? 'lateral' : 'topo';
+
+    const infoBtnTamanho = (layoutConfig['--info-btn-tamanho'] || '36px').replace('px', '');
+    document.getElementById('layoutInfoBtnTamanho').value = infoBtnTamanho;
+    document.getElementById('layoutInfoBtnTamanhoValor').textContent = infoBtnTamanho;
+
+    const favoritoBtnTamanho = (layoutConfig['--favorito-btn-tamanho'] || '36px').replace('px', '');
+    document.getElementById('layoutFavoritoBtnTamanho').value = favoritoBtnTamanho;
+    document.getElementById('layoutFavoritoBtnTamanhoValor').textContent = favoritoBtnTamanho;
+
+    const imagemPreenchimento = (layoutConfig['--produto-imagem-preenchimento'] || '10px').replace('px', '');
+    document.getElementById('layoutImagemPreenchimento').value = imagemPreenchimento;
+    document.getElementById('layoutImagemPreenchimentoValor').textContent = imagemPreenchimento;
+
+    appIconeArquivoNovo = null;
+    document.getElementById('inputIconeApp').value = '';
+    atualizarPreviewIconeApp();
+
+    infoIconeArquivoNovo = null;
+    infoIconeRemovido = false;
+    document.getElementById('inputIconeInfo').value = '';
+    infoIconeFundoAtual = layoutConfig['--info-icone-fundo-cor'] || LAYOUT_PADRAO['--info-icone-fundo-cor'];
+    atualizarPreviewIconeInfo();
+    atualizarUiFundoIconeInfo();
+
+    favoritoIconeArquivoNovo = null;
+    favoritoIconeRemovido = false;
+    document.getElementById('inputIconeFavorito').value = '';
+    atualizarPreviewIconeFavorito();
+  }
+
+  // ---------- ícone do app (tela inicial do celular) ----------
+
+  function atualizarPreviewIconeApp() {
+    const preview = document.getElementById('previewIconeApp');
+    const btnCancelar = document.getElementById('btnRemoverIconeApp');
+    if (appIconeArquivoNovo) {
+      preview.innerHTML = `<img src="${URL.createObjectURL(appIconeArquivoNovo)}" style="width:100%; height:100%; object-fit:cover;">`;
+      btnCancelar.style.display = '';
+    } else {
+      preview.innerHTML = `<img src="assets/logo-sfix.png?${Date.now()}" style="width:100%; height:100%; object-fit:contain;" onerror="this.style.display='none'">`;
+      btnCancelar.style.display = 'none';
+    }
+  }
+
+  document.getElementById('inputIconeApp').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    appIconeArquivoNovo = file;
+    atualizarPreviewIconeApp();
+  });
+
+  document.getElementById('btnRemoverIconeApp').addEventListener('click', () => {
+    appIconeArquivoNovo = null;
+    document.getElementById('inputIconeApp').value = '';
+    atualizarPreviewIconeApp();
+  });
+
+  // ---------- ícone customizado do botão "i" (descrição do produto) ----------
+
+  function atualizarPreviewIconeInfo() {
+    const preview = document.getElementById('previewIconeInfo');
+    const btnRemover = document.getElementById('btnRemoverIconeInfo');
+    const temIconeExistente = !!(layoutConfig['--info-icone-url'] && layoutConfig['--info-icone-url'] !== 'none');
+    const temCustom = !infoIconeRemovido && (infoIconeArquivoNovo || temIconeExistente);
+
+    if (infoIconeArquivoNovo) {
+      preview.innerHTML = `<img src="${URL.createObjectURL(infoIconeArquivoNovo)}" style="width:100%; height:100%; object-fit:cover;">`;
+    } else if (temCustom) {
+      preview.innerHTML = `<img src="assets/info-icone.png?${Date.now()}" style="width:100%; height:100%; object-fit:cover;">`;
+    } else {
+      preview.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" style="width:60%; height:60%;"><line x1="12" y1="7" x2="12" y2="13.5"></line><circle cx="12" cy="17" r="0.6" fill="#fff" stroke="none"></circle></svg>`;
+    }
+    btnRemover.style.display = temCustom ? '' : 'none';
+  }
+
+  // cor de fundo do ícone: reflete a seleção atual nos botões e no preview
+  // (o preview usa um xadrez cinza/branco pra indicar "transparente", já
+  // que uma cor sólida não deixaria isso visível)
+  function atualizarUiFundoIconeInfo() {
+    const btnTransparente = document.getElementById('btnFundoIconeTransparente');
+    const inputCor = document.getElementById('inputFundoIconeCor');
+    const preview = document.getElementById('previewIconeInfo');
+    const transparenteAtivo = infoIconeFundoAtual === 'transparent';
+
+    btnTransparente.classList.toggle('ativo-cor', transparenteAtivo);
+    if (!transparenteAtivo) {
+      inputCor.value = infoIconeFundoAtual;
+    }
+
+    preview.style.background = transparenteAtivo
+      ? 'repeating-conic-gradient(#d1d5db 0% 25%, #fff 0% 50%) 50% / 12px 12px'
+      : infoIconeFundoAtual;
+  }
+
+  document.getElementById('btnFundoIconeTransparente').addEventListener('click', () => {
+    infoIconeFundoAtual = 'transparent';
+    atualizarUiFundoIconeInfo();
+  });
+
+  document.getElementById('inputFundoIconeCor').addEventListener('input', e => {
+    infoIconeFundoAtual = e.target.value;
+    atualizarUiFundoIconeInfo();
+  });
+
+  // ---------- ícone customizado do coração de favoritar ----------
+
+  function atualizarPreviewIconeFavorito() {
+    const preview = document.getElementById('previewIconeFavorito');
+    const btnRemover = document.getElementById('btnRemoverIconeFavorito');
+    const temIconeExistente = !!(layoutConfig['--favorito-icone-url'] && layoutConfig['--favorito-icone-url'] !== 'none');
+    const temCustom = !favoritoIconeRemovido && (favoritoIconeArquivoNovo || temIconeExistente);
+
+    if (favoritoIconeArquivoNovo) {
+      preview.innerHTML = `<img src="${URL.createObjectURL(favoritoIconeArquivoNovo)}" style="width:100%; height:100%; object-fit:cover;">`;
+    } else if (temCustom) {
+      preview.innerHTML = `<img src="assets/favorito-icone.png?${Date.now()}" style="width:100%; height:100%; object-fit:cover;">`;
+    } else {
+      preview.innerHTML = `♥`;
+    }
+    btnRemover.style.display = temCustom ? '' : 'none';
+  }
+
+  document.getElementById('inputIconeFavorito').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    favoritoIconeArquivoNovo = file;
+    favoritoIconeRemovido = false;
+    atualizarPreviewIconeFavorito();
+  });
+
+  document.getElementById('btnRemoverIconeFavorito').addEventListener('click', () => {
+    favoritoIconeArquivoNovo = null;
+    favoritoIconeRemovido = true;
+    document.getElementById('inputIconeFavorito').value = '';
+    atualizarPreviewIconeFavorito();
+  });
+
+  document.getElementById('inputIconeInfo').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    infoIconeArquivoNovo = file;
+    infoIconeRemovido = false;
+    atualizarPreviewIconeInfo();
+  });
+
+  document.getElementById('btnRemoverIconeInfo').addEventListener('click', () => {
+    infoIconeArquivoNovo = null;
+    infoIconeRemovido = true;
+    document.getElementById('inputIconeInfo').value = '';
+    atualizarPreviewIconeInfo();
+  });
+
+  // ---------- logos do cabeçalho: renderização da lista dinâmica (adicionar/remover/reordenar) ----------
+
+  function renderizarLogos() {
+    const container = document.getElementById('listaLogos');
+    if (!container) return;
+    container.innerHTML = '';
+
+    logos.forEach((logo, i) => {
+      const card = document.createElement('div');
+      card.className = 'produto-card';
+
+      const previewSrc = logo.previewUrl || (logo.arquivo ? logo.arquivo + '?' + Date.now() : '');
+
+      card.innerHTML = `
+        <div class="produto-topo">
+          <div class="preview" data-preview style="background:#0f5c8c;">
+            ${previewSrc ? `<img src="${previewSrc}">` : 'sem imagem'}
+          </div>
+          <div class="campos">
+            <div>
+              <label>Imagem da logo ${logo.arquivo ? '(já tem uma — escolha só se quiser trocar)' : ''}</label>
+              <input type="file" accept="image/*" data-campo="arquivo">
+            </div>
+            <div>
+              <label>Texto alternativo (nome da logo, para acessibilidade)</label>
+              <input type="text" data-campo="alt" placeholder="ex: Logo Makita" value="${escapeAttr(logo.alt || '')}">
+            </div>
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+              <div style="flex:1; min-width:120px;">
+                <label>Altura (px)</label>
+                <input type="text" data-campo="altura" value="${(logo.altura || '56px').replace('px', '')}">
+              </div>
+              <div style="flex:1; min-width:180px;">
+                <label style="visibility:hidden;">Mostrar</label>
+                <label style="display:flex; align-items:center; gap:8px; font-weight:400;">
+                  <input type="checkbox" data-campo="ativa" ${logo.ativa !== false ? 'checked' : ''} style="width:auto;"> Mostrar esta logo no cabeçalho
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="produto-acoes">
+          <button type="button" class="btn-secundaria icone" data-mover="-1" ${i === 0 ? 'disabled' : ''}>↑ Mover para cima</button>
+          <button type="button" class="btn-secundaria icone" data-mover="1" ${i === logos.length - 1 ? 'disabled' : ''}>↓ Mover para baixo</button>
+          <button type="button" class="btn-perigo icone" data-remover-logo>🗑 Remover logo</button>
+        </div>
+      `;
+
+      card.querySelector('[data-campo="arquivo"]').addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        logo.arquivoNovo = file;
+        logo.previewUrl = URL.createObjectURL(file);
+        renderizarLogos();
+      });
+      card.querySelector('[data-campo="alt"]').addEventListener('input', e => {
+        logo.alt = e.target.value;
+      });
+      card.querySelector('[data-campo="altura"]').addEventListener('input', e => {
+        logo.altura = (e.target.value.trim() || '56').replace('px', '') + 'px';
+      });
+      card.querySelector('[data-campo="ativa"]').addEventListener('change', e => {
+        logo.ativa = e.target.checked;
+      });
+
+      card.querySelector('[data-remover-logo]').addEventListener('click', () => {
+        if (logos.length <= 1) { alert('É preciso manter pelo menos uma logo no cabeçalho.'); return; }
+        if (confirm('Remover esta logo do cabeçalho?')) {
+          logos.splice(i, 1);
+          renderizarLogos();
+        }
+      });
+      card.querySelector('[data-mover="-1"]').addEventListener('click', () => {
+        [logos[i - 1], logos[i]] = [logos[i], logos[i - 1]];
+        renderizarLogos();
+      });
+      card.querySelector('[data-mover="1"]').addEventListener('click', () => {
+        [logos[i + 1], logos[i]] = [logos[i], logos[i + 1]];
+        renderizarLogos();
+      });
+
+      container.appendChild(card);
+    });
+  }
+
+  document.getElementById('btnAdicionarLogo').addEventListener('click', () => {
+    logos.push({ arquivo: '', alt: '', altura: '56px', ativa: true, arquivoNovo: null, previewUrl: null });
+    renderizarLogos();
+  });
+
+  document.getElementById('inputWatermark').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    watermarkArquivoNovo = file;
+  });
+  document.getElementById('layoutFontFamilia').addEventListener('change', e => {
+    document.getElementById('layoutFontFamiliaCustom').style.display = e.target.value === '__custom__' ? 'block' : 'none';
+  });
+  document.getElementById('layoutInfoBtnTamanho').addEventListener('input', e => {
+    document.getElementById('layoutInfoBtnTamanhoValor').textContent = e.target.value;
+  });
+  document.getElementById('layoutFavoritoBtnTamanho').addEventListener('input', e => {
+    document.getElementById('layoutFavoritoBtnTamanhoValor').textContent = e.target.value;
+  });
+  document.getElementById('layoutImagemPreenchimento').addEventListener('input', e => {
+    document.getElementById('layoutImagemPreenchimentoValor').textContent = e.target.value;
+  });
+
+  function coletarLayoutDoFormulario() {
+    const tamanhoFonte = document.getElementById('layoutFontTamanho').value.trim() || '14.5';
+
+    const selectFamilia = document.getElementById('layoutFontFamilia');
+    const familia = selectFamilia.value === '__custom__'
+      ? (document.getElementById('layoutFontFamiliaCustom').value.trim() || LAYOUT_PADRAO['--produto-font-familia'])
+      : selectFamilia.value;
+
+    const watermarkAtiva = document.getElementById('layoutWatermarkAtiva').checked;
+
+    layoutConfig = {
+      '--header-justify': document.getElementById('layoutHeaderJustify').value,
+      '--header-direcao': document.getElementById('layoutHeaderInverter').checked ? 'row-reverse' : 'row',
+      '--header-bg': document.getElementById('layoutHeaderBg').value,
+      '--status-bar-cor': document.getElementById('layoutStatusBarCor').value,
+      '--watermark-url': watermarkArquivoNovo
+        ? `url("assets/watermark-tile.png")`
+        : (layoutConfig['--watermark-url'] || LAYOUT_PADRAO['--watermark-url']),
+      '--watermark-opacidade': document.getElementById('layoutWatermarkOpacidade').value,
+      '--watermark-display': watermarkAtiva ? 'block' : 'none',
+      '--produto-font-familia': familia,
+      '--produto-font-tamanho': tamanhoFonte.replace('px', '') + 'px',
+      '--produto-font-cor': document.getElementById('layoutFontCor').value,
+      '--info-btn-tamanho': document.getElementById('layoutInfoBtnTamanho').value + 'px',
+      '--produto-imagem-preenchimento': document.getElementById('layoutImagemPreenchimento').value + 'px',
+      '--info-icone-url': infoIconeRemovido
+        ? 'none'
+        : (infoIconeArquivoNovo
+            ? `url("assets/info-icone.png")`
+            : (layoutConfig['--info-icone-url'] || LAYOUT_PADRAO['--info-icone-url'])),
+      '--info-icone-svg-display': infoIconeRemovido
+        ? 'block'
+        : ((infoIconeArquivoNovo || (layoutConfig['--info-icone-url'] && layoutConfig['--info-icone-url'] !== 'none')) ? 'none' : 'block'),
+      '--info-icone-fundo-cor': infoIconeFundoAtual || LAYOUT_PADRAO['--info-icone-fundo-cor'],
+      '--favorito-icone-url': favoritoIconeRemovido
+        ? 'none'
+        : (favoritoIconeArquivoNovo
+            ? `url("assets/favorito-icone.png")`
+            : (layoutConfig['--favorito-icone-url'] || LAYOUT_PADRAO['--favorito-icone-url'])),
+      '--favorito-icone-simbolo-display': favoritoIconeRemovido
+        ? 'flex'
+        : ((favoritoIconeArquivoNovo || (layoutConfig['--favorito-icone-url'] && layoutConfig['--favorito-icone-url'] !== 'none')) ? 'none' : 'flex'),
+      '--favorito-icone-filtro-padrao': favoritoIconeRemovido
+        ? 'none'
+        : ((favoritoIconeArquivoNovo || (layoutConfig['--favorito-icone-url'] && layoutConfig['--favorito-icone-url'] !== 'none')) ? 'grayscale(65%) brightness(1.9) opacity(.55)' : 'none'),
+      '--favorito-btn-tamanho': document.getElementById('layoutFavoritoBtnTamanho').value + 'px'
+    };
+    bodyClasseLayout = document.getElementById('layoutFotoPosicao').value === 'lateral' ? 'layout-foto-lateral' : '';
+    return layoutConfig;
+  }
+
+  function serializarLayout(config) {
+    const linhas = Object.entries(config).map(([chave, valor]) => `    ${chave}: ${valor};`);
+    return LAYOUT_MARK_START + '\n' + linhas.join('\n') + '\n    ' + LAYOUT_MARK_END;
+  }
+
+  // ================= LANDING (index.html) =================
+
+  const LANDING_CONFIG_MARK_START = '<!-- ==LANDING-CONFIG-INICIO==';
+  const LANDING_CONFIG_MARK_END = '==LANDING-CONFIG-FIM== -->';
+  const LANDING_FONTE_MARK_START = '<!-- ==LANDING-FONTE-LINK-INICIO== -->';
+  const LANDING_FONTE_MARK_END = '<!-- ==LANDING-FONTE-LINK-FIM== -->';
+  const LANDING_STYLE_MARK_START = '/* ==LANDING-STYLE-INICIO== */';
+  const LANDING_STYLE_MARK_END = '/* ==LANDING-STYLE-FIM== */';
+  const LANDING_HERO_TAG_MARK_START = '<!-- ==LANDING-HERO-TAG-INICIO== -->';
+  const LANDING_HERO_TAG_MARK_END = '<!-- ==LANDING-HERO-TAG-FIM== -->';
+  const LANDING_LOGO_HEADER_MARK_START = '<!-- ==LANDING-LOGO-HEADER-INICIO== -->';
+  const LANDING_LOGO_HEADER_MARK_END = '<!-- ==LANDING-LOGO-HEADER-FIM== -->';
+  const LANDING_LOGO_FOOTER_MARK_START = '<!-- ==LANDING-LOGO-FOOTER-INICIO== -->';
+  const LANDING_LOGO_FOOTER_MARK_END = '<!-- ==LANDING-LOGO-FOOTER-FIM== -->';
+  const LANDING_SOBRE_IMG_MARK_START = '<!-- ==LANDING-SOBRE-IMG-INICIO== -->';
+  const LANDING_SOBRE_IMG_MARK_END = '<!-- ==LANDING-SOBRE-IMG-FIM== -->';
+  const LANDING_MARCAS_MARK_START = '<!-- ==LANDING-MARCAS-INICIO== -->';
+  const LANDING_MARCAS_MARK_END = '<!-- ==LANDING-MARCAS-FIM== -->';
+
+  const LANDING_PADRAO = {
+    marcas: ['Makita', 'Dewalt & Stanley'],
+    logoImagem: '',
+    logoAlt: 'Logo da empresa',
+    logoAltura: '32',
+    heroImagem: '',
+    sobreImagem: '',
+    fontTitulo: "'Barlow Condensed',sans-serif",
+    fontTexto: "'Source Sans 3',sans-serif",
+    fontGoogleHref: "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap",
+    tamanhoTituloHero: '60',
+    tamanhoTituloSecao: '40',
+    tamanhoTexto: '16',
+    corAzul: '#0f5c8c',
+    corAzulEscuro: '#0a4468',
+    corVermelho: '#c81e2c',
+    corTeal: '#00857c',
+    corFundo: '#f4f5f6',
+    corTexto: '#1c1c1c',
+    corCinza: '#6b7280',
+    corCabecalho: '#0a4468'
+  };
+
+  const LANDING_FONTE_PRESETS = {
+    padrao: {
+      fontTitulo: "'Barlow Condensed',sans-serif",
+      fontTexto: "'Source Sans 3',sans-serif",
+      fontGoogleHref: "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap"
+    },
+    moderna: {
+      fontTitulo: "'Poppins',sans-serif",
+      fontTexto: "'Inter',sans-serif",
+      fontGoogleHref: "https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+    },
+    classica: {
+      fontTitulo: "'Playfair Display',serif",
+      fontTexto: "'Lora',serif",
+      fontGoogleHref: "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:wght@400;500;600;700&display=swap"
+    },
+    industrial: {
+      fontTitulo: "'Oswald',sans-serif",
+      fontTexto: "'Roboto',sans-serif",
+      fontGoogleHref: "https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=Roboto:wght@400;500;700&display=swap"
+    }
+  };
+
+  function extrairBlocoEntre(html, inicio, fim) {
+    const s = html.indexOf(inicio);
+    const e = html.indexOf(fim);
+    if (s === -1 || e === -1) return null;
+    return html.slice(s + inicio.length, e);
+  }
+
+  function substituirBloco(html, marcadorInicio, marcadorFim, novoBloco) {
+    const s = html.indexOf(marcadorInicio);
+    const e = html.indexOf(marcadorFim);
+    if (s === -1 || e === -1) return html; // marcador não encontrado nesse arquivo: não mexe
+    return html.slice(0, s) + novoBloco + html.slice(e + marcadorFim.length);
+  }
+
+  function carregarLandingDoTexto(html) {
+    landingConfig = { ...LANDING_PADRAO };
+    landingDisponivel = false;
+    if (!html) return;
+    const bloco = extrairBlocoEntre(html, LANDING_CONFIG_MARK_START, LANDING_CONFIG_MARK_END);
+    if (bloco === null) return; // não achou os marcadores (arquivo antigo, sem esse recurso)
+    try {
+      const dados = JSON.parse(bloco.trim());
+      landingConfig = { ...LANDING_PADRAO, ...dados };
+      landingDisponivel = true;
+    } catch (err) {
+      landingDisponivel = false;
+    }
+  }
+
+  function atualizarPreviewLandingImagem(tipo) {
+    const mapa = {
+      logo: { wrap: 'landingLogoPreviewWrap', btn: 'btnRemoverLandingLogo', campo: 'logoImagem', vazio: 'sem imagem — usando texto "S-FIX"' },
+      hero: { wrap: 'landingHeroPreviewWrap', btn: 'btnRemoverLandingHero', campo: 'heroImagem', vazio: 'sem imagem — usando o degradê de cores' },
+      sobre: { wrap: 'landingSobrePreviewWrap', btn: 'btnRemoverLandingSobre', campo: 'sobreImagem', vazio: 'sem foto nessa seção' }
+    };
+    const info = mapa[tipo];
+    const wrap = document.getElementById(info.wrap);
+    const btnRemover = document.getElementById(info.btn);
+
+    const arquivoNovo = tipo === 'logo' ? landingLogoArquivoNovo : (tipo === 'hero' ? landingHeroArquivoNovo : landingSobreArquivoNovo);
+    const removida = tipo === 'logo' ? landingLogoRemovida : (tipo === 'hero' ? landingHeroRemovida : landingSobreRemovida);
+    const existente = landingConfig[info.campo];
+
+    let src = '';
+    if (arquivoNovo) {
+      src = URL.createObjectURL(arquivoNovo);
+    } else if (!removida && existente) {
+      src = existente + '?' + Date.now();
+    }
+
+    if (src) {
+      wrap.classList.remove('vazia');
+      wrap.innerHTML = `<img class="capa-preview" src="${src}">`;
+      btnRemover.style.display = 'inline-block';
+    } else {
+      wrap.classList.add('vazia');
+      wrap.textContent = info.vazio;
+      btnRemover.style.display = 'none';
+    }
+  }
+
+  function renderizarLandingForm() {
+    const semArquivo = document.getElementById('landingSemArquivo');
+    const campos = document.getElementById('landingCampos');
+    if (!landingDisponivel) {
+      semArquivo.style.display = 'block';
+      campos.style.display = 'none';
+      return;
+    }
+    semArquivo.style.display = 'none';
+    campos.style.display = 'block';
+
+    landingLogoArquivoNovo = null; landingLogoPreviewUrl = null; landingLogoRemovida = false;
+    landingHeroArquivoNovo = null; landingHeroPreviewUrl = null; landingHeroRemovida = false;
+    landingSobreArquivoNovo = null; landingSobrePreviewUrl = null; landingSobreRemovida = false;
+    document.getElementById('inputLandingLogo').value = '';
+    document.getElementById('inputLandingHero').value = '';
+    document.getElementById('inputLandingSobre').value = '';
+
+    document.getElementById('landingLogoAlt').value = landingConfig.logoAlt || '';
+    document.getElementById('landingLogoAltura').value = (landingConfig.logoAltura || '32').toString().replace('px', '');
+    document.getElementById('landingTamanhoTituloHero').value = landingConfig.tamanhoTituloHero || '60';
+    document.getElementById('landingTamanhoTituloSecao').value = landingConfig.tamanhoTituloSecao || '40';
+    document.getElementById('landingTamanhoTexto').value = landingConfig.tamanhoTexto || '16';
+    document.getElementById('landingCorAzul').value = landingConfig.corAzul || '#0f5c8c';
+    document.getElementById('landingCorCabecalho').value = landingConfig.corCabecalho || '#0a4468';
+    document.getElementById('landingCorAzulEscuro').value = landingConfig.corAzulEscuro || '#0a4468';
+    document.getElementById('landingCorVermelho').value = landingConfig.corVermelho || '#c81e2c';
+    document.getElementById('landingCorTeal').value = landingConfig.corTeal || '#00857c';
+    document.getElementById('landingCorFundo').value = landingConfig.corFundo || '#f4f5f6';
+    document.getElementById('landingCorTexto').value = landingConfig.corTexto || '#1c1c1c';
+    document.getElementById('landingCorCinza').value = landingConfig.corCinza || '#6b7280';
+
+    const selectFonte = document.getElementById('landingFontePreset');
+    let presetEncontrado = 'custom';
+    for (const [chave, preset] of Object.entries(LANDING_FONTE_PRESETS)) {
+      if (preset.fontTitulo === landingConfig.fontTitulo && preset.fontTexto === landingConfig.fontTexto) {
+        presetEncontrado = chave;
+        break;
+      }
+    }
+    selectFonte.value = presetEncontrado;
+    document.getElementById('landingFonteTituloCustom').value = landingConfig.fontTitulo || '';
+    document.getElementById('landingFonteTextoCustom').value = landingConfig.fontTexto || '';
+    document.getElementById('landingFonteHrefCustom').value = landingConfig.fontGoogleHref || '';
+    document.getElementById('landingFonteCustomCampos').style.display = presetEncontrado === 'custom' ? 'flex' : 'none';
+
+    atualizarPreviewLandingImagem('logo');
+    atualizarPreviewLandingImagem('hero');
+    atualizarPreviewLandingImagem('sobre');
+
+    landingMarcasAtual = Array.isArray(landingConfig.marcas) ? [...landingConfig.marcas] : [...LANDING_PADRAO.marcas];
+    renderizarLandingMarcas();
+  }
+
+  // ---------- marcas parceiras: lista dinâmica (adicionar/remover/reordenar) ----------
+
+  function renderizarLandingMarcas() {
+    const container = document.getElementById('listaMarcas');
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (landingMarcasAtual.length === 0) {
+      const vazio = document.createElement('p');
+      vazio.style.cssText = 'font-size:13px;color:var(--cinza);margin:6px 0;';
+      vazio.textContent = 'Nenhuma marca adicionada ainda.';
+      container.appendChild(vazio);
+    }
+
+    landingMarcasAtual.forEach((nome, i) => {
+      const linha = document.createElement('div');
+      linha.className = 'codigo-row';
+      linha.style.marginBottom = '8px';
+      linha.innerHTML = `
+        <input type="text" data-campo-marca placeholder="ex: Makita" value="${escapeAttr(nome || '')}">
+        <button type="button" class="btn-secundaria icone" data-mover-marca="-1" ${i === 0 ? 'disabled' : ''} title="Mover para cima">↑</button>
+        <button type="button" class="btn-secundaria icone" data-mover-marca="1" ${i === landingMarcasAtual.length - 1 ? 'disabled' : ''} title="Mover para baixo">↓</button>
+        <button type="button" class="btn-perigo icone" data-remover-marca title="Remover marca">🗑</button>
+      `;
+
+      linha.querySelector('[data-campo-marca]').addEventListener('input', e => {
+        landingMarcasAtual[i] = e.target.value;
+      });
+      linha.querySelector('[data-remover-marca]').addEventListener('click', () => {
+        landingMarcasAtual.splice(i, 1);
+        renderizarLandingMarcas();
+      });
+      linha.querySelectorAll('[data-mover-marca]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const destino = i + parseInt(btn.dataset.moverMarca, 10);
+          if (destino < 0 || destino >= landingMarcasAtual.length) return;
+          [landingMarcasAtual[i], landingMarcasAtual[destino]] = [landingMarcasAtual[destino], landingMarcasAtual[i]];
+          renderizarLandingMarcas();
+        });
+      });
+
+      container.appendChild(linha);
+    });
+  }
+
+  document.getElementById('btnAdicionarMarca').addEventListener('click', () => {
+    landingMarcasAtual.push('');
+    renderizarLandingMarcas();
+    const campos = document.querySelectorAll('#listaMarcas [data-campo-marca]');
+    const ultimo = campos[campos.length - 1];
+    if (ultimo) ultimo.focus();
+  });
+
+  document.getElementById('inputLandingLogo').addEventListener('change', (e) => {
+    landingLogoArquivoNovo = e.target.files[0] || null;
+    landingLogoRemovida = false;
+    atualizarPreviewLandingImagem('logo');
+  });
+  document.getElementById('btnRemoverLandingLogo').addEventListener('click', () => {
+    landingLogoArquivoNovo = null;
+    landingLogoRemovida = true;
+    document.getElementById('inputLandingLogo').value = '';
+    atualizarPreviewLandingImagem('logo');
+  });
+
+  document.getElementById('inputLandingHero').addEventListener('change', (e) => {
+    landingHeroArquivoNovo = e.target.files[0] || null;
+    landingHeroRemovida = false;
+    atualizarPreviewLandingImagem('hero');
+  });
+  document.getElementById('btnRemoverLandingHero').addEventListener('click', () => {
+    landingHeroArquivoNovo = null;
+    landingHeroRemovida = true;
+    document.getElementById('inputLandingHero').value = '';
+    atualizarPreviewLandingImagem('hero');
+  });
+
+  document.getElementById('inputLandingSobre').addEventListener('change', (e) => {
+    landingSobreArquivoNovo = e.target.files[0] || null;
+    landingSobreRemovida = false;
+    atualizarPreviewLandingImagem('sobre');
+  });
+  document.getElementById('btnRemoverLandingSobre').addEventListener('click', () => {
+    landingSobreArquivoNovo = null;
+    landingSobreRemovida = true;
+    document.getElementById('inputLandingSobre').value = '';
+    atualizarPreviewLandingImagem('sobre');
+  });
+
+  // ---------- conta-gotas de cor (captura qualquer cor da tela) ----------
+  document.querySelectorAll('.btn-conta-gotas').forEach(botao => {
+    botao.addEventListener('click', async () => {
+      if (!window.EyeDropper) {
+        alert('Seu navegador não tem suporte ao conta-gotas de cor. Funciona no Chrome, Edge ou Opera, no computador.');
+        return;
+      }
+      try {
+        const conteGotas = new EyeDropper();
+        const resultado = await conteGotas.open();
+        const alvo = document.getElementById(botao.dataset.alvo);
+        if (alvo) alvo.value = resultado.sRGBHex;
+      } catch (erro) {
+        // pessoa cancelou (Esc ou clique fora) — não faz nada
+      }
+    });
+  });
+
+  // ---------- restaurar cores da landing para o padrão original ----------
+  document.getElementById('btnRestaurarCoresPadrao').addEventListener('click', () => {
+    if (!confirm('Restaurar todas as cores para o padrão original? Isso não salva sozinho — clique em "Salvar" depois para aplicar.')) return;
+    document.getElementById('landingCorCabecalho').value = LANDING_PADRAO.corCabecalho;
+    document.getElementById('landingCorAzul').value = LANDING_PADRAO.corAzul;
+    document.getElementById('landingCorAzulEscuro').value = LANDING_PADRAO.corAzulEscuro;
+    document.getElementById('landingCorVermelho').value = LANDING_PADRAO.corVermelho;
+    document.getElementById('landingCorTeal').value = LANDING_PADRAO.corTeal;
+    document.getElementById('landingCorFundo').value = LANDING_PADRAO.corFundo;
+    document.getElementById('landingCorTexto').value = LANDING_PADRAO.corTexto;
+    document.getElementById('landingCorCinza').value = LANDING_PADRAO.corCinza;
+  });
+
+  document.getElementById('landingFontePreset').addEventListener('change', (e) => {
+    const campos = document.getElementById('landingFonteCustomCampos');
+    if (e.target.value === 'custom') {
+      campos.style.display = 'flex';
+    } else {
+      campos.style.display = 'none';
+      const preset = LANDING_FONTE_PRESETS[e.target.value];
+      if (preset) {
+        document.getElementById('landingFonteTituloCustom').value = preset.fontTitulo;
+        document.getElementById('landingFonteTextoCustom').value = preset.fontTexto;
+        document.getElementById('landingFonteHrefCustom').value = preset.fontGoogleHref;
+      }
+    }
+  });
+
+  document.getElementById('inputLandingAgora').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    landingHtmlTexto = await file.text();
+    landingHandle = null; // carregado manualmente durante a sessão: sem handle direto — vai para download/publicação
+    carregarLandingDoTexto(landingHtmlTexto);
+    if (!landingDisponivel) {
+      alert('Não encontrei os marcadores esperados nesse arquivo. Verifique se é o index.html correto (gerado por esta versão do painel).');
+    }
+    renderizarLandingForm();
+  });
+
+  function montarLandingFinal() {
+    if (!landingDisponivel) return { novoLandingHtml: null, landingArquivosNovos: [] };
+
+    const config = { ...landingConfig };
+
+    if (landingLogoArquivoNovo) {
+      config.logoImagem = 'assets/' + sanitizarNomeArquivo(landingLogoArquivoNovo.name);
+    } else if (landingLogoRemovida) {
+      config.logoImagem = '';
+    }
+    config.logoAlt = document.getElementById('landingLogoAlt').value.trim() || 'Logo da empresa';
+    config.logoAltura = (document.getElementById('landingLogoAltura').value.trim() || '32').replace('px', '');
+
+    if (landingHeroArquivoNovo) {
+      config.heroImagem = 'assets/' + sanitizarNomeArquivo(landingHeroArquivoNovo.name);
+    } else if (landingHeroRemovida) {
+      config.heroImagem = '';
+    }
+
+    if (landingSobreArquivoNovo) {
+      config.sobreImagem = 'assets/' + sanitizarNomeArquivo(landingSobreArquivoNovo.name);
+    } else if (landingSobreRemovida) {
+      config.sobreImagem = '';
+    }
+
+    const presetSelecionado = document.getElementById('landingFontePreset').value;
+    if (presetSelecionado === 'custom') {
+      config.fontTitulo = document.getElementById('landingFonteTituloCustom').value.trim() || LANDING_PADRAO.fontTitulo;
+      config.fontTexto = document.getElementById('landingFonteTextoCustom').value.trim() || LANDING_PADRAO.fontTexto;
+      config.fontGoogleHref = document.getElementById('landingFonteHrefCustom').value.trim();
+    } else {
+      const preset = LANDING_FONTE_PRESETS[presetSelecionado] || LANDING_FONTE_PRESETS.padrao;
+      config.fontTitulo = preset.fontTitulo;
+      config.fontTexto = preset.fontTexto;
+      config.fontGoogleHref = preset.fontGoogleHref;
+    }
+
+    config.tamanhoTituloHero = document.getElementById('landingTamanhoTituloHero').value.trim().replace('px', '') || '60';
+    config.tamanhoTituloSecao = document.getElementById('landingTamanhoTituloSecao').value.trim().replace('px', '') || '40';
+    config.tamanhoTexto = document.getElementById('landingTamanhoTexto').value.trim().replace('px', '') || '16';
+
+    config.corAzul = document.getElementById('landingCorAzul').value;
+    config.corCabecalho = document.getElementById('landingCorCabecalho').value;
+    config.corAzulEscuro = document.getElementById('landingCorAzulEscuro').value;
+    config.corVermelho = document.getElementById('landingCorVermelho').value;
+    config.corTeal = document.getElementById('landingCorTeal').value;
+    config.corFundo = document.getElementById('landingCorFundo').value;
+    config.corTexto = document.getElementById('landingCorTexto').value;
+    config.corCinza = document.getElementById('landingCorCinza').value;
+
+    config.marcas = landingMarcasAtual.map(nome => (nome || '').trim()).filter(Boolean);
+
+    landingConfig = config;
+
+    let html = landingHtmlTexto;
+
+    const blocoConfig = LANDING_CONFIG_MARK_START + '\n' + JSON.stringify(config, null, 2) + '\n' + LANDING_CONFIG_MARK_END;
+    html = substituirBloco(html, LANDING_CONFIG_MARK_START, LANDING_CONFIG_MARK_END, blocoConfig);
+
+    const blocoFonte = config.fontGoogleHref
+      ? LANDING_FONTE_MARK_START + '\n' +
+        '<link rel="preconnect" href="https://fonts.googleapis.com">\n' +
+        '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n' +
+        `<link href="${config.fontGoogleHref}" rel="stylesheet">\n` +
+        LANDING_FONTE_MARK_END
+      : LANDING_FONTE_MARK_START + '\n' + LANDING_FONTE_MARK_END;
+    html = substituirBloco(html, LANDING_FONTE_MARK_START, LANDING_FONTE_MARK_END, blocoFonte);
+
+    const blocoStyle = LANDING_STYLE_MARK_START + '\n' +
+      '  :root{\n' +
+      `    --azul:${config.corAzul};\n` +
+      `    --cabecalho-fundo:${config.corCabecalho};\n` +
+      `    --azul-escuro:${config.corAzulEscuro};\n` +
+      `    --vermelho:${config.corVermelho};\n` +
+      `    --teal:${config.corTeal};\n` +
+      `    --bg:${config.corFundo};\n` +
+      '    --card:#ffffff;\n' +
+      `    --texto:${config.corTexto};\n` +
+      `    --cinza:${config.corCinza};\n` +
+      `    --font-titulo:${config.fontTitulo};\n` +
+      `    --font-texto:${config.fontTexto};\n` +
+      `    --tamanho-titulo-hero:${config.tamanhoTituloHero}px;\n` +
+      `    --tamanho-titulo-secao:${config.tamanhoTituloSecao}px;\n` +
+      `    --tamanho-texto:${config.tamanhoTexto}px;\n` +
+      `    --hero-bg-imagem:${config.heroImagem ? `url("${config.heroImagem}")` : 'none'};\n` +
+      '  }\n' +
+      '  ' + LANDING_STYLE_MARK_END;
+    html = substituirBloco(html, LANDING_STYLE_MARK_START, LANDING_STYLE_MARK_END, blocoStyle);
+
+    const blocoHeroTag = LANDING_HERO_TAG_MARK_START + '\n' +
+      `<section class="hero${config.heroImagem ? ' tem-foto-fundo' : ''}">` + '\n' +
+      LANDING_HERO_TAG_MARK_END;
+    html = substituirBloco(html, LANDING_HERO_TAG_MARK_START, LANDING_HERO_TAG_MARK_END, blocoHeroTag);
+
+    const alturaLogo = config.logoAltura || '32';
+    const logoHtml = config.logoImagem
+      ? `<img src="${config.logoImagem}" alt="${escapeAttr(config.logoAlt || '')}" style="height:${alturaLogo}px; display:block;">`
+      : `<div class="logo">S<span>-</span>FIX</div>`;
+
+    html = substituirBloco(html, LANDING_LOGO_HEADER_MARK_START, LANDING_LOGO_HEADER_MARK_END,
+      LANDING_LOGO_HEADER_MARK_START + '\n    ' + logoHtml + '\n    ' + LANDING_LOGO_HEADER_MARK_END);
+    html = substituirBloco(html, LANDING_LOGO_FOOTER_MARK_START, LANDING_LOGO_FOOTER_MARK_END,
+      LANDING_LOGO_FOOTER_MARK_START + '\n        ' + logoHtml + '\n        ' + LANDING_LOGO_FOOTER_MARK_END);
+
+    const sobreImgHtml = config.sobreImagem
+      ? `<img src="${config.sobreImagem}" alt="Foto da empresa" style="width:100%; border-radius:10px; margin-bottom:20px; object-fit:cover; max-height:220px;">`
+      : '';
+    html = substituirBloco(html, LANDING_SOBRE_IMG_MARK_START, LANDING_SOBRE_IMG_MARK_END,
+      LANDING_SOBRE_IMG_MARK_START + '\n      ' + sobreImgHtml + '\n      ' + LANDING_SOBRE_IMG_MARK_END);
+
+    const marcasHtml = config.marcas.length
+      ? config.marcas.map(nome => `<span class="marca-chip">${escapeAttr(nome)}</span>`).join('\n      ')
+      : '';
+    html = substituirBloco(html, LANDING_MARCAS_MARK_START, LANDING_MARCAS_MARK_END,
+      LANDING_MARCAS_MARK_START + '\n      ' + marcasHtml + '\n      ' + LANDING_MARCAS_MARK_END);
+
+    const landingArquivosNovos = [
+      landingLogoArquivoNovo ? { label: 'Logo da landing', arquivo: landingLogoArquivoNovo, nomeArq: sanitizarNomeArquivo(landingLogoArquivoNovo.name) } : null,
+      landingHeroArquivoNovo ? { label: 'Imagem de fundo do hero', arquivo: landingHeroArquivoNovo, nomeArq: sanitizarNomeArquivo(landingHeroArquivoNovo.name) } : null,
+      landingSobreArquivoNovo ? { label: 'Foto da seção Sobre', arquivo: landingSobreArquivoNovo, nomeArq: sanitizarNomeArquivo(landingSobreArquivoNovo.name) } : null
+    ].filter(Boolean);
+
+    return { novoLandingHtml: html, landingArquivosNovos };
+  }
+
+  function serializarLogos(lista) {
+    const linhas = ['const LOGOS = ['];
+    lista.forEach((logo, i) => {
+      linhas.push('  {');
+      linhas.push(`    arquivo: ${JSON.stringify(logo.arquivoFinal || '')},`);
+      linhas.push(`    alt: ${JSON.stringify(logo.alt || '')},`);
+      linhas.push(`    altura: ${JSON.stringify(logo.altura || '56px')},`);
+      linhas.push(`    ativa: ${logo.ativa !== false ? 'true' : 'false'}`);
+      linhas.push(`  }${i < lista.length - 1 ? ',' : ''}`);
+    });
+    linhas.push('];');
+    return LOGOS_MARK_START + '\n  ' + linhas.join('\n  ') + '\n  ' + LOGOS_MARK_END;
+  }
+
+  // ---------- abas: gerar id único a partir do nome ----------
+
+  function gerarSlug(nome) {
+    return (nome || 'aba').toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'aba';
+  }
+
+  function gerarIdUnico(nome) {
+    const base = gerarSlug(nome);
+    let id = base;
+    let n = 2;
+    while (abas.some(a => a.id === id)) {
+      id = base + '-' + n;
+      n++;
+    }
+    return id;
+  }
+
+  // ---------- abas admin: renderização dos botões de aba + seções ----------
+
+  function renderizarTabsAdmin() {
+    const tabsWrap = document.getElementById('tabsAdmin');
+    tabsWrap.innerHTML = '';
+    abas.forEach(aba => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'tab-btn-admin' + (abaAtivaId === aba.id ? ' ativo' : '');
+      btn.textContent = aba.nome || '(sem nome)';
+      btn.dataset.abaId = aba.id;
+      btn.addEventListener('click', () => {
+        abaAtivaId = aba.id;
+        renderizarTabsAdmin();
+        renderizarSecoesVisiveis();
+      });
+      tabsWrap.appendChild(btn);
+    });
+    const btnLayout = document.createElement('button');
+    btnLayout.type = 'button';
+    btnLayout.className = 'tab-btn-admin tab-layout' + (abaAtivaId === 'layout' ? ' ativo' : '');
+    btnLayout.textContent = 'LAYOUT DO CATÁLOGO';
+    btnLayout.addEventListener('click', () => {
+      abaAtivaId = 'layout';
+      renderizarTabsAdmin();
+      renderizarSecoesVisiveis();
+    });
+    tabsWrap.appendChild(btnLayout);
+
+    const btnLanding = document.createElement('button');
+    btnLanding.type = 'button';
+    btnLanding.className = 'tab-btn-admin tab-layout' + (abaAtivaId === 'landing' ? ' ativo' : '');
+    btnLanding.textContent = '🖥 LANDING DO SITE';
+    btnLanding.addEventListener('click', () => {
+      abaAtivaId = 'landing';
+      renderizarTabsAdmin();
+      renderizarSecoesVisiveis();
+    });
+    tabsWrap.appendChild(btnLanding);
+  }
+
+  function renderizarSecoesVisiveis() {
+    document.querySelectorAll('.secao-marca').forEach(s => s.classList.remove('ativo'));
+    if (abaAtivaId === 'layout') {
+      document.getElementById('secaoLayout').classList.add('ativo');
+    } else if (abaAtivaId === 'landing') {
+      document.getElementById('secaoLanding').classList.add('ativo');
+    } else {
+      const el = document.getElementById('secao-aba-' + abaAtivaId);
+      if (el) el.classList.add('ativo');
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function renderizarSecoesAbas() {
+    const container = document.getElementById('secoesAbas');
+    container.innerHTML = '';
+    abas.forEach(aba => container.appendChild(construirSecaoAba(aba)));
+    renderizarSecoesVisiveis();
+  }
+
+  function construirSecaoAba(aba) {
+    const secao = document.createElement('div');
+    secao.className = 'secao-marca';
+    secao.id = 'secao-aba-' + aba.id;
+
+    const painelCapa = document.createElement('div');
+    painelCapa.className = 'painel';
+    painelCapa.innerHTML = `
+      <div class="aba-topo-acoes">
+        <div>
+          <label>Nome desta aba (aparece no botão do catálogo)</label>
+          <input type="text" data-campo-nome-aba value="${escapeAttr(aba.nome || '')}">
+        </div>
+        <button type="button" class="btn-perigo" data-remover-aba>🗑 Remover esta aba</button>
+      </div>
+    `;
+
+    const blocoCapa = document.createElement('div');
+    blocoCapa.style.marginTop = '16px';
+    blocoCapa.innerHTML = `
+      <h2 style="font-size:14px; margin-bottom:6px;">Capa de introdução</h2>
+      <p style="margin-bottom:10px;">Imagem que aparece ao abrir esta aba. Se preferir não ter capa, deixe em branco.</p>
+      <div class="capa-preview-wrap" data-preview-capa-wrap></div>
+      <input type="file" accept="image/*" data-input-capa>
+      <label style="margin-top:10px;">Enquadramento da capa</label>
+      <select data-select-capa-posicao style="width:100%; max-width:360px; padding:8px 10px; border:1px solid #d1d5db; border-radius:6px; font-size:14px;">
+        <option value="top">Topo</option>
+        <option value="center">Centro</option>
+        <option value="bottom">Base</option>
+      </select>
+    `;
+    painelCapa.appendChild(blocoCapa);
+    secao.appendChild(painelCapa);
+
+    const painelProdutos = document.createElement('div');
+    painelProdutos.className = 'painel';
+    painelProdutos.innerHTML = `
+      <h2>Produtos — ${escapeAttr(aba.nome || '')}</h2>
+      <p>Preencha nome, foto e os códigos de cada produto. Use os botões ↑ ↓ para reordenar.</p>
+      <div data-lista-produtos></div>
+      <button type="button" class="btn-secundaria" data-add-produto>+ Adicionar produto</button>
+    `;
+    secao.appendChild(painelProdutos);
+
+    // ---- eventos ----
+    secao.querySelector('[data-campo-nome-aba]').addEventListener('input', e => {
+      aba.nome = e.target.value;
+      const btn = document.querySelector('.tab-btn-admin[data-aba-id="' + aba.id + '"]');
+      if (btn) btn.textContent = aba.nome || '(sem nome)';
+      const h2 = painelProdutos.querySelector('h2');
+      h2.textContent = 'Produtos — ' + (aba.nome || '');
+    });
+
+    secao.querySelector('[data-remover-aba]').addEventListener('click', () => {
+      if (abas.length <= 1) {
+        alert('Não é possível remover: o catálogo precisa ter pelo menos uma aba.');
+        return;
+      }
+      if (confirm(`Remover a aba "${aba.nome}" e todos os seus produtos?`)) {
+        abas = abas.filter(a => a.id !== aba.id);
+        if (abaAtivaId === aba.id) abaAtivaId = abas[0].id;
+        renderizarTabsAdmin();
+        renderizarSecoesAbas();
+      }
+    });
+
+    const previewWrap = secao.querySelector('[data-preview-capa-wrap]');
+    function atualizarPreviewCapa() {
+      const src = aba.previewUrlCapa || aba.capa;
+      if (src) {
+        previewWrap.classList.remove('vazia');
+        previewWrap.innerHTML = `<img class="capa-preview" src="${src}">`;
+      } else {
+        previewWrap.classList.add('vazia');
+        previewWrap.innerHTML = 'sem capa definida';
+      }
+    }
+    atualizarPreviewCapa();
+
+    secao.querySelector('[data-input-capa]').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      aba.arquivoNovoCapa = file;
+      aba.previewUrlCapa = URL.createObjectURL(file);
+      atualizarPreviewCapa();
+    });
+
+    const selectPos = secao.querySelector('[data-select-capa-posicao]');
+    selectPos.value = aba.capaPosicao || 'center';
+    selectPos.addEventListener('change', e => { aba.capaPosicao = e.target.value; });
+
+    const listaEl = painelProdutos.querySelector('[data-lista-produtos]');
+    renderizarProdutos(aba.produtos, listaEl);
+
+    painelProdutos.querySelector('[data-add-produto]').addEventListener('click', () => {
+      aba.produtos.push({ nome: '', imagem: '', descricao: '', codigos: [{ voltagem: '', codigo: '', multiplo: null }], arquivoNovo: null, previewUrl: null, criadoEm: new Date().toISOString() });
+      renderizarProdutos(aba.produtos, listaEl);
+    });
+
+    return secao;
+  }
+
+  document.getElementById('btnNovaAba').addEventListener('click', () => {
+    const nome = prompt('Nome da nova aba (ex: BOSCH, ferramentas manuais...):');
+    if (nome === null) return;
+    const nomeFinal = nome.trim();
+    if (!nomeFinal) { alert('Digite um nome para a aba.'); return; }
+    const novaAba = {
+      id: gerarIdUnico(nomeFinal),
+      nome: nomeFinal,
+      capa: '',
+      capaPosicao: 'center',
+      arquivoNovoCapa: null,
+      previewUrlCapa: null,
+      produtos: [],
+      criadoEm: new Date().toISOString()
+    };
+    abas.push(novaAba);
+    abaAtivaId = novaAba.id;
+    renderizarTabsAdmin();
+    renderizarSecoesAbas();
+  });
+
+  function abrirEditor() {
+    document.getElementById('editorArea').style.display = 'block';
+    document.getElementById('painelInicio').style.display = 'none';
+    renderizarTabsAdmin();
+    renderizarSecoesAbas();
+    renderizarLayoutForm();
+    renderizarLandingForm();
+    carregarConfigGithub();
+    document.getElementById('btnIrParaFim').classList.add('mostrar');
+    document.getElementById('btnIrParaTopo').classList.add('mostrar');
+  }
+
+  document.getElementById('btnIrParaFim').addEventListener('click', () => {
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  });
+
+  document.getElementById('btnIrParaTopo').addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // ---------- Publicação automática via GitHub ----------
+
+  function carregarConfigGithub() {
+    document.getElementById('ghToken').value = localStorage.getItem('ghToken') || '';
+    document.getElementById('ghRepo').value = localStorage.getItem('ghRepo') || '';
+    document.getElementById('ghBranch').value = localStorage.getItem('ghBranch') || 'main';
+    document.getElementById('ghSubpasta').value = localStorage.getItem('ghSubpasta') || '';
+  }
+
+  function salvarConfigGithub({ token, repo, branch, subpasta }) {
+    localStorage.setItem('ghToken', token);
+    localStorage.setItem('ghRepo', repo);
+    localStorage.setItem('ghBranch', branch);
+    localStorage.setItem('ghSubpasta', subpasta);
+  }
+
+  function utf8ToBase64(str) {
+    return btoa(unescape(encodeURIComponent(str)));
+  }
+
+  async function arquivoParaBase64(file) {
+    const buffer = await file.arrayBuffer();
+    const bytes = new Uint8Array(buffer);
+    let binario = '';
+    const tamanhoBloco = 0x8000;
+    for (let i = 0; i < bytes.length; i += tamanhoBloco) {
+      binario += String.fromCharCode.apply(null, bytes.subarray(i, i + tamanhoBloco));
+    }
+    return btoa(binario);
+  }
+
+  async function publicarArquivoNoGithub({ token, repo, branch, caminho, conteudoBase64, mensagem }) {
+    const apiUrl = `https://api.github.com/repos/${repo}/contents/${caminho}`;
+    const headers = {
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/vnd.github+json'
+    };
+
+    let sha = null;
+    const respAtual = await fetch(`${apiUrl}?ref=${encodeURIComponent(branch)}`, { headers });
+    if (respAtual.ok) {
+      const atual = await respAtual.json();
+      sha = atual.sha;
+    } else if (respAtual.status !== 404) {
+      const texto = await respAtual.text();
+      throw new Error(`Não consegui checar "${caminho}" no GitHub (${respAtual.status}): ${texto.slice(0, 200)}`);
+    }
+
+    const respPut = await fetch(apiUrl, {
+      method: 'PUT',
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: mensagem,
+        content: conteudoBase64,
+        branch,
+        ...(sha ? { sha } : {})
+      })
+    });
+    if (!respPut.ok) {
+      const texto = await respPut.text();
+      throw new Error(`Falha ao publicar "${caminho}" (${respPut.status}): ${texto.slice(0, 200)}`);
+    }
+  }
+
+  document.getElementById('btnPublicar').addEventListener('click', async () => {
+    const token = document.getElementById('ghToken').value.trim();
+    const repo = document.getElementById('ghRepo').value.trim();
+    const branch = document.getElementById('ghBranch').value.trim() || 'main';
+    const subpasta = document.getElementById('ghSubpasta').value.trim().replace(/^\/+|\/+$/g, '');
+
+    if (!token || !repo) {
+      alert('Preencha o token e o repositório do GitHub (no bloco "Publicação automática" acima) antes de publicar.');
+      return;
+    }
+
+    const dados = montarArquivosFinais();
+    if (!dados) return;
+    const { novoIndexHtml, novoSwJs, fotosNovas, capasNovas, layoutArquivosNovos, novoLandingHtml, landingArquivosNovos } = dados;
+
+    salvarConfigGithub({ token, repo, branch, subpasta });
+
+    const prefixo = subpasta ? subpasta + '/' : '';
+    const resultado = document.getElementById('resultado');
+    resultado.innerHTML = '<p>Publicando no GitHub…</p>';
+
+    try {
+      await publicarArquivoNoGithub({
+        token, repo, branch,
+        caminho: prefixo + 'catalogo.html',
+        conteudoBase64: utf8ToBase64(novoIndexHtml),
+        mensagem: 'Atualiza catálogo (catalogo.html)'
+      });
+      await publicarArquivoNoGithub({
+        token, repo, branch,
+        caminho: prefixo + 'sw.js',
+        conteudoBase64: utf8ToBase64(novoSwJs),
+        mensagem: 'Atualiza catálogo (sw.js)'
+      });
+
+      if (landingDisponivel && novoLandingHtml) {
+        await publicarArquivoNoGithub({
+          token, repo, branch,
+          caminho: prefixo + 'index.html',
+          conteudoBase64: utf8ToBase64(novoLandingHtml),
+          mensagem: 'Atualiza landing (index.html)'
+        });
+        for (const item of (landingArquivosNovos || [])) {
+          const base64 = await arquivoParaBase64(item.arquivo);
+          await publicarArquivoNoGithub({
+            token, repo, branch,
+            caminho: `${prefixo}assets/${item.nomeArq}`,
+            conteudoBase64: base64,
+            mensagem: `Atualiza landing: ${item.label}`
+          });
+        }
+      }
+
+      for (const p of fotosNovas) {
+        const nomeArq = sanitizarNomeArquivo(p.arquivoNovo.name);
+        const base64 = await arquivoParaBase64(p.arquivoNovo);
+        await publicarArquivoNoGithub({
+          token, repo, branch,
+          caminho: `${prefixo}assets/produtos/${nomeArq}`,
+          conteudoBase64: base64,
+          mensagem: `Adiciona foto: ${p.nome}`
+        });
+      }
+      for (const c of capasNovas) {
+        const base64 = await arquivoParaBase64(c.arquivo);
+        await publicarArquivoNoGithub({
+          token, repo, branch,
+          caminho: `${prefixo}assets/${c.nomeArq}`,
+          conteudoBase64: base64,
+          mensagem: `Atualiza capa: ${c.label}`
+        });
+      }
+      for (const item of layoutArquivosNovos) {
+        const base64 = await arquivoParaBase64(item.arquivo);
+        await publicarArquivoNoGithub({
+          token, repo, branch,
+          caminho: `${prefixo}assets/${item.nomeArq}`,
+          conteudoBase64: base64,
+          mensagem: `Atualiza layout: ${item.label}`
+        });
+      }
+
+      indexHtmlTexto = novoIndexHtml;
+      swJsTexto = novoSwJs;
+      if (landingDisponivel && novoLandingHtml) landingHtmlTexto = novoLandingHtml;
+
+      resultado.innerHTML = `
+        <p class="ok">✓ Publicado no GitHub!</p>
+        <p>Se o deploy automático estiver ativado no Netlify, o site atualiza sozinho em cerca de 1 minuto — sem precisar entrar no Netlify.</p>
+      `;
+    } catch (err) {
+      resultado.innerHTML = `
+        <p style="color:#c81e2c">Erro ao publicar: ${err.message}</p>
+        <p>Confira se: o token tem permissão de escrita no repositório (<code>repo</code> nos tokens clássicos, ou "Contents: Read and write" nos tokens de granularidade fina), se o nome do repositório está no formato <code>usuario/repositorio</code>, e se a branch existe.</p>
+      `;
+    }
+  });
+
+
+  // ---------- editor de produtos (genérico — funciona para qualquer aba) ----------
+
+  function sanitizarNomeArquivo(nome) {
+    return nome.toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9.\-]+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+  }
+
+  function renderizarProdutos(lista, containerEl) {
+    containerEl.innerHTML = '';
+
+    lista.forEach((p, i) => {
+      const card = document.createElement('div');
+      card.className = 'produto-card';
+
+      const previewSrc = p.previewUrl || null;
+
+      card.innerHTML = `
+        <div class="produto-topo">
+          <div class="preview" data-preview>
+            ${previewSrc ? `<img src="${previewSrc}">` : (p.imagem ? `<img src="${p.imagem}">` : 'sem foto')}
+          </div>
+          <div class="campos">
+            <div>
+              <label>Nome do produto</label>
+              <input type="text" data-campo="nome" value="${escapeAttr(p.nome || '')}">
+            </div>
+            <div>
+              <label>Foto do produto ${p.imagem ? '(já tem uma — escolha só se quiser trocar)' : ''}</label>
+              <input type="file" accept="image/*" data-campo="foto">
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px;">
+          <label>Descrição/aplicação do produto (opcional)</label>
+          <p style="margin:2px 0 6px; font-size:12px; color:var(--cinza);">Se preencher, um botão "i" aparece no card do produto no catálogo — ao clicar, mostra este texto. Se deixar em branco, o botão não aparece.</p>
+          <textarea data-campo="descricao" rows="3" style="width:100%; font-family:inherit; font-size:13.5px; padding:8px 10px; border:1px solid #d1d5db; border-radius:8px; resize:vertical;">${escapeHtml(p.descricao || '')}</textarea>
+        </div>
+
+        <div class="codigos-lista" data-codigos></div>
+        <button type="button" class="btn-secundaria icone" data-add-codigo>+ Adicionar código/voltagem</button>
+
+        <div class="produto-acoes">
+          <button type="button" class="btn-secundaria icone" data-mover="-1" ${i === 0 ? 'disabled' : ''}>↑ Subir</button>
+          <button type="button" class="btn-secundaria icone" data-mover="1" ${i === lista.length - 1 ? 'disabled' : ''}>↓ Descer</button>
+          <button type="button" class="btn-perigo icone" data-remover-produto>🗑 Remover produto</button>
+        </div>
+      `;
+
+      card.querySelector('[data-campo="nome"]').addEventListener('input', e => {
+        p.nome = e.target.value;
+      });
+
+      card.querySelector('[data-campo="descricao"]').addEventListener('input', e => {
+        p.descricao = e.target.value;
+      });
+
+      card.querySelector('[data-campo="foto"]').addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        p.arquivoNovo = file;
+        p.previewUrl = URL.createObjectURL(file);
+        renderizarProdutos(lista, containerEl);
+      });
+
+      const codigosWrap = card.querySelector('[data-codigos]');
+      function renderCodigos() {
+        codigosWrap.innerHTML = '';
+        p.codigos.forEach((c, j) => {
+          const row = document.createElement('div');
+          row.className = 'codigo-row';
+          row.innerHTML = `
+            <input type="text" class="voltagem-input" placeholder="voltagem (ex: 220v)" value="${escapeAttr(c.voltagem || '')}">
+            <input type="text" placeholder="código" value="${escapeAttr(c.codigo || '')}">
+            <input type="number" min="1" step="1" class="multiplo-input" placeholder="múltiplo (ex: 200 = vende só por cx de 200un)" value="${escapeAttr(c.multiplo || '')}">
+            <button type="button" class="btn-perigo icone" title="Remover">✕</button>
+          `;
+          const [voltInput, codInput, multiploInput, delBtn] = row.querySelectorAll('input, button');
+          voltInput.addEventListener('input', e => c.voltagem = e.target.value);
+          codInput.addEventListener('input', e => c.codigo = e.target.value);
+          multiploInput.addEventListener('input', e => {
+            const val = parseInt(e.target.value, 10);
+            c.multiplo = (val && val > 1) ? val : null;
+            atualizarAvisoMultiploProduto();
+          });
+          delBtn.addEventListener('click', () => {
+            p.codigos.splice(j, 1);
+            renderCodigos();
+          });
+          codigosWrap.appendChild(row);
+        });
+        atualizarAvisoMultiploProduto();
+      }
+      // mostra uma dica visual no card do produto quando algum código dele tem múltiplo
+      // definido, lembrando que o aviso automático aparecerá no catálogo
+      function atualizarAvisoMultiploProduto() {
+        let avisoEl = card.querySelector('[data-aviso-multiplo]');
+        const temMultiplo = p.codigos.some(c => c.multiplo && c.multiplo > 1);
+        if (temMultiplo && !avisoEl) {
+          avisoEl = document.createElement('div');
+          avisoEl.className = 'multiplo-aviso-info';
+          avisoEl.setAttribute('data-aviso-multiplo', '');
+          avisoEl.textContent = '📦 Este produto vende por múltiplo — no catálogo, a pessoa só poderá escolher quantidades nesse múltiplo. O aviso sobre múltiplos aparecerá automaticamente para os clientes.';
+          codigosWrap.after(avisoEl);
+        } else if (!temMultiplo && avisoEl) {
+          avisoEl.remove();
+        }
+      }
+      renderCodigos();
+
+      card.querySelector('[data-add-codigo]').addEventListener('click', () => {
+        p.codigos.push({ voltagem: '', codigo: '', multiplo: null });
+        renderCodigos();
+      });
+
+      card.querySelector('[data-remover-produto]').addEventListener('click', () => {
+        if (confirm(`Remover "${p.nome}" do catálogo?`)) {
+          lista.splice(i, 1);
+          renderizarProdutos(lista, containerEl);
+        }
+      });
+
+      card.querySelector('[data-mover="-1"]').addEventListener('click', () => {
+        [lista[i - 1], lista[i]] = [lista[i], lista[i - 1]];
+        renderizarProdutos(lista, containerEl);
+      });
+      card.querySelector('[data-mover="1"]').addEventListener('click', () => {
+        [lista[i + 1], lista[i]] = [lista[i], lista[i + 1]];
+        renderizarProdutos(lista, containerEl);
+      });
+
+      containerEl.appendChild(card);
+    });
+  }
+
+  function escapeAttr(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  // ---------- salvar ----------
+
+  function serializarProdutos(lista) {
+    const linhas = [];
+    linhas.push('    [');
+    lista.forEach((p, i) => {
+      linhas.push('      {');
+      linhas.push(`        nome: ${JSON.stringify(p.nome || '')},`);
+      linhas.push(`        imagem: ${JSON.stringify(p.imagem || '')},`);
+      linhas.push(`        descricao: ${JSON.stringify(p.descricao || '')},`);
+      linhas.push(`        criadoEm: ${JSON.stringify(p.criadoEm || '')},`);
+      linhas.push('        codigos: [');
+      p.codigos.forEach((c, j) => {
+        const virgula = j < p.codigos.length - 1 ? ',' : '';
+        const multiploTxt = (c.multiplo && c.multiplo > 1) ? `, multiplo: ${JSON.stringify(parseInt(c.multiplo, 10))}` : '';
+        linhas.push(`          { voltagem: ${JSON.stringify(c.voltagem || '')}, codigo: ${JSON.stringify(c.codigo || '')}${multiploTxt} }${virgula}`);
+      });
+      linhas.push('        ]');
+      linhas.push(`      }${i < lista.length - 1 ? ',' : ''}`);
+    });
+    linhas.push('    ]');
+    return linhas.join('\n');
+  }
+
+  function serializarAbas(listaAbas) {
+    const linhas = ['['];
+    listaAbas.forEach((aba, i) => {
+      linhas.push('  {');
+      linhas.push(`    id: ${JSON.stringify(aba.id)},`);
+      linhas.push(`    nome: ${JSON.stringify(aba.nome || '')},`);
+      linhas.push(`    capa: ${JSON.stringify(aba.capaFinal || '')},`);
+      linhas.push(`    capaPosicao: ${JSON.stringify(aba.capaPosicao || 'center')},`);
+      linhas.push(`    criadoEm: ${JSON.stringify(aba.criadoEm || '')},`);
+      linhas.push('    produtos:');
+      linhas.push(serializarProdutos(aba.produtos));
+      linhas.push(`  }${i < listaAbas.length - 1 ? ',' : ''}`);
+    });
+    linhas.push(']');
+    return linhas.join('\n');
+  }
+
+  function gerarNovoSwJs(swTextoBase, todosProdutos, capasFinais, logosFinais) {
+    const temIconeCustom = !!(layoutConfig['--info-icone-url'] && layoutConfig['--info-icone-url'] !== 'none');
+    const temIconeFavoritoCustom = !!(layoutConfig['--favorito-icone-url'] && layoutConfig['--favorito-icone-url'] !== 'none');
+    const shellFiles = FIXED_SHELL
+      .concat(capasFinais.filter(Boolean).map(p => './' + p))
+      .concat(todosProdutos.map(p => './' + p.imagem))
+      .concat((logosFinais || []).filter(Boolean).map(p => './' + p))
+      .concat(temIconeCustom ? ['./assets/info-icone.png'] : [])
+      .concat(temIconeFavoritoCustom ? ['./assets/favorito-icone.png'] : []);
+    const novoBloco = [
+      SW_MARK_START,
+      "const CACHE_NAME = 'catalogo-cache-v" + (proximaVersaoCache(swTextoBase)) + "';",
+      '',
+      'const SHELL_FILES = [',
+      shellFiles.map(f => `  ${JSON.stringify(f)}`).join(',\n'),
+      '];',
+      SW_MARK_END
+    ].join('\n');
+
+    // O restante do arquivo (regras de funcionamento offline: tenta a rede com um
+    // limite de tempo curto na navegação, cai pro cache se falhar/demorar, cacheia
+    // cada arquivo individualmente em vez de tudo-ou-nada, e atualiza fotos/logos
+    // em segundo plano) é SEMPRE escrito com a versão corrigida e completa abaixo —
+    // não é mais herdado do sw.js antigo que estava salvo. Isso evita o bug em que
+    // o painel voltava a gerar a versão simples/antiga (sem esse tratamento) toda
+    // vez que salvava de novo.
+    const restoDoArquivo = `
+
+const OFFLINE_URL = './catalogo.html'; // página de fallback quando a rede falha e a página pedida ainda não está em cache
+const TEMPO_LIMITE_REDE_MS = 4000; // depois disso, desiste da rede e usa o cache
+
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache =>
+      // Guarda cada arquivo separadamente (em vez de cache.addAll, que é
+      // tudo-ou-nada: se UM arquivo da lista falhar — ex: uma foto que foi
+      // renomeada/apagada — o cache inteiro falhava e o app ficava sem
+      // nada salvo pra usar offline). Assim, um arquivo com problema não
+      // derruba os outros.
+      Promise.all(
+        SHELL_FILES.map(url =>
+          cache.add(url).catch(erro => {
+            console.warn('[sw] não consegui guardar em cache:', url, erro);
+          })
+        )
+      )
+    ).then(() => self.skipWaiting())
+  );
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))
+    ).then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', event => {
+  const req = event.request;
+  if (req.method !== 'GET') return; // não mexe em chamadas de API do painel (POST/PUT etc)
+
+  const url = new URL(req.url);
+  // a checagem de "nova versão publicada" usa uma URL com ?_=timestamp,
+  // sempre diferente, só pra nunca pegar cache do navegador — o service
+  // worker não deve interceptar essa, senão ela para de refletir o
+  // servidor de verdade e ainda pode devolver uma resposta inválida
+  if (url.searchParams.has('_')) return;
+
+  // navegação (abrir/recarregar a página): tenta a rede com um limite de
+  // tempo curto; se demorar demais ou falhar (sem internet, rede
+  // instável), usa a própria página pedida se já estiver em cache (ex:
+  // catalogo.html ou index.html) e só cai no OFFLINE_URL fixo se nem essa
+  // estiver salva. Isso evita a tela travada — sempre entrega algo
+  // renderizável rapidamente.
+  if (req.mode === 'navigate') {
+    event.respondWith(
+      Promise.race([
+        fetch(req),
+        new Promise((_, rejeitar) => setTimeout(() => rejeitar(new Error('tempo esgotado')), TEMPO_LIMITE_REDE_MS))
+      ])
+        .then(response => {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
+          return response;
+        })
+        .catch(() => caches.match(req).then(resp => resp || caches.match(OFFLINE_URL)))
+    );
+    return;
+  }
+
+  // demais arquivos (fotos dos produtos, capas, logos etc): responde na
+  // hora com o que já estiver em cache (instantâneo, nunca fica esperando
+  // a rede) e, em paralelo, busca na rede pra atualizar o cache pra
+  // próxima vez — assim fotos e códigos novos chegam sozinhos quando a
+  // pessoa abrir o catálogo com internet, sem precisar reinstalar nada.
+  event.respondWith(
+    caches.match(req).then(emCache => {
+      const buscaNaRede = fetch(req)
+        .then(response => {
+          if (response && response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
+          }
+          return response;
+        })
+        .catch(() => emCache);
+      return emCache || buscaNaRede;
+    })
+  );
+});
+`;
+
+    // Como agora sempre escrevemos a versão corrigida completa (acima), não existe
+    // mais risco de perder um tratamento offline customizado ao salvar — então essa
+    // situação nunca mais deveria disparar o aviso de "vou apagar seu código".
+    const perderiaConteudoExistente = false;
+
+    if (!swTextoBase || swTextoBase.indexOf(SW_MARK_START) === -1) {
+      return { codigo: novoBloco + restoDoArquivo, perderiaConteudoExistente };
+    }
+
+    const s = swTextoBase.indexOf(SW_MARK_START);
+    return { codigo: swTextoBase.slice(0, s) + novoBloco + restoDoArquivo, perderiaConteudoExistente };
+  }
+
+  function proximaVersaoCache(swTextoBase) {
+    const m = (swTextoBase || '').match(/catalogo-cache-v(\d+)/);
+    return m ? (parseInt(m[1]) + 1) : 1;
+  }
+
+  function montarArquivosFinais() {
+    if (!abas.length) { alert('O catálogo precisa ter pelo menos uma aba.'); return null; }
+    for (const aba of abas) {
+      if (!aba.nome || !aba.nome.trim()) { alert('Tem uma aba sem nome. Preencha o nome de todas as abas.'); return null; }
+      for (const p of aba.produtos) {
+        if (!p.nome.trim()) { alert(`Tem um produto sem nome na aba "${aba.nome}".`); return null; }
+        if (!p.imagem && !p.arquivoNovo) { alert(`O produto "${p.nome}" (aba "${aba.nome}") ainda não tem foto.`); return null; }
+      }
+    }
+    if (!logos.length) { alert('O cabeçalho precisa ter pelo menos uma logo.'); return null; }
+    for (const logo of logos) {
+      if (!logo.arquivo && !logo.arquivoNovo) { alert('Uma das logos do cabeçalho ainda não tem imagem.'); return null; }
+    }
+
+    // caminho final de cada logo do cabeçalho (nova imagem enviada, ou já existente)
+    logos.forEach(logo => {
+      logo.arquivoFinal = logo.arquivoNovo
+        ? 'assets/' + sanitizarNomeArquivo(logo.arquivoNovo.name)
+        : (logo.arquivo || '');
+    });
+
+    // caminho final de cada foto de produto (nova ou já existente)
+    abas.forEach(aba => {
+      aba.produtos.forEach(p => {
+        if (p.arquivoNovo) {
+          const nomeArq = sanitizarNomeArquivo(p.arquivoNovo.name);
+          p.imagem = 'assets/produtos/' + nomeArq;
+        }
+      });
+    });
+
+    // caminho final da capa de cada aba (nova, já existente, ou vazio)
+    abas.forEach(aba => {
+      aba.capaFinal = aba.arquivoNovoCapa
+        ? 'assets/' + sanitizarNomeArquivo(aba.arquivoNovoCapa.name)
+        : (aba.capa || '');
+    });
+
+    // bloco de abas
+    const blocoAbas = ABAS_MARK_START + '\n  const ABAS = ' + serializarAbas(abas) + ';\n  ' + ABAS_MARK_END;
+    const s1 = indexHtmlTexto.indexOf(ABAS_MARK_START);
+    const e1 = indexHtmlTexto.indexOf(ABAS_MARK_END) + ABAS_MARK_END.length;
+    let novoIndexHtml = indexHtmlTexto.slice(0, s1) + blocoAbas + indexHtmlTexto.slice(e1);
+
+    // bloco de logos do cabeçalho
+    const blocoLogos = serializarLogos(logos);
+    const s2 = novoIndexHtml.indexOf(LOGOS_MARK_START);
+    const e2 = novoIndexHtml.indexOf(LOGOS_MARK_END) + LOGOS_MARK_END.length;
+    if (s2 !== -1 && e2 !== -1) {
+      novoIndexHtml = novoIndexHtml.slice(0, s2) + blocoLogos + novoIndexHtml.slice(e2);
+    } else {
+      // arquivo de uma versão antiga do painel, sem o bloco de logos: insere um novo logo antes do bloco de abas
+      novoIndexHtml = novoIndexHtml.replace(ABAS_MARK_START, blocoLogos + '\n  ' + ABAS_MARK_START);
+    }
+
+    // bloco de layout do site
+    const configLayout = coletarLayoutDoFormulario();
+    const lS = novoIndexHtml.indexOf(LAYOUT_MARK_START);
+    const lE = novoIndexHtml.indexOf(LAYOUT_MARK_END) + LAYOUT_MARK_END.length;
+    if (lS !== -1 && lE !== -1) {
+      novoIndexHtml = novoIndexHtml.slice(0, lS) + serializarLayout(configLayout) + novoIndexHtml.slice(lE);
+    }
+
+    // data/hora desta atualização (usada pela barra vermelha do rodapé)
+    const blocoData = DATA_MARK_START + '\n  const ULTIMA_ATUALIZACAO_ISO = ' + JSON.stringify(new Date().toISOString()) + ';\n  ' + DATA_MARK_END;
+    const dS = novoIndexHtml.indexOf(DATA_MARK_START);
+    const dE = novoIndexHtml.indexOf(DATA_MARK_END) + DATA_MARK_END.length;
+    if (dS !== -1 && dE !== -1) {
+      novoIndexHtml = novoIndexHtml.slice(0, dS) + blocoData + novoIndexHtml.slice(dE);
+    } else {
+      // arquivo de uma versão antiga do painel, sem o bloco de data: insere antes do bloco de abas
+      novoIndexHtml = novoIndexHtml.replace(ABAS_MARK_START, blocoData + '\n  ' + ABAS_MARK_START);
+    }
+
+    // classe do <body> (define se a foto do produto fica acima ou ao lado do nome)
+    novoIndexHtml = novoIndexHtml.replace(
+      /<body\s+class="[^"]*"/,
+      `<body class="${bodyClasseLayout}"`
+    );
+
+    const todosProdutos = abas.flatMap(a => a.produtos);
+    const capasFinais = abas.map(a => a.capaFinal);
+    const logosFinais = logos.map(l => l.arquivoFinal);
+
+    const resultadoSw = gerarNovoSwJs(swJsTexto, todosProdutos, capasFinais, logosFinais);
+    const novoSwJs = resultadoSw.codigo;
+
+    const fotosNovas = todosProdutos.filter(p => p.arquivoNovo);
+    const capasNovas = abas
+      .filter(a => a.arquivoNovoCapa)
+      .map(a => ({ label: 'Capa ' + a.nome, arquivo: a.arquivoNovoCapa, nomeArq: sanitizarNomeArquivo(a.arquivoNovoCapa.name) }));
+    const logosNovas = logos
+      .filter(l => l.arquivoNovo)
+      .map(l => ({ label: 'Logo: ' + (l.alt || l.arquivoFinal), arquivo: l.arquivoNovo, nomeArq: sanitizarNomeArquivo(l.arquivoNovo.name) }));
+
+    const layoutArquivosNovos = [
+      watermarkArquivoNovo ? { label: 'Marca d\'água de fundo', arquivo: watermarkArquivoNovo, nomeArq: 'watermark-tile.png' } : null,
+      infoIconeArquivoNovo ? { label: 'Ícone do botão de descrição (i)', arquivo: infoIconeArquivoNovo, nomeArq: 'info-icone.png' } : null,
+      favoritoIconeArquivoNovo ? { label: 'Ícone do coração de favoritar', arquivo: favoritoIconeArquivoNovo, nomeArq: 'favorito-icone.png' } : null,
+      appIconeArquivoNovo ? { label: 'Ícone do app (tela inicial)', arquivo: appIconeArquivoNovo, nomeArq: 'logo-sfix.png' } : null
+    ].filter(Boolean).concat(logosNovas);
+
+    const { novoLandingHtml, landingArquivosNovos } = montarLandingFinal();
+
+    return { novoIndexHtml, novoSwJs, fotosNovas, capasNovas, layoutArquivosNovos, novoLandingHtml, landingArquivosNovos, perderiaConteudoExistente: resultadoSw.perderiaConteudoExistente };
+  }
+
+  document.getElementById('btnSalvar').addEventListener('click', async () => {
+    const dados = montarArquivosFinais();
+    if (!dados) return;
+    const { novoIndexHtml, novoSwJs, fotosNovas, capasNovas, layoutArquivosNovos, novoLandingHtml, landingArquivosNovos, perderiaConteudoExistente } = dados;
+
+    if (perderiaConteudoExistente) {
+      const continuarMesmoAssim = confirm(
+        'Atenção: o painel carregou um sw.js, mas não encontrou os marcadores internos ' +
+        '"// ==CACHE-INICIO==" / "// ==CACHE-FIM==" nele (podem ter sido apagados ou alterados ' +
+        'numa edição manual). Se continuar, o sw.js será reescrito do zero, com uma versão simples ' +
+        'do tratamento de cache — e qualquer código customizado que você tenha adicionado por fora ' +
+        'desses marcadores (como tratamento de erros offline) será perdido.\n\n' +
+        'Cancele e verifique o arquivo antes, se não tiver certeza. Quer continuar mesmo assim?'
+      );
+      if (!continuarMesmoAssim) return;
+    }
+
+    const resultado = document.getElementById('resultado');
+
+    if (!modoManual && dirHandle) {
+      try {
+        for (const p of fotosNovas) {
+          const nomeArq = sanitizarNomeArquivo(p.arquivoNovo.name);
+          const fh = await produtosHandle.getFileHandle(nomeArq, { create: true });
+          const writable = await fh.createWritable();
+          await writable.write(p.arquivoNovo);
+          await writable.close();
+        }
+        for (const capa of capasNovas) {
+          const fh = await assetsHandle.getFileHandle(capa.nomeArq, { create: true });
+          const writable = await fh.createWritable();
+          await writable.write(capa.arquivo);
+          await writable.close();
+        }
+        for (const item of layoutArquivosNovos) {
+          const fh = await assetsHandle.getFileHandle(item.nomeArq, { create: true });
+          const writable = await fh.createWritable();
+          await writable.write(item.arquivo);
+          await writable.close();
+        }
+        const catalogoHandle = await dirHandle.getFileHandle('catalogo.html', { create: true });
+        const w1 = await catalogoHandle.createWritable();
+        await w1.write(novoIndexHtml);
+        await w1.close();
+
+        const swHandle = await dirHandle.getFileHandle('sw.js', { create: true });
+        const w2 = await swHandle.createWritable();
+        await w2.write(novoSwJs);
+        await w2.close();
+
+        indexHtmlTexto = novoIndexHtml;
+        swJsTexto = novoSwJs;
+
+        let avisoLanding = '';
+        if (landingDisponivel && novoLandingHtml) {
+          for (const item of landingArquivosNovos) {
+            const fh = await assetsHandle.getFileHandle(item.nomeArq, { create: true });
+            const writable = await fh.createWritable();
+            await writable.write(item.arquivo);
+            await writable.close();
+          }
+          const alvoLanding = landingHandle || await dirHandle.getFileHandle('index.html', { create: true });
+          const w3 = await alvoLanding.createWritable();
+          await w3.write(novoLandingHtml);
+          await w3.close();
+          landingHandle = alvoLanding;
+          landingHtmlTexto = novoLandingHtml;
+        } else if (!landingDisponivel) {
+          avisoLanding = ' A landing (index.html) não foi carregada nesta sessão, então não foi alterada — use a aba "LANDING DO SITE" se quiser editá-la também.';
+        }
+
+        resultado.innerHTML = `
+          <p class="ok">✓ Catálogo salvo direto na pasta!</p>
+          <p><strong>Importante:</strong> isso salvou os arquivos só no seu computador. Para as mudanças aparecerem no site publicado, é preciso subir a pasta de novo na hospedagem (Netlify) — arraste a pasta atualizada de novo, ou sincronize, se seu provedor fizer isso sozinho.${avisoLanding}</p>
+        `;
+      } catch (err) {
+        resultado.innerHTML = `<p style="color:#c81e2c">Erro ao salvar: ${err.message}</p>`;
+      }
+    } else {
+      resultado.innerHTML = `<p>Gerando o pacote atualizado…</p>`;
+
+      try {
+        if (typeof JSZip === 'undefined') throw new Error('Biblioteca de ZIP não carregou (sem internet?).');
+
+        const zip = new JSZip();
+        zip.file('catalogo.html', novoIndexHtml);
+        fotosNovas.forEach(p => {
+          const nomeArq = sanitizarNomeArquivo(p.arquivoNovo.name);
+          zip.file('assets/produtos/' + nomeArq, p.arquivoNovo);
+        });
+        capasNovas.forEach(c => {
+          zip.file('assets/' + c.nomeArq, c.arquivo);
+        });
+        layoutArquivosNovos.forEach(item => {
+          zip.file('assets/' + item.nomeArq, item.arquivo);
+        });
+
+        let temLanding = false;
+        if (landingDisponivel && novoLandingHtml) {
+          temLanding = true;
+          zip.file('index.html', novoLandingHtml);
+          landingArquivosNovos.forEach(item => {
+            zip.file('assets/' + item.nomeArq, item.arquivo);
+          });
+        }
+
+        const blobZip = await zip.generateAsync({ type: 'blob' });
+        const urlZip = URL.createObjectURL(blobZip);
+
+        const blobSw = new Blob([novoSwJs], { type: 'text/javascript' });
+        const urlSw = URL.createObjectURL(blobSw);
+
+        const listaFotos = fotosNovas.map(p => `<li>${escapeAttr(p.nome)}</li>`).join('');
+        const listaCapas = capasNovas.map(c => `<li>${escapeAttr(c.label)}</li>`).join('');
+        const listaLayout = layoutArquivosNovos.map(item => `<li>${escapeAttr(item.label)}</li>`).join('');
+        const listaLanding = temLanding ? landingArquivosNovos.map(item => `<li>${escapeAttr(item.label)}</li>`).join('') : '';
+
+        resultado.innerHTML = `
+          <p class="ok">✓ Arquivos prontos!</p>
+          <a class="download-link" href="${urlZip}" download="catalogo-atualizado.zip">⬇ Baixar catalogo-atualizado.zip</a>
+          <a class="download-link" href="${urlSw}" download="sw.js">⬇ Baixar sw.js</a>
+          ${(fotosNovas.length || capasNovas.length || layoutArquivosNovos.length || listaLanding) ? `
+            <div class="lista-arquivos">
+              <strong>Fotos incluídas no ZIP (já com o nome certo, na pasta certa):</strong>
+              <ul>${listaCapas}${listaFotos}${listaLayout}${listaLanding}</ul>
+            </div>` : ''}
+          <p style="margin-top:12px;"><strong>Como usar:</strong> baixe os dois arquivos. Extraia (descompacte) o ZIP — ele contém o <code>catalogo.html</code>${temLanding ? ', o <code>index.html</code> (landing)' : ''} e a pasta <code>assets</code>. Depois arraste esses arquivos, a pasta <code>assets</code> extraída e o <code>sw.js</code> baixado separadamente para dentro da pasta <code>catalogo-pwa</code> do seu computador, substituindo os arquivos quando perguntar. Por fim, suba a pasta atualizada de novo na hospedagem (Netlify/Vercel).${!temLanding ? ' (A landing/index.html não foi alterada porque não foi carregada nesta sessão — use a aba "LANDING DO SITE" e, se precisar, o campo pra carregar o index.html manualmente.)' : ''}</p>
+        `;
+      } catch (err) {
+        resultado.innerHTML = `<p style="color:#c81e2c">Erro ao gerar o pacote: ${err.message}</p><p>Tente novamente com internet ligada (o gerador de ZIP precisa carregar uma vez), ou use o modo automático (Chrome/Edge) descrito no início da página.</p>`;
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
+
+
+
