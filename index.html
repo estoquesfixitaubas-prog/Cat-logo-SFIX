@@ -3,2441 +3,508 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>S-Fix Distribuindo Soluções | Catálogo</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0f5c8c">
+<title>S-Fix Distribuindo Soluções</title>
+<!-- ==LANDING-CONFIG-INICIO==
+{
+  "marcas": [
+    "Makita",
+    "Dewalt",
+    "Stanley",
+    "Maxtool"
+  ],
+  "logoImagem": "assets/logo-11-anos-sem-fundo.png",
+  "logoAlt": "S-Fix Distribuindo Soluções",
+  "logoAltura": "60",
+  "heroImagem": "",
+  "sobreImagem": "",
+  "fontTitulo": "'Barlow Condensed',sans-serif",
+  "fontTexto": "'Source Sans 3',sans-serif",
+  "fontGoogleHref": "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap",
+  "tamanhoTituloHero": "60",
+  "tamanhoTituloSecao": "40",
+  "tamanhoTexto": "16",
+  "corAzul": "#0f5c8c",
+  "corAzulEscuro": "#0a4468",
+  "corVermelho": "#c81e2c",
+  "corTeal": "#00857c",
+  "corFundo": "#f4f5f6",
+  "corTexto": "#1c1c1c",
+  "corCinza": "#6b7280",
+  "corCabecalho": "#122c6f"
+}
+==LANDING-CONFIG-FIM== -->
+<!-- ==LANDING-FONTE-LINK-INICIO== -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- ==LANDING-FONTE-LINK-FIM== -->
 <style>
+  /* ==LANDING-STYLE-INICIO== */
   :root{
-    --azul: #0f5c8c;
-    --azul-escuro: #0a4468;
-    --vermelho: #c81e2c;
-    --teal: #00857c;
-    --bg: #eceef0;
-    --card: #ffffff;
-    --texto: #1c1c1c;
-    --cinza: #6b7280;
+    --azul:#0f5c8c;
+    --cabecalho-fundo:#122c6f;
+    --azul-escuro:#0a4468;
+    --vermelho:#c81e2c;
+    --teal:#00857c;
+    --bg:#f4f5f6;
+    --card:#ffffff;
+    --texto:#1c1c1c;
+    --cinza:#6b7280;
+    --font-titulo:'Barlow Condensed',sans-serif;
+    --font-texto:'Source Sans 3',sans-serif;
+    --tamanho-titulo-hero:60px;
+    --tamanho-titulo-secao:40px;
+    --tamanho-texto:16px;
+    --hero-bg-imagem:none;
+  }
+  /* ==LANDING-STYLE-FIM== */
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:var(--font-texto);
+    color:var(--texto);
+    background:var(--bg);
+    line-height:1.5;
+  }
+  h1,h2,h3{
+    font-family:var(--font-titulo);
+    letter-spacing:.01em;
+    line-height:1.05;
+  }
+  a{color:inherit;text-decoration:none;}
+  .container{max-width:1120px;margin:0 auto;padding:0 24px;}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:14px 26px;border-radius:6px;font-weight:700;
+    font-size:15.5px;border:2px solid transparent;cursor:pointer;
+    transition:transform .15s ease, background .2s ease, border-color .2s ease;
+  }
+  .btn:hover{transform:translateY(-2px);}
+  .btn-primario{background:var(--vermelho);color:#fff;}
+  .btn-primario:hover{background:#a91824;}
+  .btn-secundario{background:transparent;border-color:rgba(255,255,255,.55);color:#fff;}
+  .btn-secundario:hover{background:rgba(255,255,255,.12);border-color:#fff;}
 
-    /* ==LAYOUT-INICIO== */
-    --header-justify: center;
-    --header-direcao: row;
-    --header-bg: #e0e3e5;
-    --status-bar-cor: #0f5c8c;
-    --watermark-url: url("assets/watermark-tile.png");
-    --watermark-opacidade: 1;
-    --watermark-display: block;
-    --produto-font-familia: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-    --produto-font-tamanho: 14.5px;
-    --produto-font-cor: #0a4468;
-    /* ==LAYOUT-FIM== */
+  /* ===== HEADER ===== */
+  header{
+    position:sticky;top:0;z-index:50;
+    background:var(--cabecalho-fundo);
+    border-bottom:3px solid var(--vermelho);
   }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-    background-color: var(--bg);
-    color: var(--texto);
-    position: relative;
+  .header-inner{display:flex;align-items:center;justify-content:space-between;height:74px;}
+  .logo{
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:800;font-size:28px;color:#fff;letter-spacing:.02em;
   }
-  body::before {
+  .logo span{color:var(--vermelho);}
+  nav ul{list-style:none;display:flex;gap:32px;}
+  nav a{color:#dce7ee;font-weight:600;font-size:15px;transition:color .15s;}
+  nav a:hover{color:#fff;}
+  .header-cta{display:none;}
+  @media(min-width:760px){
+    .header-cta{display:inline-flex;padding:10px 20px;font-size:14px;}
+  }
+  .nav-desktop{display:none;}
+  @media(min-width:760px){.nav-desktop{display:block;}}
+
+  /* ===== HERO ===== */
+  .hero{
+    position:relative;
+    background-image: var(--hero-bg-imagem), linear-gradient(135deg, var(--azul-escuro) 0%, var(--azul) 62%, var(--teal) 100%);
+    background-size: cover, cover;
+    background-position: center, center;
+    color:#fff;
+    overflow:hidden;
+    padding:96px 0 120px;
+  }
+  .hero::before{
     content:"";
-    position:fixed;
-    inset:0;
-    z-index:-1;
-    pointer-events:none;
-    background-image: var(--watermark-url);
-    background-repeat: repeat;
-    opacity: var(--watermark-opacidade);
-    display: var(--watermark-display);
-  }
-
-  header {
-    background: var(--header-bg);
-    padding: 18px 20px;
-    display:flex;
-    align-items:center;
-    justify-content: var(--header-justify);
-    flex-direction: var(--header-direcao);
-    gap:16px;
-    flex-wrap:wrap;
-  }
-  header img { object-fit:contain; max-width:100%; }
-
-  .tabs {
-    display:flex;
-    gap:10px;
-    max-width:1100px;
-    margin:0 auto;
-    padding:16px 16px 0;
-    flex-wrap:wrap;
-  }
-  .tab-btn {
-    flex:1;
-    min-width:160px;
-    background:#fff;
-    color: var(--azul-escuro);
-    border:2px solid var(--azul-escuro);
-    border-radius:10px;
-    padding:12px 18px;
-    font-weight:800;
-    font-size:15px;
-    letter-spacing:.4px;
-    cursor:pointer;
-    transition: background .2s ease, color .2s ease, transform .15s ease, box-shadow .2s ease;
-    text-align:center;
-  }
-  .tab-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0,0,0,.15);
-  }
-  .tab-btn.ativo {
-    background: var(--azul-escuro);
-    color:#fff;
-  }
-
-  .painel { display:none; min-height: 65vh; }
-  .painel.ativo { display:block; }
-
-  .escondido { display:none !important; }
-
-  /* ================= AVISO DE NOVA VERSÃO DISPONÍVEL ================= */
-  #avisoAtualizacao {
-    position:fixed;
-    left:50%;
-    bottom:20px;
-    transform:translateX(-50%);
-    background: var(--azul-escuro);
-    color:#fff;
-    padding:12px 16px;
-    border-radius:10px;
-    box-shadow:0 6px 22px rgba(0,0,0,.35);
-    display:flex;
-    align-items:center;
-    gap:14px;
-    z-index:300;
-    font-size:13.5px;
-    max-width:92vw;
-    flex-wrap:wrap;
-    justify-content:center;
-    animation: subirAviso .3s ease;
-  }
-  @keyframes subirAviso {
-    from { opacity:0; transform:translate(-50%, 12px); }
-    to   { opacity:1; transform:translate(-50%, 0); }
-  }
-  #avisoAtualizacao button {
-    background: var(--vermelho);
-    color:#fff;
-    border:none;
-    border-radius:7px;
-    padding:8px 14px;
-    font-weight:800;
-    font-size:13px;
-    cursor:pointer;
-    white-space:nowrap;
-  }
-  #avisoAtualizacao button:hover { filter:brightness(1.1); }
-
-  /* ================= MENU INICIAL (tela de seleção de catálogo) ================= */
-  #telaInicial {
-    min-height: 70vh;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    gap:28px;
-    padding:50px 20px 60px;
-    text-align:center;
-  }
-  #telaInicial h1 {
-    font-size:clamp(19px, 3vw, 26px);
-    color: var(--azul-escuro);
-    max-width:640px;
-  }
-  .menu-inicial-grid {
-    display:grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-    gap:22px;
-    width:100%;
-    max-width:780px;
-  }
-  .menu-inicial-card {
-    position:relative;
-    background: var(--card);
-    border:none;
-    padding:0;
-    border-radius:14px;
-    overflow:hidden;
-    cursor:pointer;
-    box-shadow: 0 4px 16px rgba(0,0,0,.16);
-    transition: transform .18s ease, box-shadow .18s ease;
-    display:flex;
-    flex-direction:column;
-  }
-
-  /* ---- selo "adicionado recentemente" (abas novas, até 48h) ---- */
-  .badge-aba-nova {
-    position:absolute;
-    top:10px; left:-6px;
-    z-index:6;
-    background:#22c55e;
-    color:#fff;
-    font-weight:800;
-    font-size:10.5px;
-    letter-spacing:.3px;
-    text-transform:uppercase;
-    padding:6px 14px;
-    border-radius:20px;
-    box-shadow:0 3px 8px rgba(0,0,0,.3);
-    transform:rotate(-6deg);
+    position:absolute;inset:0;
+    background-image:
+      repeating-linear-gradient(115deg, rgba(255,255,255,.05) 0 2px, transparent 2px 46px);
     pointer-events:none;
   }
-  .tab-btn { position:relative; overflow:visible; }
-  .tab-btn .badge-aba-nova {
-    top:-10px; left:8px;
-    font-size:9px;
-    padding:4px 10px;
-  }
-
-  /* ---- selo "New!" (produtos novos, até 48h) ---- */
-  .badge-produto-novo {
-    position:absolute;
-    top:8px; right:8px;
-    z-index:6;
-    background:#00857c;
-    color:#fff;
-    font-weight:800;
-    font-style:italic;
-    font-size:12px;
-    padding:4px 13px;
-    border-radius:20px;
-    box-shadow:0 3px 8px rgba(0,0,0,.3);
+  .hero.tem-foto-fundo::after{
+    content:"";
+    position:absolute;inset:0;
+    background:rgba(9,30,46,.5);
     pointer-events:none;
   }
-  .menu-inicial-card:hover, .menu-inicial-card:focus-visible {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 28px rgba(0,0,0,.24);
+  .hero-inner{position:relative;z-index:2;max-width:680px;}
+  .eyebrow{
+    display:inline-block;font-size:13px;font-weight:700;letter-spacing:.14em;
+    text-transform:uppercase;color:#bfe3ff;
+    border:1px solid rgba(255,255,255,.35);border-radius:999px;
+    padding:6px 16px;margin-bottom:22px;
   }
-  .menu-inicial-card img {
-    width:100%;
-    aspect-ratio: 16 / 10;
-    object-fit:cover;
-    display:block;
-    background:#e5e7eb;
+  .hero h1{
+    font-size:clamp(38px,6vw,var(--tamanho-titulo-hero));font-weight:800;color:#fff;margin-bottom:20px;
   }
-  .menu-inicial-card .menu-inicial-nome {
-    padding:14px 10px;
-    font-weight:800;
-    font-size:16px;
-    letter-spacing:.3px;
-    color:#fff;
-    background: var(--azul-escuro);
-    text-align:center;
+  .hero h1 em{font-style:normal;color:#ffd8db;}
+  .hero p.lead{font-size:clamp(16px,2vw,calc(var(--tamanho-texto) + 2px));color:#dce9f2;max-width:520px;margin-bottom:34px;}
+  .hero-btns{display:flex;flex-wrap:wrap;gap:14px;}
+
+  /* stat strip */
+  .stat-strip{
+    position:relative;margin-top:64px;
+    display:grid;grid-template-columns:repeat(3,1fr);
+    border-top:1px solid rgba(255,255,255,.22);
+    padding-top:28px;max-width:640px;
+  }
+  .stat-strip div + div{border-left:1px solid rgba(255,255,255,.22);padding-left:24px;}
+  .stat-num{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:34px;color:#fff;}
+  .stat-label{font-size:13px;color:#bcd8e8;text-transform:uppercase;letter-spacing:.06em;margin-top:2px;}
+
+  /* ===== SECTIONS ===== */
+  section{padding:88px 0;}
+  .section-head{max-width:620px;margin-bottom:52px;}
+  .kicker{
+    color:var(--vermelho);font-weight:700;font-size:13px;
+    text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px;display:block;
+  }
+  .section-head h2{font-size:clamp(28px,4vw,var(--tamanho-titulo-secao));color:var(--azul-escuro);font-weight:800;}
+  .section-head p{color:var(--cinza);margin-top:14px;font-size:var(--tamanho-texto);}
+
+  /* sobre */
+  .sobre{background:var(--card);}
+  .sobre-grid{display:grid;gap:48px;align-items:center;}
+  @media(min-width:860px){.sobre-grid{grid-template-columns:1fr 1fr;}}
+  .sobre-texto p{color:#3f4650;margin-bottom:16px;font-size:var(--tamanho-texto);}
+  .sobre-painel{
+    background:var(--bg);border-radius:12px;padding:32px;
+    border-left:5px solid var(--teal);
+  }
+  .sobre-painel ul{list-style:none;display:flex;flex-direction:column;gap:18px;}
+  .sobre-painel li{display:flex;gap:14px;align-items:flex-start;}
+  .check{
+    flex:0 0 auto;width:26px;height:26px;border-radius:50%;
+    background:var(--teal);color:#fff;font-weight:800;font-size:14px;
+    display:flex;align-items:center;justify-content:center;margin-top:1px;
+  }
+  .sobre-painel strong{display:block;color:var(--azul-escuro);font-size:15.5px;}
+  .sobre-painel span{color:var(--cinza);font-size:14.5px;}
+
+  /* diferenciais */
+  .diferenciais{background:var(--bg);}
+  .cards{display:grid;gap:24px;}
+  @media(min-width:640px){.cards{grid-template-columns:repeat(2,1fr);}}
+  @media(min-width:980px){.cards{grid-template-columns:repeat(4,1fr);}}
+  .card{
+    background:var(--card);border-radius:12px;padding:28px 24px;
+    box-shadow:0 1px 3px rgba(10,68,104,.08);
+    border-top:4px solid var(--azul);
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .card:hover{transform:translateY(-4px);box-shadow:0 10px 24px rgba(10,68,104,.14);}
+  .card-icon{
+    width:44px;height:44px;border-radius:10px;background:var(--azul-escuro);
+    color:#fff;display:flex;align-items:center;justify-content:center;
+    font-size:20px;margin-bottom:18px;
+  }
+  .card h3{font-size:20px;color:var(--azul-escuro);margin-bottom:8px;font-weight:700;}
+  .card p{color:var(--cinza);font-size:14.5px;}
+
+  /* como funciona */
+  .passos{counter-reset:passo;}
+  .passos-grid{display:grid;gap:36px;}
+  @media(min-width:760px){.passos-grid{grid-template-columns:repeat(3,1fr);}}
+  .passo{position:relative;padding-left:56px;}
+  .passo::before{
+    counter-increment:passo;content:counter(passo);
+    position:absolute;left:0;top:0;
+    width:40px;height:40px;border-radius:8px;
+    background:var(--azul-escuro);color:#fff;
+    font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:19px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .passo h3{font-size:19px;color:var(--azul-escuro);margin-bottom:6px;}
+  .passo p{color:var(--cinza);font-size:14.5px;}
+
+  /* marcas */
+  .marcas{background:var(--card);text-align:center;}
+  .marcas-faixa{
+    display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-top:8px;
+  }
+  .marca-chip{
+    background:var(--bg);border:1px solid #e2e6e9;border-radius:999px;
+    padding:12px 26px;font-weight:700;color:var(--azul-escuro);font-size:15px;
+    display:inline-block;cursor:default;
   }
 
-  /* ================= BOTÃO HAMBÚRGUER (3 barras) + MENU LATERAL ================= */
-  .btn-menu {
-    position:fixed;
-    top:140px;
-    left:16px;
-    z-index:260;
-    width:46px;
-    height:46px;
-    border:none;
-    border-radius:10px;
-    background: var(--azul-escuro);
-    cursor:pointer;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    gap:5px;
-    box-shadow: 0 3px 12px rgba(0,0,0,.35);
-    transition: background .2s ease, transform .15s ease;
+  /* CTA final */
+  .cta-final{
+    background:linear-gradient(120deg,var(--vermelho),#9c1622);
+    color:#fff;text-align:center;
   }
-  .btn-menu:hover { background: var(--azul); }
-  .btn-menu span {
-    display:block;
-    width:22px;
-    height:3px;
-    border-radius:2px;
-    background:#fff;
+  .cta-final h2{font-size:clamp(26px,4vw,38px);margin-bottom:14px;color:#fff;}
+  .cta-final p{color:#ffd9db;max-width:520px;margin:0 auto 32px;font-size:16.5px;}
+  .cta-final .btn-primario{background:#fff;color:var(--vermelho);}
+  .cta-final .btn-primario:hover{background:#ffe9ea;}
+  .cta-final .btn-secundario{border-color:rgba(255,255,255,.6);}
+
+  /* footer */
+  footer{background:var(--azul-escuro);color:#cfe0ea;padding:44px 0 28px;}
+  .footer-grid{display:flex;flex-wrap:wrap;justify-content:space-between;gap:28px;margin-bottom:28px;}
+  footer .logo{margin-bottom:8px;}
+  footer p.desc{max-width:320px;font-size:14px;color:#a9c2d1;}
+  .footer-col h4{font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:#fff;margin-bottom:14px;}
+  .footer-col ul{list-style:none;display:flex;flex-direction:column;gap:8px;}
+  .footer-col a{font-size:14.5px;color:#bcd3e0;}
+  .footer-col a:hover{color:#fff;}
+  .footer-bottom{
+    border-top:1px solid rgba(255,255,255,.12);padding-top:20px;
+    font-size:13px;color:#8fadbf;text-align:center;
   }
 
-  .menu-lateral-overlay {
-    position:fixed;
-    inset:0;
-    background:rgba(10,10,10,.35);
-    opacity:0;
-    pointer-events:none;
-    transition:opacity .25s ease;
-    z-index:230;
-  }
-  .menu-lateral-overlay.aberta { opacity:1; pointer-events:auto; }
-
-  .menu-lateral {
-    position:fixed;
-    top:0;
-    left:0;
-    height:100%;
-    width:min(300px, 82vw);
-    background:#fff;
-    z-index:250;
-    box-shadow: 6px 0 26px rgba(0,0,0,.3);
-    transform: translateX(-100%);
-    transition: transform .28s ease;
-    display:flex;
-    flex-direction:column;
-    padding:200px 0 20px;
-    overflow-y:auto;
-  }
-  .menu-lateral.aberto { transform: translateX(0); }
-  .menu-lateral-titulo {
-    padding:0 22px 12px;
-    font-size:12.5px;
-    font-weight:800;
-    letter-spacing:.6px;
-    text-transform:uppercase;
-    color: var(--cinza);
-  }
-  .menu-lateral-item {
-    display:flex;
-    align-items:center;
-    gap:12px;
-    width:100%;
-    border:none;
-    background:transparent;
-    text-align:left;
-    cursor:pointer;
-    padding:14px 22px;
-    font-size:15px;
-    font-weight:700;
-    color: var(--azul-escuro);
-    border-left:4px solid transparent;
-    transition: background .15s ease, border-color .15s ease;
-  }
-  .menu-lateral-item:hover { background:#f1f5f9; border-left-color: var(--teal); }
-  .menu-lateral-item.ativo { background:#eef4f8; border-left-color: var(--vermelho); color: var(--vermelho); }
-  .menu-lateral-item .icone { font-size:17px; }
-  .menu-lateral-item .badge-aba-nova-lateral {
-    display:inline-block;
-    margin-left:auto;
-    background:#22c55e;
-    color:#fff;
-    font-weight:800;
-    font-size:9.5px;
-    letter-spacing:.3px;
-    text-transform:uppercase;
-    padding:3px 9px;
-    border-radius:20px;
-    box-shadow:0 2px 6px rgba(0,0,0,.25);
-  }
-  .menu-lateral-sep { height:1px; background:#e5e7eb; margin:8px 22px; }
-  /* Regra automática: cria uma linha entre CADA aba/catálogo dentro do
-     menu lateral, não importa quantas abas existam. Ao adicionar uma
-     aba nova no admin.html, a linha aparece sozinha, sem editar nada aqui. */
-  #menuLateralCatalogos .menu-lateral-item:not(:last-child) {
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  @media (max-width: 480px) {
-    .tab-btn { font-size:13px; padding:10px 12px; min-width:0; }
-  }
-
-  #statusBar {
-    background: var(--status-bar-cor);
-    color:#ffffff;
-    font-size:12px;
-    text-align:center;
-    padding:5px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:6px;
-  }
-  #dot { width:7px; height:7px; border-radius:50%; background:#4ade80; }
-  #dot.offline { background:#f59e0b; }
-  #statusText { transition: opacity .3s ease; }
-  #statusText.status-fade { opacity: 0; }
-
-  .intro-wrap {
-    max-width: 1300px;
-    margin: 20px auto 0;
-    padding: 0 16px;
-  }
-  .intro-cover {
-    display:block;
-    width:100%;
-    border-radius:12px;
-    box-shadow: 0 4px 14px rgba(0,0,0,.2);
-    overflow:hidden;
-    cursor:pointer;
-    border:none;
-    padding:0;
-    will-change: opacity, transform;
-  }
-  .intro-cover img {
-    width:100%;
-    display:block;
-    object-fit:cover;
-  }
-
-  .search-wrap {
-    max-width: 1100px;
-    margin: 16px auto 0;
-    padding: 0 16px;
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-  }
-  .search-box {
-    display:flex;
-    align-items:center;
-    gap:8px;
-    background:#fff;
-    border-radius:10px;
-    padding:10px 14px;
-    box-shadow: 0 1px 3px rgba(0,0,0,.15);
-    flex:1 1 260px;
-  }
-  .search-box svg { flex-shrink:0; color: var(--cinza); }
-  .search-box input {
-    border:none;
-    outline:none;
-    font-size:15px;
-    flex:1;
-    color: var(--texto);
-    background:transparent;
-  }
-  .search-box input::placeholder { color:#9ca3af; }
-  .clear-search-btn {
-    border:none;
-    background:#e5e7eb;
-    color:#4b5563;
-    width:22px;
-    height:22px;
-    border-radius:50%;
-    cursor:pointer;
-    font-size:13px;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    flex-shrink:0;
-  }
-  .sort-box {
-    position:relative;
-    display:flex;
-    align-items:center;
-    gap:8px;
-    background:#fff;
-    border-radius:10px;
-    padding:10px 14px;
-    box-shadow: 0 1px 3px rgba(0,0,0,.15);
-    flex:0 0 auto;
-  }
-  .badge-sort-novo {
-    position:absolute;
-    top:-9px;
-    right:-8px;
-    z-index:6;
-    background:#22c55e;
-    color:#fff;
-    font-weight:800;
-    font-size:9.5px;
-    letter-spacing:.3px;
-    text-transform:uppercase;
-    padding:4px 10px;
-    border-radius:20px;
-    box-shadow:0 3px 8px rgba(0,0,0,.3);
-    pointer-events:none;
-    white-space:nowrap;
-  }
-  .sort-box label {
-    font-size:13px;
-    color: var(--cinza);
-    white-space:nowrap;
-  }
-  .sort-box select {
-    border:none;
-    outline:none;
-    font-size:14px;
-    color: var(--texto);
-    background:transparent;
-    cursor:pointer;
-  }
-  @media (max-width: 480px) {
-    .search-wrap { flex-direction:column; }
-    .search-box { flex: none; }
-    .sort-box { justify-content:space-between; }
-  }
-  .sem-resultados {
-    display:none;
-    text-align:center;
-    color: var(--cinza);
-    padding:40px 16px;
-    font-size:15px;
-  }
-
-  main {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 20px 16px 60px;
-  }
-  .grid {
-    display:grid;
-    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-    gap:18px;
-  }
-  .card {
-    position:relative;
-    background: var(--card);
-    border-radius:10px;
-    overflow:hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,.12);
-    display:flex;
-    flex-direction:column;
-    cursor:pointer;
-    transition: transform .15s ease, box-shadow .15s ease, opacity .6s ease, transform .6s ease;
-    opacity: 0;
-    transform: translateY(28px);
-  }
-  .card.visivel {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  .card:hover, .card:focus-visible {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 16px rgba(0,0,0,.18);
-  }
-  .card img {
-    width:100%;
-    aspect-ratio: 1 / 1;
-    object-fit: contain;
-    background:#f4f4f4;
-    padding:10px;
-  }
-  .card .info {
-    padding:12px 14px 14px;
-    border-top: 3px solid var(--teal);
-  }
-  .card h3 {
-    font-family: var(--produto-font-familia);
-    font-size: var(--produto-font-tamanho);
-    line-height:1.3;
-    color: var(--produto-font-cor);
-    margin-bottom:8px;
-    min-height:38px;
-  }
-  .codigos { display:flex; flex-direction:column; gap:7px; }
-  .codigo-linha {
-    display:flex;
-    align-items:stretch;
-    font-size:13px;
-    font-weight: bold !important;
-    border-radius:6px;
-    overflow:hidden;
-    box-shadow: 0 1px 2px rgba(0,0,0,.15);
-  }
-  .voltagem {
-    background: var(--teal);
-    color:#fff;
-    font-family:"Futura-BoldCondensed", "Futura Bold Condensed", "Arial Narrow", sans-serif;
-    font: weight 700px;
-    padding:6px 10px;
-    font-size:14px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    letter-spacing:.3px;
-  }
-  .codigo {
-    background: var(--azul-escuro);
-    color:#fff;
-    font-family:"Futura-BoldCondensed", "Futura Bold Condensed", "Arial Narrow", sans-serif;
-    letter-spacing:1px;
-    padding:6px 10px;
-    flex:1;
-    text-align:center;
-  }
-  .codigo-linha:not(:has(.voltagem)) .codigo {
-    border-radius:6px;
-  }
-
-  /* layout alternativo: foto ao lado do nome (ativado via classe no body) */
-  body.layout-foto-lateral .card { flex-direction: row; }
-  body.layout-foto-lateral .card img { width:110px; min-width:110px; aspect-ratio: 1 / 1; }
-  body.layout-foto-lateral .card .info { border-top:none; border-left: 3px solid var(--teal); flex:1; }
-
-  footer {
-    background: var(--vermelho);
-    color:#fff;
-    text-align:center;
-    padding:14px;
-    font-weight:700;
-    letter-spacing:.5px;
-    font-size:15px;
-  }
-
-  .lightbox {
-    position:fixed;
-    inset:0;
-    background:rgba(10,10,10,.92);
-    display:none;
-    align-items:center;
-    justify-content:center;
-    z-index:100;
-    padding:20px;
-  }
-  .lightbox.open { display:flex; }
-  #lightboxImg {
-    max-width:min(90vw, 600px);
-    max-height:75vh;
-    object-fit:contain;
-    background:#f4f4f4;
-    border-radius:8px;
-    touch-action:none;
-    transform-origin:center center;
-    transition:transform .08s ease-out;
-    will-change:transform;
-  }
-  .lightbox-content {
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:14px;
-    max-width: 100%;
-  }
-  .lightbox-main {
-    display:flex;
-    align-items:flex-start;
-    gap:22px;
-    flex-wrap:nowrap;
-  }
-  .lightbox-info { color:#fff; text-align:center; }
-  .lightbox-info h3 { font-size:18px; margin-bottom:8px; }
-  .close-btn {
-    position:absolute;
-    top:16px;
-    left:16px;
-    width:52px;
-    height:52px;
-    border:none;
-    border-radius:50%;
-    background:#fff;
-    padding:6px;
-    cursor:pointer;
-    box-shadow: 0 2px 10px rgba(0,0,0,.5);
-    transition: transform .15s ease;
-    z-index:10;
-  }
-  .close-btn:hover { transform: scale(1.08); }
-  .close-btn img { width:100%; height:100%; display:block; }
-
-  .zoom-pane {
-    display:none;
-    width:380px;
-    height:380px;
-    flex-shrink:0;
-    border-radius:10px;
-    border:3px solid #fff;
-    background-color:#f4f4f4;
-    background-repeat:no-repeat;
-    background-size:200%;
-  }
-  .img-wrap {
-    position:relative;
-    cursor: crosshair;
-    overflow:hidden;
-    border-radius:8px;
-  }
-  @media (max-width: 900px) {
-    .lightbox-main { flex-direction: column; align-items: center; }
-    .zoom-pane { width: min(85vw, 340px); height: min(85vw, 340px); margin-top: 2px; }
-  }
-
-  @media (max-width: 480px) {
-    header { padding: 12px 12px; gap:8px; }
-    header img { height:34px !important; }
-    .tabs { padding:12px 10px 0; gap:8px; }
-    .intro-wrap { padding: 0 6px; margin-top:14px; }
-    .grid { grid-template-columns: 1fr 1fr; gap:12px; }
-    .card h3 { font-size:13px; min-height:34px; }
-  }
+  .placeholder{outline:1px dashed rgba(255,255,255,.5);outline-offset:2px;}
 </style>
 </head>
-<body class="">
+<body>
 
-<header id="headerLogos"></header>
-<div id="statusBar"><span id="dot"></span><span id="statusText">Verificando conexão...</span></div>
+<header>
+  <div class="container header-inner">
+    <!-- ==LANDING-LOGO-HEADER-INICIO== -->
+    <img src="assets/logo-11-anos-sem-fundo.png" alt="S-Fix Distribuindo Soluções" style="height:60px; display:block;">
+    <!-- ==LANDING-LOGO-HEADER-FIM== -->
+    <nav class="nav-desktop">
+      <ul>
+        <li><a href="#sobre">Sobre</a></li>
+        <li><a href="#diferenciais">Diferenciais</a></li>
+        <li><a href="#como-funciona">Como funciona</a></li>
+        <li><a href="#marcas">Marcas</a></li>
+      </ul>
+    </nav>
+    <a href="catalogo.html" class="btn btn-primario header-cta">Ver catálogo</a>
+  </div>
+</header>
 
-<button class="btn-menu" id="btnMenu" aria-label="Abrir menu de catálogos" aria-expanded="false">
-  <span></span><span></span><span></span>
-</button>
-<div class="menu-lateral-overlay" id="menuLateralOverlay"></div>
-<nav class="menu-lateral" id="menuLateral">
-  <button class="menu-lateral-item" id="menuLateralHome">
-    <span class="icone">🏠</span> Menu inicial
-  </button>
-  <div class="menu-lateral-sep"></div>
-  <div class="menu-lateral-titulo">Catálogos</div>
-  <div id="menuLateralCatalogos"></div>
-</nav>
-
-<div id="telaInicial">
-  <h1>Selecione o catálogo que deseja abrir</h1>
-  <div class="menu-inicial-grid" id="menuInicialGrid"></div>
-</div>
-
-<div class="tabs escondido" id="tabsContainer"></div>
-<div id="paineisContainer" class="escondido"></div>
-
-<div class="lightbox" id="lightbox">
-  <button class="close-btn" id="closeBtn"><img src="assets/seta-voltar.png" alt="Voltar"></button>
-  <div class="lightbox-content">
-    <div class="lightbox-main">
-      <div class="img-wrap">
-        <img id="lightboxImg" src="" alt="">
-      </div>
-      <div class="zoom-pane" id="zoomPane"></div>
+<!-- ==LANDING-HERO-TAG-INICIO== -->
+<section class="hero">
+<!-- ==LANDING-HERO-TAG-FIM== -->
+  <div class="container hero-inner">
+    <span class="eyebrow">Distribuidora de ferramentas e soluções</span>
+    <h1>Do estoque certo à <em>entrega certa</em>, para quem revende ferramentas.</h1>
+    <p class="lead">A S-Fix conecta lojistas e profissionais às melhores marcas do mercado, com catálogo sempre atualizado e atendimento direto — sem enrolação.</p>
+    <div class="hero-btns">
+      <a href="catalogo.html" class="btn btn-primario">📋 Ver catálogo completo</a>
+      <a href="https://wa.me/55SEUNUMERO?text=Ol%C3%A1%2C%20vim%20pelo%20site%20da%20S-Fix%20e%20quero%20saber%20mais" class="btn btn-secundario" target="_blank" rel="noopener">Falar com um vendedor</a>
     </div>
-    <div class="lightbox-info">
-      <h3 id="lightboxTitle"></h3>
+
+    <div class="stat-strip">
+      <div>
+        <div class="stat-num">+500</div>
+        <div class="stat-label">itens no catálogo</div>
+      </div>
+      <div>
+        <div class="stat-num">100%</div>
+        <div class="stat-label">catálogo digital</div>
+      </div>
+      <div>
+        <div class="stat-num">24h</div>
+        <div class="stat-label">resposta a orçamentos</div>
+      </div>
     </div>
   </div>
-</div>
+</section>
 
-<script>
-  // ==========================================================
-  // LOGOS DO CABEÇALHO — uma ou mais logos, na ordem em que
-  // aparecem. Edite aqui só em último caso — o normal é usar
-  // o admin.html (aba "LAYOUT DO SITE" → Logos e cabeçalho),
-  // que deixa adicionar, remover e reordenar as logos sozinho.
-  // ==========================================================
-  // ==LOGOS-INICIO==
-  const LOGOS = [
-    {
-      arquivo: "assets/logo-sfix.png",
-      alt: "S-Fix Distribuindo Soluções",
-      altura: "65px",
-      ativa: true
-    },
-    {
-      arquivo: "assets/logo-makita.png",
-      alt: "Makita",
-      altura: "56px",
-      ativa: false
-    }
-  ];
-  // ==LOGOS-FIM==
+<section class="sobre" id="sobre">
+  <div class="container sobre-grid">
+    <div class="sobre-texto">
+      <span class="kicker">Quem somos</span>
+      <h2 style="font-size:clamp(26px,4vw,36px);color:var(--azul-escuro);font-weight:800;margin-bottom:18px;">Uma distribuidora feita para agilizar o seu dia a dia</h2>
+      <p>A S-Fix Distribuindo Soluções trabalha para que lojistas e profissionais do setor encontrem, com rapidez, as ferramentas e peças que precisam — com um catálogo sempre em dia e um atendimento próximo, direto pelo WhatsApp.</p>
+      <p>Nosso catálogo digital funciona até offline: seu cliente consulta produtos, preços e códigos de onde estiver, e você fecha o pedido sem perder tempo.</p>
+    </div>
+    <div class="sobre-painel">
+      <!-- ==LANDING-SOBRE-IMG-INICIO== -->
+      
+      <!-- ==LANDING-SOBRE-IMG-FIM== -->
+      <ul>
+        <li>
+          <div class="check">✓</div>
+          <div><strong>Catálogo sempre atualizado</strong><span>Novos produtos em tempo real.</span></div>
+        </li>
+        <li>
+          <div class="check">✓</div>
+          <div><strong>Funciona offline</strong><span>Seu vendedor consulta o catálogo mesmo sem internet.</span></div>
+        </li>
+        <li>
+          <div class="check">✓</div>
+          <div><strong>Atendimento direto</strong><span>Orçamento e pedido em poucos cliques, via WhatsApp.</span></div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
 
-  (function renderizarHeaderLogos() {
-    const header = document.getElementById('headerLogos');
-    if (!header) return;
-    header.innerHTML = '';
-    LOGOS.filter(logo => logo.ativa !== false).forEach(logo => {
-      const img = document.createElement('img');
-      img.src = logo.arquivo;
-      img.alt = logo.alt || '';
-      img.style.height = logo.altura || '56px';
-      header.appendChild(img);
-    });
-  })();
-
-  // ==========================================================
-  // DATA DA ÚLTIMA ATUALIZAÇÃO — reescrita automaticamente pelo
-  // admin.html toda vez que você clica em "Salvar alterações" ou
-  // "Publicar automaticamente". Usada pela barra vermelha do rodapé
-  // para mostrar "Atualizado hoje às HH:MM" / "Atualizado no dia X".
-  // ==========================================================
-  // ==DATA-ATUALIZACAO-INICIO==
-  const ULTIMA_ATUALIZACAO_ISO = "2026-07-24T20:50:13.334Z";
-  // ==DATA-ATUALIZACAO-FIM==
-
-  // ==========================================================
-  // DADOS DO CATÁLOGO — cada item do array é uma aba (Makita,
-  // Dewalt & Stanley, ou qualquer outra que você criar no painel
-  // admin.html). Edite aqui só em último caso — o normal é usar
-  // o admin.html, que reescreve este bloco sozinho.
-  // ==========================================================
-  // ==ABAS-INICIO==
-  const ABAS = [
-  {
-    id: "makita",
-    nome: "MAKITA",
-    capa: "assets/intro-makita.jpg",
-    capaPosicao: "center",
-    criadoEm: "",
-    produtos:
-    [
-      {
-        nome: "Esmerilhadeira Makita 4.1/2\" M9510B",
-        imagem: "assets/produtos/1-m9510b.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "127v", codigo: "3300 115 110" },
-          { voltagem: "220v", codigo: "3300 115 220" }
-        ]
-      },
-      {
-        nome: "Esmerilhadeira Makita Angular 7\" M0920B",
-        imagem: "assets/produtos/2-m0920b.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "127v", codigo: "3300 100 110" },
-          { voltagem: "220v", codigo: "3300 100 220" }
-        ]
-      },
-      {
-        nome: "Esmerilhadeira Makita Angular 9\" GA9020",
-        imagem: "assets/produtos/3-ga9020.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "220v", codigo: "3300 230 220" }
-        ]
-      },
-      {
-        nome: "Esmerilhadeira Makita 125mm 18v DGA517Z",
-        imagem: "assets/produtos/4-dga517z.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 18v", codigo: "3300 517" }
-        ]
-      },
-      {
-        nome: "Esmerilhadeira Makita 125mm 18v DGA504Z",
-        imagem: "assets/produtos/5-dga504z.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 18v", codigo: "3300 125" }
-        ]
-      },
-      {
-        nome: "Lixadeira Angular Makita SA7021",
-        imagem: "assets/produtos/6-sa7021.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "127v", codigo: "3301 127" },
-          { voltagem: "220v", codigo: "3301 220" }
-        ]
-      },
-      {
-        nome: "Lixadeira Eletronica Makita SA7000C",
-        imagem: "assets/produtos/7-sa7000c.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "127v", codigo: "3304 110" },
-          { voltagem: "220v", codigo: "3304 220" }
-        ]
-      },
-      {
-        nome: "Lixadeira Úmido 125mm",
-        imagem: "assets/produtos/8-lixadeira-umido-125mm.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "220v", codigo: "3301 125" }
-        ]
-      },
-      {
-        nome: "Serra Mármore Makita",
-        imagem: "assets/produtos/9-serra-marmore.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "127v", codigo: "3300 127" },
-          { voltagem: "220v", codigo: "3300 220 1" }
-        ]
-      },
-      {
-        nome: "Serra Circular Makita 185mm HS7010",
-        imagem: "assets/produtos/10-hs7010.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "127v", codigo: "3300 185 127" },
-          { voltagem: "220v", codigo: "3300 185 220" }
-        ]
-      },
-      {
-        nome: "Serra Mármore Makita Úmida 4100NH2R",
-        imagem: "assets/produtos/11-4100nh2r-a.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "220v", codigo: "3300 220 2" }
-        ]
-      },
-      {
-        nome: "Serra Mármore Makita Úmida 4100NH2R",
-        imagem: "assets/produtos/12-4100nh2r-b.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "220v", codigo: "3300 45 220" }
-        ]
-      },
-      {
-        nome: "Fresadora Makita ACM/Alumínio CA5000XJ",
-        imagem: "assets/produtos/13-ca5000xj.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "220v", codigo: "3300 5010" }
-        ]
-      },
-      {
-        nome: "Serra Mármore Bat. 18v DCC500ZKX1",
-        imagem: "assets/produtos/14-dcc500zkx1-a.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 18v", codigo: "3301 470" }
-        ]
-      },
-      {
-        nome: "Carrinho Base Inclinada Corte 45°",
-        imagem: "assets/produtos/15-carrinho-base-45.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "", codigo: "020884" }
-        ]
-      },
-      {
-        nome: "Carrinho Base Inclinada rodinha Makita",
-        imagem: "assets/produtos/16-dcc500zkx1-b.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "", codigo: "3300 199" }
-        ]
-      },
-      {
-        nome: "Serra de Esquadria Makita 260mm LS1110F",
-        imagem: "assets/produtos/17-ls1110f.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "127v", codigo: "3302 11 127" },
-          { voltagem: "220v", codigo: "3302 11 220" }
-        ]
-      },
-      {
-        nome: "Serra de Esquadria Makita 255mm",
-        imagem: "assets/produtos/18-esquadria-255mm.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "127v", codigo: "3302 127" },
-          { voltagem: "220v", codigo: "3302 220" }
-        ]
-      },
-      {
-        nome: "Serra de Esquadria Deslizante Makita 216mm LS0816F",
-        imagem: "assets/produtos/19-ls0816f.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "220v", codigo: "3302 08 220" }
-        ]
-      },
-      {
-        nome: "Serra Tico-Tico Makita M4302B",
-        imagem: "assets/produtos/20-m4302b.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "127v", codigo: "3302 11 127" },
-          { voltagem: "220v", codigo: "3302 11 220" }
-        ]
-      },
-      {
-        nome: "Serra Tico-Tico Makita Bat. 18v DJV182z",
-        imagem: "assets/produtos/21-djv182z.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 18v", codigo: "3301 469" }
-        ]
-      },
-      {
-        nome: "Tupia 6mm M3700B",
-        imagem: "assets/produtos/22-m3700b.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "127v", codigo: "3300 14 127" },
-          { voltagem: "220v", codigo: "3300 14 220" }
-        ]
-      },
-      {
-        nome: "Tupia Makita Bateria 18v DRT50Z",
-        imagem: "assets/produtos/23-drt50z.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 18v", codigo: "3300 505" }
-        ]
-      },
-      {
-        nome: "Soprador Térmico Makita HG5030k",
-        imagem: "assets/produtos/24-hg5030k.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "127v", codigo: "3300 1400" }
-        ]
-      },
-      {
-        nome: "Soprador Térmico Makita HG6531CK",
-        imagem: "assets/produtos/25-hg6531ck.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "127v", codigo: "3300 1600" }
-        ]
-      },
-      {
-        nome: "Soprador Térmico Makita Bateria LXT 18v DHG180ZK",
-        imagem: "assets/produtos/26-dhg180zk.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat.18v", codigo: "3300 018" }
-        ]
-      },
-      {
-        nome: "Lixadeira Orbital C/ Coletor B04557",
-        imagem: "assets/produtos/27-b04557.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "220v", codigo: "3300 4 220" }
-        ]
-      },
-      {
-        nome: "Lixadeira de Cinta Makita 100x610mm M9400B",
-        imagem: "assets/produtos/28-m9400b.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "220v", codigo: "3302 100 220" }
-        ]
-      },
-      {
-        nome: "Lixadeira de Cinta Makita 76x610mm 9920",
-        imagem: "assets/produtos/29-cinta-9920.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "220v", codigo: "3302 76 220" }
-        ]
-      },
-      {
-        nome: "Lixadeira de Cinta Makita Tamanho P 9031",
-        imagem: "assets/produtos/30-cinta-p9031.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "220v", codigo: "3302 230" }
-        ]
-      },
-      {
-        nome: "Plaina Makita 82mm M1909B",
-        imagem: "assets/produtos/31-plaina-m1909b.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "220v", codigo: "3301 467" }
-        ]
-      },
-      {
-        nome: "Parafusadeira de Impacto 12v HP333DWYX3",
-        imagem: "assets/produtos/32-hp333dwyx3.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 12v", codigo: "3300 200" }
-        ]
-      },
-      {
-        nome: "Chave de Impacto 1/2 18v DTW300Z",
-        imagem: "assets/produtos/33-dtw300z.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 18v", codigo: "3300 301" }
-        ]
-      },
-      {
-        nome: "Parafusadeira de Impacto 18v DTD173Z",
-        imagem: "assets/produtos/34-dtd173z.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 18v", codigo: "3300 301" }
-        ]
-      },
-      {
-        nome: "Parafusadeira de Impacto 18v DTD156Z+Carreg.+Bat",
-        imagem: "assets/produtos/35-dtd156z.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 18v", codigo: "3300 301" }
-        ]
-      },
-      {
-        nome: "Parafusadeira de Impacto 18v DHP482Z",
-        imagem: "assets/produtos/36-dhp482z.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 18v", codigo: "3300 200" }
-        ]
-      },
-      {
-        nome: "Paraf/Furad. Impacto 18v DHP490Z+Bat e Carregador",
-        imagem: "assets/produtos/37-dhp490z.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 18v", codigo: "3300 301" }
-        ]
-      },
-      {
-        nome: "Parafusadeira de Impacto 18v DHP489Z+Bat e Carregador",
-        imagem: "assets/produtos/38-dhp489z.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 18v", codigo: "3300 301" }
-        ]
-      },
-      {
-        nome: "Parafusadeira de Impacto 18v DHP486Z",
-        imagem: "assets/produtos/39-dhp486z.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 18v", codigo: "3300 301" }
-        ]
-      },
-      {
-        nome: "Parafusadeira/Furadeira de Impacto 12v CLX224SAX",
-        imagem: "assets/produtos/40-clx224sax.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 12v", codigo: "3300 500" }
-        ]
-      },
-      {
-        nome: "Parafusadeira de Impacto 18v DHP490WVX",
-        imagem: "assets/produtos/41-dhp490wvx.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 18v", codigo: "3300 490" }
-        ]
-      },
-      {
-        nome: "Parafusadeira de Impacto 18v DHP482SY",
-        imagem: "assets/produtos/42-dhp482sy.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 18v", codigo: "3300 400" }
-        ]
-      },
-      {
-        nome: "Parafusadeira de Impacto 18v DHP485",
-        imagem: "assets/produtos/43-dhp485.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 18v", codigo: "3300 485" }
-        ]
-      },
-      {
-        nome: "Combo Paraf.+Aspirador DHP485RF1J+DCL180Z",
-        imagem: "assets/produtos/combo-makita-dhp485f1j-dcl180z.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 18v", codigo: "3300 4851" }
-        ]
-      },
-      {
-        nome: "Martelete Rotativo Rompedor Makita 18v DHR183Z",
-        imagem: "assets/produtos/45-dhr183z.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 18v", codigo: "3303 183" }
-        ]
-      },
-      {
-        nome: "Martelete Rompedor HR140DZ 14mm 12v",
-        imagem: "assets/produtos/46-hr140dz.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 12v", codigo: "3300 122" }
-        ]
-      },
-      {
-        nome: "Martelete Combinado 18v DHR202",
-        imagem: "assets/produtos/47-dhr202.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 18v", codigo: "3300 226" }
-        ]
-      },
-      {
-        nome: "Martelete Combinado HR2470",
-        imagem: "assets/produtos/48-hr2470.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "220v", codigo: "3300 24 220" }
-        ]
-      },
-      {
-        nome: "Martelo Rompedor Makita SDS MAX HMC120",
-        imagem: "assets/produtos/49-hmc120.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "220v", codigo: "3300 16" }
-        ]
-      },
-      {
-        nome: "Martelo Demolidor Makita 17mm M8600B",
-        imagem: "assets/produtos/50-m8600b.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "220v", codigo: "3300 17 220" }
-        ]
-      },
-      {
-        nome: "Furadeira de Impacto 13mm M0801G",
-        imagem: "assets/produtos/51-m0801g.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "127v", codigo: "3300 110" },
-          { voltagem: "220v", codigo: "3300 220" }
-        ]
-      },
-      {
-        nome: "Mandril Makita",
-        imagem: "assets/produtos/52-mandril-makita.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "1/2\"", codigo: "0505 012" },
-          { voltagem: "3/8\"", codigo: "0505 038" }
-        ]
-      },
-      {
-        nome: "Mandril Aperto Rápido Metal Pesado",
-        imagem: "assets/produtos/mandril-aperto-rapido-metal-pesado.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "1/2\"", codigo: "0505 050" }
-        ]
-      },
-      {
-        nome: "Conjunto Mandril Makita",
-        imagem: "assets/produtos/conjunto-mandril-makita.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "13mm", codigo: "0505 013" }
-        ]
-      },
-      {
-        nome: "Adaptador SDS Mandril 1/2\" 20unf encaixe e PF",
-        imagem: "assets/produtos/55-adaptador-sds-mandril.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "1/2\"", codigo: "0011 529" }
-        ]
-      },
-      {
-        nome: "Chave Mandril Makita",
-        imagem: "assets/produtos/56-chave-mandril.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "1/2\"", codigo: "0505 040" },
-          { voltagem: "3/8\"", codigo: "0505 041" }
-        ]
-      },
-      {
-        nome: "Kit Makita DUB362+4BATAH",
-        imagem: "assets/produtos/57-dub362-4batah.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 18v", codigo: "3305 1001" }
-        ]
-      },
-      {
-        nome: "Combo Makita 12v HP333+CLX248 ASP.+Paraf.",
-        imagem: "assets/produtos/combo-makita-12v-paraf.-asp.-sopra.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 12v", codigo: "3300 0220" }
-        ]
-      },
-      {
-        nome: "Aspirador de pó DCL180 BAT 18v",
-        imagem: "assets/produtos/59-dcl180-bat.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 18v", codigo: "3301 409" }
-        ]
-      },
-      {
-        nome: "Aspirador de Pó 18v DCL180Z",
-        imagem: "assets/produtos/60-dcl180z.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 18v", codigo: "3301 401" }
-        ]
-      },
-      {
-        nome: "Soprador DCL184Z 18v",
-        imagem: "assets/produtos/61-dcl184z.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 18v", codigo: "3301 466" }
-        ]
-      },
-      {
-        nome: "Soprador DUB362Z 18v",
-        imagem: "assets/produtos/62-dub362z.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 18v", codigo: "3300 362" }
-        ]
-      },
-      {
-        nome: "Soprador DUB186Z Carr.+Bat",
-        imagem: "assets/produtos/63-dub186z.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "18v", codigo: "3300 1866" }
-        ]
-      },
-      {
-        nome: "Bateria Makita 12v Litium",
-        imagem: "assets/produtos/64-bateria-12v.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "1.5AH", codigo: "3300 615" },
-          { voltagem: "2AH", codigo: "3300 620" }
-        ]
-      },
-      {
-        nome: "Bateria Makita 18v Litium",
-        imagem: "assets/produtos/65-bateria-18v.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "5AH", codigo: "3300 550" },
-          { voltagem: "6AH", codigo: "3300 660" }
-        ]
-      },
-      {
-        nome: "Carregador de Bateria 12v",
-        imagem: "assets/produtos/66-carregador-12v.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "12v", codigo: "3300 1" }
-        ]
-      },
-      {
-        nome: "Carregador de Bateria 18v",
-        imagem: "assets/produtos/67-carregador-18v.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "18v", codigo: "3300 2" }
-        ]
-      },
-      {
-        nome: "Lanterna LED Makita 18v LTX DML812",
-        imagem: "assets/produtos/68-dml812.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 18v", codigo: "3300 812" }
-        ]
-      },
-      {
-        nome: "Lanterna 18v DML815",
-        imagem: "assets/produtos/69-dml815.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 18v", codigo: "3300 815" }
-        ]
-      },
-      {
-        nome: "Lav. de Pressão Portátil a Bat. Makita",
-        imagem: "assets/produtos/70-lav-pressao-bateria.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 18v", codigo: "3300 183" }
-        ]
-      },
-      {
-        nome: "Trena a Laser Makita 30m",
-        imagem: "assets/produtos/71-trena-laser-30m.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "", codigo: "6030 030" }
-        ]
-      },
-      {
-        nome: "as teste",
-        imagem: "assets/produtos/stanley-esmerilhadeira-ang.-115mm-sbg700m2k.png",
-        criadoEm: "2026-07-24T20:49:43.821Z",
-        codigos: [
-          { voltagem: "ad ", codigo: "a " }
-        ]
-      },
-      {
-        nome: "afr ",
-        imagem: "assets/produtos/esmerilhadeira-makita-ang-9-ga9020.png",
-        criadoEm: "2026-07-24T20:49:55.798Z",
-        codigos: [
-          { voltagem: "a ", codigo: "fa" }
-        ]
-      },
-      {
-        nome: "s r",
-        imagem: "assets/produtos/500x500.png",
-        criadoEm: "2026-07-24T20:50:04.805Z",
-        codigos: [
-          { voltagem: "f", codigo: "ae " }
-        ]
-      }
-    ]
-  },
-  {
-    id: "dewalt",
-    nome: "DEWALT & STANLEY",
-    capa: "assets/capa-dewalt.jpg",
-    capaPosicao: "center",
-    criadoEm: "",
-    produtos:
-    [
-      {
-        nome: "Dewalt Esmerilhadeira 4.1/2\"-5\" 20v DCG413-B",
-        imagem: "assets/produtos/72-dcg413-b.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 20v", codigo: "4400 413" }
-        ]
-      },
-      {
-        nome: "Dewalt Esmerilh. Reg. 4.1/2\" 950W DWE4118",
-        imagem: "assets/produtos/73-dwe4118.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "220v", codigo: "4400 412 220" }
-        ]
-      },
-      {
-        nome: "Dewalt Esmerilh. 9\" 2200w DWE490",
-        imagem: "assets/produtos/74-dwe490.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "220v", codigo: "4400 922 490" }
-        ]
-      },
-      {
-        nome: "Dewalt Esmerilh. 5\" 1500w DWE4336",
-        imagem: "assets/produtos/75-dwe4336.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "220v", codigo: "4400 436 220" }
-        ]
-      },
-      {
-        nome: "Dewalt Esmerilh. 4.1/2\" 900w DWE4120",
-        imagem: "assets/produtos/76-dwe4120.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "220v", codigo: "4400 9220" }
-        ]
-      },
-      {
-        nome: "Dewalt Nível Laser Verde DW088CG",
-        imagem: "assets/produtos/77-dw088cg.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "30m", codigo: "4400 088" }
-        ]
-      },
-      {
-        nome: "Dewalt Trena Laser",
-        imagem: "assets/produtos/78-trena-laser.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "30m", codigo: "4400 30" }
-        ]
-      },
-      {
-        nome: "Dewalt Ventosa Bateria 20v DCE592B",
-        imagem: "assets/produtos/79-dce592b.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 20v", codigo: "4400 413" }
-        ]
-      },
-      {
-        nome: "Dewalt Paraf./Fur. 20v DCD7781-B",
-        imagem: "assets/produtos/80-dcd7781-b.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 20v", codigo: "4400 17 789" }
-        ]
-      },
-      {
-        nome: "Dewalt Paraf./Imp. 1/4\" 20v Max Li-on DCF7871-B S/Bat",
-        imagem: "assets/produtos/81-dcf7871-b.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 20v", codigo: "4400 78 713" }
-        ]
-      },
-      {
-        nome: "Dewalt Paraf./Imp. 1/4\" 20v DCF887-B",
-        imagem: "assets/produtos/82-dcf887-b.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 20v", codigo: "4400 1887" }
-        ]
-      },
-      {
-        nome: "Dewalt Combo McLaren DCK200ME2GT",
-        imagem: "assets/produtos/83-dck200me2gt.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "", codigo: "4400 200" }
-        ]
-      },
-      {
-        nome: "Dewalt Combo DCD7781+DCF787 20v",
-        imagem: "assets/produtos/84-combo-dcd7781-dcf787.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 20v", codigo: "4400 276" }
-        ]
-      },
-      {
-        nome: "Dewalt Paraf./Fur Imp 20v 2bat-2AH DCD805D2",
-        imagem: "assets/produtos/85-dcd805d2.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 20v", codigo: "4400 805" }
-        ]
-      },
-      {
-        nome: "Dewalt Paraf./Fur. 20v Max 2bat 2AH DCD7781D2",
-        imagem: "assets/produtos/86-dcd7781d2.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 20v", codigo: "4400 17 781" }
-        ]
-      },
-      {
-        nome: "Dewalt Paraf./Fur. 20v DCD7781D1 1bat 2AH",
-        imagem: "assets/produtos/87-dcd7781d1.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 20v", codigo: "4400 17 772" }
-        ]
-      },
-      {
-        nome: "Dewalt Paraf./Imp. 1/4\" 20v DCF887M2",
-        imagem: "assets/produtos/88-dcf887m2.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 20v", codigo: "4400 887" }
-        ]
-      },
-      {
-        nome: "Dewalt Paraf./Imp. 1/4\" 20v Max 2bat 2AH DCF781D2",
-        imagem: "assets/produtos/89-dcf781d2.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 20v", codigo: "4400 78 712" }
-        ]
-      },
-      {
-        nome: "Dewalt Martelete SDS PLUS 800W D25133",
-        imagem: "assets/produtos/90-d25133.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "127v", codigo: "4400 127 800" },
-          { voltagem: "220v", codigo: "4400 220 800" }
-        ]
-      },
-      {
-        nome: "Dewalt Martelete SDS PLUS 20v DCH263-B",
-        imagem: "assets/produtos/91-dch263-b.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 20v", codigo: "4400 263" }
-        ]
-      },
-      {
-        nome: "Dewalt Martelete Rompedor 20v DCH133B-B3",
-        imagem: "assets/produtos/92-dch133b-b3.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 20v", codigo: "4400 134" }
-        ]
-      },
-      {
-        nome: "Dewalt Carregador 12v-20v Bivolt DCB1102",
-        imagem: "assets/produtos/dewalt-carregador-12-20v-bivolt-dcb1102.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "", codigo: "4400 1220" }
-        ]
-      },
-      {
-        nome: "Dewalt Carregador 12-20v Bivolt 4AH",
-        imagem: "assets/produtos/dewalt-carregador-12-20v-bivolt-4ah.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "", codigo: "4400 1224" }
-        ]
-      },
-      {
-        nome: "Dewalt Bateria Max LI-ION 20v",
-        imagem: "assets/produtos/dewalt-bateria-max-li-ion-20v-5-ah.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "2AH", codigo: "4400 2" },
-          { voltagem: "4AH", codigo: "4400 4" },
-          { voltagem: "5AH", codigo: "4400 5" },
-          { voltagem: "9AH", codigo: "4400 9" }
-        ]
-      },
-      {
-        nome: "Dewalt Bateria 20v TABLESS",
-        imagem: "assets/produtos/dewalt-bateria-20v-tabless-4ah.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "4AH", codigo: "4400 44" }
-        ]
-      },
-      {
-        nome: "Dewalt Kit 2Bat 5AH C/Carregador e Bolsa",
-        imagem: "assets/produtos/dewalt-kit-2bat-5ah-c-carregador-e-bolsa.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "", codigo: "4400 205" }
-        ]
-      },
-      {
-        nome: "Dewalt Serra Mármore 125mm DW862B2 1400w",
-        imagem: "assets/produtos/dewalt-serra-marmore-125mm-dw862b2.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "220v", codigo: "4400 125 220" }
-        ]
-      },
-      {
-        nome: "Dewalt Serra Esquadria 10\" 1650w",
-        imagem: "assets/produtos/99-serra-esquadria-10.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "220v", codigo: "4400 010" }
-        ]
-      },
-      {
-        nome: "Dewalt Serra Esquadria 12\" 1600w DWS715",
-        imagem: "assets/produtos/dewalt-serra-esquadria-12-220v-dws715.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "220v", codigo: "4400 11 220" }
-        ]
-      },
-      {
-        nome: "Dewalt Fur./Imp. 1/2\" 710w",
-        imagem: "assets/produtos/101-furadeira-impacto-710w.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "127v", codigo: "4400 121 28" },
-          { voltagem: "220v", codigo: "4400 12 220" }
-        ]
-      },
-      {
-        nome: "Dewalt Soprador 20v MAX",
-        imagem: "assets/produtos/102-soprador-20v.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 20v", codigo: "4400 722" }
-        ]
-      },
-      {
-        nome: "Stanley Esmerilhadeira Ang. 115mm SBG700M2k",
-        imagem: "assets/produtos/stanley-esmerilhadeira-ang.-115mm-sbg700m2k.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 20v", codigo: "4440 700" }
-        ]
-      },
-      {
-        nome: "Stanley Esmerilhadeira Ang. 4.1/2\" 900w",
-        imagem: "assets/produtos/stanley-esmerilhadeira-ang.-4.1-2-900w.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "127v", codigo: "4440 412 127" },
-          { voltagem: "220v", codigo: "4440 412 220" }
-        ]
-      },
-      {
-        nome: "Stanley Esmerilhadeira Ang. 4.1/2\" 750w SG7115-BR",
-        imagem: "assets/produtos/stanley-esmerilhadeira-ang.-4.1-2-750w-sg7115-br.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "127v", codigo: "4440 4127" },
-          { voltagem: "220v", codigo: "4440 4220" }
-        ]
-      },
-      {
-        nome: "Stanley Esmerilhadeira Ang. 2200w 220v",
-        imagem: "assets/produtos/stanley-esmerilhadeira-ang-2200w-220v.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "127v", codigo: "4440 7220" },
-          { voltagem: "220v", codigo: "4440 9220" }
-        ]
-      },
-      {
-        nome: "Stanley Martelete 800w SHR263K-B2",
-        imagem: "assets/produtos/stanley-martelete-800w-shr263k-b2.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "220v", codigo: "4440 263 220" }
-        ]
-      },
-      {
-        nome: "Stanley Martelete SDS PLUS SBH900M2K",
-        imagem: "assets/produtos/stanley-martelete-sds-plus-sbh900m2k.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bat. 20v", codigo: "4440 900" }
-        ]
-      },
-      {
-        nome: "Stanley Furadeira de Impacto 13mm 710w",
-        imagem: "assets/produtos/stanley-furadeira-de-impacto-710w-13mm-127v-sdh710ka.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "127v", codigo: "4440 711" },
-          { voltagem: "220v", codigo: "4440 712" }
-        ]
-      },
-      {
-        nome: "Stanley Furadeira de Bancada 1/2\" SBT2513-B2",
-        imagem: "assets/produtos/stanley-furadeira-de-bancada-sbt2513-b2.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "", codigo: "4440 12" }
-        ]
-      },
-      {
-        nome: "Stanley Carregador 20v SC400 4AH",
-        imagem: "assets/produtos/stanley-carregador-20v-sc400-4ah.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "Bivolt", codigo: "4400 1224" }
-        ]
-      },
-      {
-        nome: "Stanley Bateria 20v",
-        imagem: "assets/produtos/stanley-bateria-20v-4ah.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "4ah", codigo: "4401 4" }
-        ]
-      },
-      {
-        nome: "Stanley Serra Mármore 115mm SPT115B2",
-        imagem: "assets/produtos/stanley-serra-marmore-115mm-spt115b2.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "220v", codigo: "4440 115 220" }
-        ]
-      },
-      {
-        nome: "Stanley Serra Corte Rápido 2200w SSC22B2",
-        imagem: "assets/produtos/stanley-serra-corte-rapido-2200w-ssc22b2.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "220v", codigo: "4440 12 220" }
-        ]
-      },
-      {
-        nome: "Stanley Tripé 1/4\" Telescópico",
-        imagem: "assets/produtos/stanley-tripe-1-4-telescopico.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "", codigo: "4400 14" }
-        ]
-      },
-      {
-        nome: "Stanley Caixa de Ferramentes C/ Tampa Organizadora",
-        imagem: "assets/produtos/stanley-caixa-de-ferramentas-c-tampa-organ.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "", codigo: "4400 19 061" }
-        ]
-      },
-      {
-        nome: "Stanley Soprador Térmico 1800w",
-        imagem: "assets/produtos/stanley-soprador-termico-1800w.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "220v", codigo: "4440 18 022" }
-        ]
-      },
-      {
-        nome: "Stanley Organizador TSTAK 10 Compartimentos",
-        imagem: "assets/produtos/stanley-organizador-tstak-10-compartimento.png",
-        criadoEm: "",
-        codigos: [
-          { voltagem: "", codigo: "4400 14 010" }
-        ]
-      }
-    ]
-  },
-  {
-    id: "teste",
-    nome: "TEste",
-    capa: "assets/capa-vidracaria.png",
-    capaPosicao: "center",
-    criadoEm: "2026-07-24T19:44:36.366Z",
-    produtos:
-    [
-      {
-        nome: "vidro ceti",
-        imagem: "assets/produtos/combo-paraf.-aspirador-dhp485rf1j-dcl180z.png",
-        criadoEm: "2026-07-24T19:44:50.277Z",
-        codigos: [
-          { voltagem: "", codigo: "" }
-        ]
-      }
-    ]
-  }
-];
-  // ==ABAS-FIM==
-
-  // ==========================================================
-  // Selos "adicionado recentemente" / "New!" — ficam visíveis
-  // por até 48h a partir do momento em que a aba/produto foi
-  // criado no painel admin (campo criadoEm, gerado automaticamente).
-  // Precisa vir ANTES de qualquer trecho que use ABAS/produtos,
-  // por isso fica logo aqui, assim que os dados são carregados.
-  // ==========================================================
-  const LIMITE_NOVO_MS = 48 * 60 * 60 * 1000; // 48 horas
-  function estaDentroDe48h(dataIso) {
-    if (!dataIso) return false;
-    const t = new Date(dataIso).getTime();
-    if (isNaN(t)) return false;
-    return (Date.now() - t) <= LIMITE_NOVO_MS && (Date.now() - t) >= 0;
-  }
-
-  // Data em que a opção "Produtos novos" foi adicionada ao Ordenar —
-  // o selo "Novo" da caixa de ordenação some sozinho depois de 48h,
-  // igual aos selos das abas/produtos.
-  const DATA_NOVIDADE_ORDENAR = "2026-07-24T20:00:00.000Z";
-
-  // ==========================================================
-  // Monta as abas (botões + painéis) dinamicamente a partir de ABAS
-  // ==========================================================
-  const tabsContainer = document.getElementById('tabsContainer');
-  const paineisContainer = document.getElementById('paineisContainer');
-
-  ABAS.forEach((aba, idx) => {
-    const btn = document.createElement('button');
-    btn.className = 'tab-btn' + (idx === 0 ? ' ativo' : '');
-    btn.dataset.painel = 'painel-' + aba.id;
-    btn.innerHTML = (estaDentroDe48h(aba.criadoEm) ? `<span class="badge-aba-nova">Novo</span>` : '') + aba.nome;
-    tabsContainer.appendChild(btn);
-
-    const painel = document.createElement('div');
-    painel.id = 'painel-' + aba.id;
-    painel.className = 'painel' + (idx === 0 ? ' ativo' : '');
-
-    const introHtml = aba.capa ? `
-      <div class="intro-wrap">
-        <button class="intro-cover" id="introCover-${aba.id}" aria-label="Ampliar página de introdução ${aba.nome}">
-          <img id="introCoverImg-${aba.id}" src="${aba.capa}" alt="Catálogo ${aba.nome} - página de introdução" style="object-position:${aba.capaPosicao || 'center'};">
-        </button>
-      </div>` : '';
-
-    painel.innerHTML = `
-      ${introHtml}
-      <div class="search-wrap">
-        <div class="search-box">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="searchInput-${aba.id}" placeholder="Buscar por nome, código ou voltagem">
-          <button class="clear-search-btn" id="clearSearch-${aba.id}" aria-label="Limpar busca">✕</button>
-        </div>
-        <div class="sort-box">
-          ${estaDentroDe48h(DATA_NOVIDADE_ORDENAR) ? `<span class="badge-sort-novo">Novo</span>` : ''}
-          <label for="sortSelect-${aba.id}">Ordenar:</label>
-          <select id="sortSelect-${aba.id}">
-            <option value="">Padrão</option>
-            <option value="nome">Nome (A-Z)</option>
-            <option value="codigo">Código</option>
-            <option value="voltagem">Voltagem</option>
-            <option value="novos">${estaDentroDe48h(DATA_NOVIDADE_ORDENAR) ? '🆕 ' : ''}Produtos novos</option>
-          </select>
-        </div>
+<section class="diferenciais" id="diferenciais">
+  <div class="container">
+    <div class="section-head">
+      <span class="kicker">Diferenciais</span>
+      <h2>Por que revender com a S-Fix</h2>
+      <p>Tudo pensado para facilitar a rotina de quem compra para revender.</p>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">📦</div>
+        <h3>Portfólio amplo</h3>
+        <p>Ferramentas e acessórios de marcas reconhecidas em um único catálogo.</p>
       </div>
-      <main>
-        <div class="grid" id="grid-${aba.id}"></div>
-        <div id="noResults-${aba.id}" class="sem-resultados">Nenhum produto encontrado para essa busca.</div>
-      </main>
-      <footer>TELEVENDAS 66 3515-0909</footer>
-    `;
-    paineisContainer.appendChild(painel);
-  });
+      <div class="card">
+        <div class="card-icon">⚡</div>
+        <h3>Resposta rápida</h3>
+        <p>Orçamentos e dúvidas respondidos com agilidade, direto com um vendedor.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📱</div>
+        <h3>Catálogo no celular</h3>
+        <p>Instale como app, consulte produtos e códigos onde estiver, mesmo offline.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🤝</div>
+        <h3>Parceria de longo prazo</h3>
+        <p>Atendimento pensado para acompanhar o crescimento do seu negócio.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-  // ==========================================================
-  // Troca de aba
-  // ==========================================================
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('ativo'));
-      document.querySelectorAll('.painel').forEach(p => p.classList.remove('ativo'));
-      btn.classList.add('ativo');
-      document.getElementById(btn.dataset.painel).classList.add('ativo');
-      sincronizarMenuLateral(btn.dataset.painel.replace('painel-', ''));
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  });
+<section class="passos" id="como-funciona">
+  <div class="container">
+    <div class="section-head">
+      <span class="kicker">Como funciona</span>
+      <h2>Do catálogo ao pedido em 3 passos</h2>
+    </div>
+    <div class="passos-grid">
+      <div class="passo">
+        <h3>Explore o catálogo</h3>
+        <p>Veja produtos, fotos e códigos organizados por marca e categoria.</p>
+      </div>
+      <div class="passo">
+        <h3>Monte seu pedido</h3>
+        <p>Separe os itens de interesse no carrinho e envie para seu vendedor.</p>
+      </div>
+      <div class="passo">
+        <h3>Feche pelo WhatsApp</h3>
+        <p>Envie sua lista direto para um vendedor e receba o orçamento.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-  // ==========================================================
-  // MENU INICIAL — tela de seleção de catálogo (aparece antes
-  // de qualquer catálogo abrir) + MENU LATERAL (botão 3 barras)
-  // ==========================================================
-  const telaInicial       = document.getElementById('telaInicial');
-  const menuInicialGrid   = document.getElementById('menuInicialGrid');
-  const btnMenu           = document.getElementById('btnMenu');
-  const menuLateral       = document.getElementById('menuLateral');
-  const menuLateralOverlay= document.getElementById('menuLateralOverlay');
-  const menuLateralCatalogos = document.getElementById('menuLateralCatalogos');
-  const menuLateralHome   = document.getElementById('menuLateralHome');
+<section class="marcas" id="marcas">
+  <div class="container">
+    <div class="section-head" style="margin-left:auto;margin-right:auto;text-align:center;">
+      <span class="kicker">Marcas parceiras</span>
+      <h2>Marcas de confiança no nosso catálogo</h2>
+    </div>
+    <div class="marcas-faixa">
+      <!-- ==LANDING-MARCAS-INICIO== -->
+      <span class="marca-chip">Makita</span>
+      <span class="marca-chip">Dewalt</span>
+      <span class="marca-chip">Stanley</span>
+      <span class="marca-chip">Maxtool</span>
+      <!-- ==LANDING-MARCAS-FIM== -->
+    </div>
+  </div>
+</section>
 
-  // Monta os cartões da tela inicial (um por catálogo/aba)
-  ABAS.forEach(aba => {
-    const card = document.createElement('button');
-    card.className = 'menu-inicial-card';
-    card.innerHTML = `
-      ${estaDentroDe48h(aba.criadoEm) ? `<span class="badge-aba-nova">Adicionado recentemente</span>` : ''}
-      ${aba.capa ? `<img src="${aba.capa}" alt="Catálogo ${aba.nome}" style="object-position:${aba.capaPosicao || 'center'};">` : ''}
-      <div class="menu-inicial-nome">${aba.nome}</div>
-    `;
-    card.addEventListener('click', () => abrirCatalogo(aba.id));
-    menuInicialGrid.appendChild(card);
-  });
+<section class="cta-final" id="contato">
+  <div class="container">
+    <h2>Pronto para ver o catálogo completo?</h2>
+    <p>Fale agora com a equipe S-Fix e receba seu orçamento sem compromisso.</p>
+    <div class="hero-btns" style="justify-content:center;">
+      <a href="catalogo.html" class="btn btn-primario">📋 Acessar catálogo</a>
+      <a href="https://wa.me/55SEUNUMERO?text=Ol%C3%A1%2C%20vim%20pelo%20site%20da%20S-Fix%20e%20quero%20saber%20mais" class="btn btn-secundario" target="_blank" rel="noopener">💬 Chamar no WhatsApp</a>
+    </div>
+  </div>
+</section>
 
-  // Monta os itens do menu lateral (mesmos catálogos das abas).
-  // A linha entre eles é feita pela regra CSS acima (#menuLateralCatalogos
-  // .menu-lateral-item:not(:last-child)), então qualquer aba nova que
-  // você adicionar no admin.html já entra aqui automaticamente com a linha.
-  ABAS.forEach(aba => {
-    const item = document.createElement('button');
-    item.className = 'menu-lateral-item';
-    item.dataset.catalogo = aba.id;
-    item.innerHTML = `<span>${aba.nome}</span>${estaDentroDe48h(aba.criadoEm) ? `<span class="badge-aba-nova-lateral">Novo</span>` : ''}`;
-    item.addEventListener('click', () => abrirCatalogo(aba.id));
-    menuLateralCatalogos.appendChild(item);
-  });
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <!-- ==LANDING-LOGO-FOOTER-INICIO== -->
+        <img src="assets/logo-11-anos-sem-fundo.png" alt="S-Fix Distribuindo Soluções" style="height:60px; display:block;">
+        <!-- ==LANDING-LOGO-FOOTER-FIM== -->
+        <p class="desc">Distribuindo soluções em ferramentas para quem revende e para quem faz.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Navegação</h4>
+        <ul>
+          <li><a href="#sobre">Sobre</a></li>
+          <li><a href="#diferenciais">Diferenciais</a></li>
+          <li><a href="#marcas">Marcas</a></li>
+          <li><a href="catalogo.html">Catálogo</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contato</h4>
+        <ul>
+          <li><a href="https://wa.me/55SEUNUMERO" class="placeholder" target="_blank" rel="noopener">WhatsApp: (seu número)</a></li>
+          <li><a href="mailto:contato@seudominio.com" class="placeholder">E-mail: contato@seudominio.com</a></li>
+          <li><a href="https://instagram.com/seuinstagram" class="placeholder" target="_blank" rel="noopener">Instagram: @seuinstagram</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2026 S-Fix Distribuindo Soluções. Todos os direitos reservados.</div>
+  </div>
+</footer>
 
-  function sincronizarMenuLateral(id) {
-    document.querySelectorAll('.menu-lateral-item[data-catalogo]').forEach(it => {
-      it.classList.toggle('ativo', it.dataset.catalogo === id);
-    });
-  }
+    <!-- ==VENDEDOR-WHATSAPP-INICIO== -->
+    <script>
+    (function () {
+      var VENDEDORES = {
+        "Ricardo": "556699039231",
+        "Romario": "556699947870",
+        "Paulo": "556699281818",
+        "Matheus": "556696285258",
+        "Khaliu": "556684375229",
+        "Kassio": "556699030326"
+      };
+      var NUMERO_PADRAO = "556699039231";
 
-  function abrirCatalogo(id) {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('ativo', b.dataset.painel === 'painel-' + id));
-    document.querySelectorAll('.painel').forEach(p => p.classList.toggle('ativo', p.id === 'painel-' + id));
-    sincronizarMenuLateral(id);
-    telaInicial.classList.add('escondido');
-    tabsContainer.classList.remove('escondido');
-    paineisContainer.classList.remove('escondido');
-    fecharMenuLateral();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  function voltarMenuInicial() {
-    telaInicial.classList.remove('escondido');
-    tabsContainer.classList.add('escondido');
-    paineisContainer.classList.add('escondido');
-    sincronizarMenuLateral(null);
-    fecharMenuLateral();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-  menuLateralHome.addEventListener('click', voltarMenuInicial);
-
-  // Estado inicial: mostra a tela de menu, catálogo ainda escondido
-  telaInicial.classList.remove('escondido');
-  tabsContainer.classList.add('escondido');
-  paineisContainer.classList.add('escondido');
-
-  // Abrir/fechar o menu lateral
-  function abrirMenuLateral() {
-    menuLateral.classList.add('aberto');
-    menuLateralOverlay.classList.add('aberta');
-    btnMenu.setAttribute('aria-expanded', 'true');
-  }
-  function fecharMenuLateral() {
-    menuLateral.classList.remove('aberto');
-    menuLateralOverlay.classList.remove('aberta');
-    btnMenu.setAttribute('aria-expanded', 'false');
-  }
-
-  // No computador (quem tem mouse/hover), o menu abre sozinho ao
-  // passar o cursor sobre o botão ou sobre a própria janela lateral,
-  // e fecha assim que o mouse sai dessa área — sem precisar clicar.
-  const suportaHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-  if (suportaHover) {
-    btnMenu.addEventListener('mouseenter', abrirMenuLateral);
-    menuLateral.addEventListener('mouseenter', abrirMenuLateral);
-    btnMenu.addEventListener('mouseleave', () => {
-      // só fecha se o mouse não foi para dentro da própria janela
-      setTimeout(() => {
-        if (!menuLateral.matches(':hover') && !btnMenu.matches(':hover')) fecharMenuLateral();
-      }, 40);
-    });
-    menuLateral.addEventListener('mouseleave', fecharMenuLateral);
-  }
-
-  // No celular/tablet (sem hover), o botão funciona por toque:
-  // toca para abrir, toca de novo (ou fora) para fechar.
-  btnMenu.addEventListener('click', () => {
-    if (menuLateral.classList.contains('aberto')) fecharMenuLateral();
-    else abrirMenuLateral();
-  });
-  menuLateralOverlay.addEventListener('click', fecharMenuLateral);
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') fecharMenuLateral();
-  });
-
-  function normalizar(s) {
-    return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  }
-
-  const observerCards = new IntersectionObserver((entradas) => {
-    entradas.forEach(entrada => {
-      if (entrada.isIntersecting) {
-        entrada.target.classList.add('visivel');
-        observerCards.unobserve(entrada.target);
-      }
-    });
-  }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
-
-  // ==========================================================
-  // Monta os cards de uma lista de produtos dentro de um grid
-  // (função genérica — usada por todas as abas)
-  // ==========================================================
-  function montarGrid(lista, gridEl) {
-    lista.forEach((p, i) => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.tabIndex = 0;
-
-      const textoBusca = normalizar(
-        p.nome + ' ' + p.codigos.map(c => c.codigo + ' ' + c.voltagem).join(' ')
-      );
-      card.dataset.search = textoBusca;
-      card.dataset.nome = normalizar(p.nome || '');
-      card.dataset.codigo = normalizar((p.codigos[0] && p.codigos[0].codigo) || '');
-      card.dataset.voltagem = normalizar((p.codigos[0] && p.codigos[0].voltagem) || '');
-      const ehNovo = estaDentroDe48h(p.criadoEm);
-      card.dataset.novo = ehNovo ? '1' : '0';
-
-      const codigosHtml = p.codigos.map(c => `
-        <div class="codigo-linha">
-          ${c.voltagem ? `<span class="voltagem">${c.voltagem}</span>` : ''}
-          <span class="codigo">${c.codigo}</span>
-        </div>
-      `).join('');
-
-      card.innerHTML = `
-        ${ehNovo ? `<span class="badge-produto-novo">New!</span>` : ''}
-        <img src="${p.imagem}" alt="${p.nome}" loading="lazy">
-        <div class="info">
-          <h3>${p.nome}</h3>
-          <div class="codigos">${codigosHtml}</div>
-        </div>
-      `;
-
-      card.style.transitionDelay = `${(i % 4) * 0.08}s`;
-
-      card.addEventListener('click', () => openLightboxProduto(lista, i));
-      card.addEventListener('keydown', e => { if (e.key === 'Enter') openLightboxProduto(lista, i); });
-
-      gridEl.appendChild(card);
-      observerCards.observe(card);
-    });
-  }
-
-  ABAS.forEach(aba => {
-    montarGrid(aba.produtos, document.getElementById('grid-' + aba.id));
-  });
-
-  // ==========================================================
-  // Página de introdução de cada aba: some suavemente (fade + leve
-  // encolhimento) conforme o usuário rola a página para baixo
-  // ==========================================================
-  const introCovers = ABAS.filter(aba => aba.capa).map(aba => document.getElementById('introCover-' + aba.id));
-
-  function aplicarFadeIntro() {
-    introCovers.forEach(introCoverEl => {
-      if (!introCoverEl) return;
-      const rect = introCoverEl.getBoundingClientRect();
-      const altura = rect.height || 1;
-      const progresso = Math.min(Math.max(-rect.top / altura, 0), 1);
-      introCoverEl.style.opacity = String(1 - progresso);
-      introCoverEl.style.transform = `translateY(${progresso * -30}px) scale(${1 - progresso * 0.06})`;
-    });
-  }
-
-  window.addEventListener('scroll', aplicarFadeIntro, { passive: true });
-  window.addEventListener('resize', aplicarFadeIntro);
-  aplicarFadeIntro();
-
-  // ==========================================================
-  // Busca por nome, código ou voltagem — funciona 100% offline,
-  // pois compara apenas os dados já carregados na página
-  // (função genérica — usada por todas as abas)
-  // ==========================================================
-  function configurarBusca(inputEl, clearBtnEl, gridEl, noResultsEl) {
-    function aplicarBusca() {
-      const termo = normalizar(inputEl.value.trim());
-      let visiveis = 0;
-      gridEl.querySelectorAll('.card').forEach(card => {
-        const bate = !termo || card.dataset.search.includes(termo);
-        card.style.display = bate ? '' : 'none';
-        if (bate) visiveis++;
+      var params = new URLSearchParams(window.location.search);
+      // .trim() e comparação sem diferenciar maiúscula/minúscula: evita que um link
+      // digitado como ?v=matheus (ou com espaço) caia no número padrão sem avisar
+      var codigoVendedorBruto = (params.get("v") || "").trim();
+      var codigoVendedor = Object.keys(VENDEDORES).find(function (chave) {
+        return chave.toLowerCase() === codigoVendedorBruto.toLowerCase();
       });
-      noResultsEl.style.display = visiveis === 0 ? 'block' : 'none';
-      clearBtnEl.style.display = inputEl.value ? 'flex' : 'none';
-    }
-    inputEl.addEventListener('input', aplicarBusca);
-    clearBtnEl.addEventListener('click', () => {
-      inputEl.value = '';
-      aplicarBusca();
-      inputEl.focus();
-    });
-  }
+      var numero = (codigoVendedor && VENDEDORES[codigoVendedor]) || NUMERO_PADRAO;
 
-  // ==========================================================
-  // Ordenação dos cards por Nome, Código ou Voltagem
-  // (função genérica — usada por todas as abas)
-  // ==========================================================
-  function configurarOrdenacao(selectEl, gridEl) {
-    if (!selectEl) return;
-    const ordemOriginal = Array.from(gridEl.querySelectorAll('.card'));
+      // Salva o vendedor já aqui na landing, assim que detectado — reforço para
+      // o caso do ?v=... não chegar até o catalogo.html por algum motivo (ex:
+      // pessoa abre o catálogo direto pela barra de endereço, sem clicar em
+      // "Ver catálogo"). Assim o catalogo.html encontra o vendedor certo no
+      // localStorage mesmo sem o parâmetro na URL dele.
+      if (codigoVendedor) {
+        try { localStorage.setItem('sfix_vendedor_numero', numero); } catch (e) {}
+      }
 
-    selectEl.addEventListener('change', () => {
-      const chave = selectEl.value;
-      let cardsOrdenados;
+      document.querySelectorAll('a[href*="wa.me"]').forEach(function (link) {
+        var textoAtual = "Olá, vim pelo site da S-Fix e quero saber mais";
+        try {
+          textoAtual = new URL(link.href).searchParams.get("text") || textoAtual;
+        } catch (e) {}
+        link.href = "https://wa.me/" + numero + "?text=" + encodeURIComponent(textoAtual);
+      });
 
-      if (!chave) {
-        cardsOrdenados = ordemOriginal;
-      } else if (chave === 'novos') {
-        // produtos novos primeiro (ordem alfabética entre eles),
-        // depois o restante na ordem/visualização padrão
-        const novos = ordemOriginal.filter(c => c.dataset.novo === '1')
-          .sort((a, b) => a.dataset.nome.localeCompare(b.dataset.nome, 'pt-BR', { numeric: true, sensitivity: 'base' }));
-        const resto = ordemOriginal.filter(c => c.dataset.novo !== '1');
-        cardsOrdenados = novos.concat(resto);
-      } else {
-        cardsOrdenados = Array.from(gridEl.querySelectorAll('.card')).sort((a, b) => {
-          const va = a.dataset[chave] || '';
-          const vb = b.dataset[chave] || '';
-          return va.localeCompare(vb, 'pt-BR', { numeric: true, sensitivity: 'base' });
+      // Leva o código do vendedor (?v=...) junto para o catálogo, senão o link
+      // dele se perde ao clicar em "Ver catálogo" e o orçamento cai no número padrão.
+      // Usa href^="catalogo" (em vez de href="catalogo.html") porque o Netlify,
+      // com "Pretty URLs" ativado, reescreve catalogo.html para catalogo sozinho.
+      if (codigoVendedor && VENDEDORES[codigoVendedor]) {
+        document.querySelectorAll('a[href^="catalogo"]').forEach(function (link) {
+          var hrefAtual = link.getAttribute('href');
+          var partes = hrefAtual.split('?');
+          var caminho = partes[0];
+          var restoQuery = partes[1] ? '&' + partes[1] : '';
+          link.setAttribute('href', caminho + '?v=' + encodeURIComponent(codigoVendedor) + restoQuery);
         });
       }
-
-      cardsOrdenados.forEach(card => gridEl.appendChild(card));
-    });
-  }
-
-  ABAS.forEach(aba => {
-    configurarBusca(
-      document.getElementById('searchInput-' + aba.id),
-      document.getElementById('clearSearch-' + aba.id),
-      document.getElementById('grid-' + aba.id),
-      document.getElementById('noResults-' + aba.id)
-    );
-    configurarOrdenacao(document.getElementById('sortSelect-' + aba.id), document.getElementById('grid-' + aba.id));
-  });
-
-  const lightbox = document.getElementById('lightbox');
-  const lightboxImg = document.getElementById('lightboxImg');
-  const lightboxTitle = document.getElementById('lightboxTitle');
-  const zoomPane = document.getElementById('zoomPane');
-
-  function openLightboxProduto(lista, i) {
-    const p = lista[i];
-    lightboxImg.src = p.imagem;
-    lightboxImg.alt = p.nome;
-    lightboxTitle.textContent = p.nome;
-    zoomPane.style.backgroundImage = `url(${p.imagem})`;
-    zoomPane.style.display = 'none';
-    resetZoomImagem();
-    lightbox.classList.add('open');
-    btnMenu.classList.add('escondido');
-  }
-
-  ABAS.forEach(aba => {
-    if (!aba.capa) return;
-    const el = document.getElementById('introCover-' + aba.id);
-    el.addEventListener('click', () => {
-      const src = document.getElementById('introCoverImg-' + aba.id).getAttribute('src');
-      lightboxImg.src = src;
-      lightboxImg.alt = 'Catálogo ' + aba.nome + ' - página de introdução';
-      lightboxTitle.textContent = '';
-      zoomPane.style.backgroundImage = `url(${src})`;
-      zoomPane.style.display = 'none';
-      resetZoomImagem();
-      lightbox.classList.add('open');
-      btnMenu.classList.add('escondido');
-    });
-  });
-
-  document.getElementById('closeBtn').addEventListener('click', () => {
-    lightbox.classList.remove('open');
-    zoomPane.style.display = 'none';
-    resetZoomImagem();
-    btnMenu.classList.remove('escondido');
-  });
-  lightbox.addEventListener('click', e => {
-    if (e.target === lightbox) {
-      lightbox.classList.remove('open');
-      zoomPane.style.display = 'none';
-      resetZoomImagem();
-      btnMenu.classList.remove('escondido');
-    }
-  });
-
-  // Lupa lateral (passar o mouse amplia 200% na janela ao lado, como em marketplaces)
-  const podeUsarHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-
-  lightboxImg.addEventListener('mouseenter', () => {
-    if (podeUsarHover) zoomPane.style.display = 'block';
-  });
-  lightboxImg.addEventListener('mouseleave', () => {
-    zoomPane.style.display = 'none';
-  });
-  lightboxImg.addEventListener('mousemove', e => {
-    if (!podeUsarHover) return;
-    const rect = lightboxImg.getBoundingClientRect();
-    const xPct = ((e.clientX - rect.left) / rect.width) * 100;
-    const yPct = ((e.clientY - rect.top) / rect.height) * 100;
-    zoomPane.style.backgroundPosition = `${xPct}% ${yPct}%`;
-  });
-
-  // Lupa por toque (celular/tablet): tocar com 1 dedo na foto ampliada mostra a mesma
-  // lupa de 200%, só que abaixo da imagem, e some ao soltar o dedo.
-  function posicionarZoomPorToque(e) {
-    const touch = e.touches[0];
-    if (!touch) return;
-    const rect = lightboxImg.getBoundingClientRect();
-    let xPct = ((touch.clientX - rect.left) / rect.width) * 100;
-    let yPct = ((touch.clientY - rect.top) / rect.height) * 100;
-    xPct = Math.max(0, Math.min(100, xPct));
-    yPct = Math.max(0, Math.min(100, yPct));
-    zoomPane.style.backgroundPosition = `${xPct}% ${yPct}%`;
-  }
-
-  // ==========================================================
-  // Zoom com 2 dedos (pinça), igual ao zoom normal de fotos no celular
-  // ==========================================================
-  const ZOOM_MIN = 1;
-  const ZOOM_MAX = 4;
-  let escalaAtual = 1;
-  let deslocX = 0, deslocY = 0;
-  let modoToque = null; // 'lupa' | 'pinca' | 'arrastar' | null
-  let pinçaDistInicial = 0;
-  let pinçaEscalaInicial = 1;
-  let arrastarInicioX = 0, arrastarInicioY = 0;
-  let arrastarDeslocXInicial = 0, arrastarDeslocYInicial = 0;
-  let ultimoToqueTempo = 0;
-
-  function aplicarTransformImagem(comTransicao) {
-    lightboxImg.style.transition = comTransicao ? 'transform .18s ease-out' : 'none';
-    lightboxImg.style.transform = `translate(${deslocX}px, ${deslocY}px) scale(${escalaAtual})`;
-  }
-
-  function resetZoomImagem() {
-    escalaAtual = 1;
-    deslocX = 0;
-    deslocY = 0;
-    modoToque = null;
-    aplicarTransformImagem(false);
-  }
-
-  function distanciaEntreToques(touches) {
-    const dx = touches[0].clientX - touches[1].clientX;
-    const dy = touches[0].clientY - touches[1].clientY;
-    return Math.hypot(dx, dy);
-  }
-
-  lightboxImg.addEventListener('touchstart', e => {
-    if (e.touches.length === 2) {
-      zoomPane.style.display = 'none';
-      modoToque = 'pinca';
-      pinçaDistInicial = distanciaEntreToques(e.touches);
-      pinçaEscalaInicial = escalaAtual;
-    } else if (e.touches.length === 1) {
-      if (escalaAtual > 1) {
-        modoToque = 'arrastar';
-        arrastarInicioX = e.touches[0].clientX;
-        arrastarInicioY = e.touches[0].clientY;
-        arrastarDeslocXInicial = deslocX;
-        arrastarDeslocYInicial = deslocY;
-      } else if (!podeUsarHover) {
-        modoToque = 'lupa';
-        zoomPane.style.display = 'block';
-        posicionarZoomPorToque(e);
-      }
-    }
-  }, { passive: true });
-
-  lightboxImg.addEventListener('touchmove', e => {
-    if (e.touches.length === 2 && modoToque === 'pinca') {
-      e.preventDefault();
-      const novaDist = distanciaEntreToques(e.touches);
-      let novaEscala = pinçaEscalaInicial * (novaDist / pinçaDistInicial);
-      novaEscala = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, novaEscala));
-      escalaAtual = novaEscala;
-      aplicarTransformImagem(false);
-    } else if (e.touches.length === 1 && modoToque === 'arrastar') {
-      e.preventDefault();
-      deslocX = arrastarDeslocXInicial + (e.touches[0].clientX - arrastarInicioX);
-      deslocY = arrastarDeslocYInicial + (e.touches[0].clientY - arrastarInicioY);
-      aplicarTransformImagem(false);
-    } else if (e.touches.length === 1 && modoToque === 'lupa') {
-      posicionarZoomPorToque(e);
-      e.preventDefault();
-    }
-  }, { passive: false });
-
-  lightboxImg.addEventListener('touchend', e => {
-    if (modoToque === 'lupa' && !podeUsarHover) {
-      zoomPane.style.display = 'none';
-    }
-    if (e.touches.length === 0) {
-      const agora = Date.now();
-      if (modoToque !== 'pinca' && modoToque !== 'arrastar' && escalaAtual > 1 && (agora - ultimoToqueTempo) < 300) {
-        resetZoomImagem();
-        aplicarTransformImagem(true);
-      }
-      if (modoToque === 'lupa') ultimoToqueTempo = agora;
-      if (escalaAtual <= 1) {
-        resetZoomImagem();
-      }
-      modoToque = null;
-    } else if (e.touches.length === 1) {
-      modoToque = 'arrastar';
-      arrastarInicioX = e.touches[0].clientX;
-      arrastarInicioY = e.touches[0].clientY;
-      arrastarDeslocXInicial = deslocX;
-      arrastarDeslocYInicial = deslocY;
-    }
-  });
-
-  // ==========================================================
-  // Status online/offline
-  // ==========================================================
-  const dot = document.getElementById('dot');
-  const statusText = document.getElementById('statusText');
-
-  const TEXTO_ONLINE = 'Online — catálogo atualizado';
-  const TEXTO_OFFLINE = 'Offline — mostrando última versão salva';
-
-  // Monta "Última versão: dia DD/MM às HH:MM" a partir do horário em
-  // que o catálogo foi salvo/publicado pelo admin.html. Funciona também
-  // offline, pois ULTIMA_ATUALIZACAO_ISO fica gravado no próprio HTML
-  // (que é cacheado pelo service worker).
-  function formatarUltimaVersao(iso) {
-    if (!iso) return null;
-    const data = new Date(iso);
-    if (isNaN(data.getTime())) return null;
-    const dd = String(data.getDate()).padStart(2, '0');
-    const mmNum = String(data.getMonth() + 1).padStart(2, '0');
-    const hh = String(data.getHours()).padStart(2, '0');
-    const mm = String(data.getMinutes()).padStart(2, '0');
-    return `Última versão: dia ${dd}/${mmNum} às ${hh}:${mm}`;
-  }
-
-  // Troca o texto da barra com um leve fade (some, troca o texto, aparece)
-  function trocarTextoStatusComFade(novoTexto) {
-    statusText.classList.add('status-fade');
-    setTimeout(() => {
-      statusText.textContent = novoTexto;
-      statusText.classList.remove('status-fade');
-    }, 300);
-  }
-
-  // ----------------------------------------------------------
-  // Ciclo automático da barra de status: alterna a cada 15s entre
-  // "Online/Offline..." e "Última versão: dia X às Y", pra o
-  // cliente/vendedor sempre conseguir ver de qual versão ele está
-  // vendo o catálogo — mesmo offline.
-  // ----------------------------------------------------------
-  let statusCicloIndex = 0;
-  let statusCicloInterval = null;
-
-  function obterMensagensStatus() {
-    const textoVersao = formatarUltimaVersao(ULTIMA_ATUALIZACAO_ISO);
-    const textoBase = navigator.onLine ? TEXTO_ONLINE : TEXTO_OFFLINE;
-    return textoVersao ? [textoBase, textoVersao] : [textoBase];
-  }
-
-  function iniciarCicloStatus() {
-    if (statusCicloInterval) clearInterval(statusCicloInterval);
-    const mensagens = obterMensagensStatus();
-    statusCicloIndex = 0;
-    statusText.textContent = mensagens[0];
-    if (mensagens.length > 1) {
-      statusCicloInterval = setInterval(() => {
-        statusCicloIndex = (statusCicloIndex + 1) % mensagens.length;
-        trocarTextoStatusComFade(mensagens[statusCicloIndex]);
-      }, 15000);
-    }
-  }
-
-  function updateStatus() {
-    dot.classList.toggle('offline', !navigator.onLine);
-    iniciarCicloStatus();
-  }
-  window.addEventListener('online', updateStatus);
-  window.addEventListener('offline', updateStatus);
-  updateStatus();
-
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').then(reg => reg.update());
-  }
-
-  // ==========================================================
-  // Verifica se uma nova versão do catálogo foi publicada no
-  // servidor (ex: depois de um git push + deploy no Netlify) e,
-  // se sim, mostra um avisinho pra pessoa atualizar quando quiser
-  // — sem recarregar sozinho, pra não interromper quem já está
-  // olhando um produto ou fazendo uma busca.
-  // ==========================================================
-  let versaoInicialPagina = null;
-
-  async function obterVersaoDoServidor() {
-    try {
-      const resposta = await fetch(location.pathname + '?_=' + Date.now(), { cache: 'no-store' });
-      return resposta.headers.get('etag') || resposta.headers.get('last-modified');
-    } catch (erro) {
-      return null;
-    }
-  }
-
-  async function verificarNovaVersao() {
-    const versaoAtual = await obterVersaoDoServidor();
-    if (!versaoAtual) return; // servidor não informou versão (ex: offline) — não faz nada
-    if (versaoInicialPagina === null) {
-      versaoInicialPagina = versaoAtual;
-      return;
-    }
-    if (versaoAtual !== versaoInicialPagina) {
-      mostrarAvisoAtualizacao();
-    }
-  }
-
-  function mostrarAvisoAtualizacao() {
-    if (document.getElementById('avisoAtualizacao')) return; // já está sendo mostrado
-    const aviso = document.createElement('div');
-    aviso.id = 'avisoAtualizacao';
-    aviso.innerHTML = `
-      <span>🔄 Uma nova versão do catálogo está disponível.</span>
-      <button id="btnAtualizarAgora">Atualizar agora</button>
-    `;
-    document.body.appendChild(aviso);
-    document.getElementById('btnAtualizarAgora').addEventListener('click', () => location.reload());
-  }
-
-  verificarNovaVersao();
-  setInterval(verificarNovaVersao, 3 * 60 * 1000); // confere a cada 3 minutos
-
-  // Confere também assim que a pessoa volta pra aba (ex: trocou de app e voltou)
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') verificarNovaVersao();
-  });
-</script>
-
+    })();
+    </script>
+    <!-- ==VENDEDOR-WHATSAPP-FIM== -->
 </body>
 </html>

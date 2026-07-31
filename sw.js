@@ -1,9 +1,10 @@
 // ==CACHE-INICIO==
-const CACHE_NAME = 'catalogo-cache-v2';
+const CACHE_NAME = 'catalogo-cache-v44';
 
 const SHELL_FILES = [
   "./",
   "./index.html",
+  "./catalogo.html",
   "./manifest.json",
   "./assets/logo-sfix.png",
   "./assets/logo-makita.png",
@@ -11,7 +12,6 @@ const SHELL_FILES = [
   "./assets/seta-voltar.png",
   "./assets/intro-makita.jpg",
   "./assets/capa-dewalt.jpg",
-  "./assets/capa-vidracaria.png",
   "./assets/produtos/1-m9510b.png",
   "./assets/produtos/2-m0920b.png",
   "./assets/produtos/3-ga9020.png",
@@ -83,9 +83,6 @@ const SHELL_FILES = [
   "./assets/produtos/69-dml815.png",
   "./assets/produtos/70-lav-pressao-bateria.png",
   "./assets/produtos/71-trena-laser-30m.png",
-  "./assets/produtos/stanley-esmerilhadeira-ang.-115mm-sbg700m2k.png",
-  "./assets/produtos/esmerilhadeira-makita-ang-9-ga9020.png",
-  "./assets/produtos/500x500.png",
   "./assets/produtos/72-dcg413-b.png",
   "./assets/produtos/73-dwe4118.png",
   "./assets/produtos/74-dwe490.png",
@@ -133,36 +130,94 @@ const SHELL_FILES = [
   "./assets/produtos/stanley-caixa-de-ferramentas-c-tampa-organ.png",
   "./assets/produtos/stanley-soprador-termico-1800w.png",
   "./assets/produtos/stanley-organizador-tstak-10-compartimento.png",
-  "./assets/produtos/combo-paraf.-aspirador-dhp485rf1j-dcl180z.png",
+  "./assets/produtos/pf-cab-chata-phs-branco.png",
   "./assets/logo-sfix.png",
-  "./assets/logo-makita.png"
+  "./assets/logo-makita.png",
+  "./assets/info-icone.png",
+  "./assets/favorito-icone.png"
 ];
 // ==CACHE-FIM==
 
+const OFFLINE_URL = './catalogo.html'; // página de fallback quando a rede falha e a página pedida ainda não está em cache
+const TEMPO_LIMITE_REDE_MS = 4000; // depois disso, desiste da rede e usa o cache
+
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(SHELL_FILES))
+    caches.open(CACHE_NAME).then(cache =>
+      // Guarda cada arquivo separadamente (em vez de cache.addAll, que é
+      // tudo-ou-nada: se UM arquivo da lista falhar — ex: uma foto que foi
+      // renomeada/apagada — o cache inteiro falhava e o app ficava sem
+      // nada salvo pra usar offline). Assim, um arquivo com problema não
+      // derruba os outros.
+      Promise.all(
+        SHELL_FILES.map(url =>
+          cache.add(url).catch(erro => {
+            console.warn('[sw] não consegui guardar em cache:', url, erro);
+          })
+        )
+      )
+    ).then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))
-    )
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', event => {
+  const req = event.request;
+  if (req.method !== 'GET') return; // não mexe em chamadas de API do painel (POST/PUT etc)
+
+  const url = new URL(req.url);
+  // a checagem de "nova versão publicada" usa uma URL com ?_=timestamp,
+  // sempre diferente, só pra nunca pegar cache do navegador — o service
+  // worker não deve interceptar essa, senão ela para de refletir o
+  // servidor de verdade e ainda pode devolver uma resposta inválida
+  if (url.searchParams.has('_')) return;
+
+  // navegação (abrir/recarregar a página): tenta a rede com um limite de
+  // tempo curto; se demorar demais ou falhar (sem internet, rede
+  // instável), usa a própria página pedida se já estiver em cache (ex:
+  // catalogo.html ou index.html) e só cai no OFFLINE_URL fixo se nem essa
+  // estiver salva. Isso evita a tela travada — sempre entrega algo
+  // renderizável rapidamente.
+  if (req.mode === 'navigate') {
+    event.respondWith(
+      Promise.race([
+        fetch(req),
+        new Promise((_, rejeitar) => setTimeout(() => rejeitar(new Error('tempo esgotado')), TEMPO_LIMITE_REDE_MS))
+      ])
+        .then(response => {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
+          return response;
+        })
+        .catch(() => caches.match(req).then(resp => resp || caches.match(OFFLINE_URL)))
+    );
+    return;
+  }
+
+  // demais arquivos (fotos dos produtos, capas, logos etc): responde na
+  // hora com o que já estiver em cache (instantâneo, nunca fica esperando
+  // a rede) e, em paralelo, busca na rede pra atualizar o cache pra
+  // próxima vez — assim fotos e códigos novos chegam sozinhos quando a
+  // pessoa abrir o catálogo com internet, sem precisar reinstalar nada.
   event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-        return response;
-      })
-      .catch(() => caches.match(event.request))
+    caches.match(req).then(emCache => {
+      const buscaNaRede = fetch(req)
+        .then(response => {
+          if (response && response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
+          }
+          return response;
+        })
+        .catch(() => emCache);
+      return emCache || buscaNaRede;
+    })
   );
 });
