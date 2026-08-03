@@ -349,7 +349,7 @@
 
       <div class="painel">
         <h2>Ícone do app (tela inicial do celular)</h2>
-        <p>É o ícone que aparece quando alguém usa "Instalar app" / "Adicionar à tela inicial" no celular. Use uma imagem quadrada (recomendado 512x512px), de preferência sem fundo transparente — muitos celulares colocam a imagem dentro de um círculo ou quadrado com fundo branco automaticamente.</p>
+        <p>É o ícone que aparece quando alguém usa "Instalar app" / "Adicionar à tela inicial" no celular — é um arquivo separado da logo do cabeçalho, então trocar um não muda o outro. Use uma imagem quadrada (recomendado 512x512px), de preferência sem fundo transparente — muitos celulares colocam a imagem dentro de um círculo ou quadrado com fundo branco automaticamente.</p>
         <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
           <div id="previewIconeApp" style="width:64px; height:64px; border-radius:14px; background:#eee; display:flex; align-items:center; justify-content:center; overflow:hidden; border:2px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,.25); flex-shrink:0;"></div>
           <input type="file" accept="image/*" id="inputIconeApp" style="flex:1; min-width:200px;">
@@ -365,6 +365,15 @@
           <div id="previewIconeFavorito" style="width:44px; height:44px; border-radius:50%; background:rgba(255,255,255,.92); display:flex; align-items:center; justify-content:center; overflow:hidden; border:2px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,.25); flex-shrink:0; color:#c81e2c; font-size:19px;"></div>
           <input type="file" accept="image/*" id="inputIconeFavorito" style="flex:1; min-width:200px;">
           <button type="button" class="btn-secundaria icone" id="btnRemoverIconeFavorito" style="display:none;">🗑 Usar ícone padrão</button>
+        </div>
+        <label style="margin-top:14px;">Cor de fundo do ícone</label>
+        <p style="margin:0 0 8px; font-size:12px; color:var(--cinza);">Vale tanto pro ícone padrão (o coração) quanto pra imagem customizada acima, se ela tiver transparência.</p>
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+          <button type="button" class="btn-secundaria icone" id="btnFundoIconeFavoritoTransparente">◻ Transparente</button>
+          <label for="inputFundoIconeFavoritoCor" class="btn-secundaria icone" style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; margin:0;">
+            🎨 Escolher cor
+            <input type="color" id="inputFundoIconeFavoritoCor" value="#ffffff" style="width:26px; height:26px; padding:0; border:none; border-radius:4px; cursor:pointer; vertical-align:middle;">
+          </label>
         </div>
         <div style="margin-top:16px; padding-top:16px; border-top:1px solid #e5e7eb; max-width:360px;">
           <label>Tamanho do botão do coração (px)</label>
@@ -587,6 +596,7 @@
     '--favorito-icone-url': 'none',
     '--favorito-icone-simbolo-display': 'flex',
     '--favorito-icone-filtro-padrao': 'none',
+    '--favorito-icone-fundo-cor': '#ffffff',
     '--favorito-btn-tamanho': '36px'
   };
 
@@ -596,6 +606,7 @@
     './catalogo.html',
     './manifest.json',
     './assets/logo-sfix.png',
+    './assets/icone-app.png',
     './assets/logo-makita.png',
     './assets/watermark-tile.png',
     './assets/seta-voltar.png'
@@ -646,6 +657,7 @@
   let infoIconeFundoAtual = '#00857c'; // cor atual do fundo do ícone: hex ou 'transparent'
   let favoritoIconeArquivoNovo = null;
   let favoritoIconeRemovido = false;
+  let favoritoIconeFundoAtual = '#ffffff'; // cor atual do fundo do ícone: hex ou 'transparent'
 
   // logos[] — lista dinâmica de logos do cabeçalho, na ordem em que aparecem:
   // { arquivo, alt, altura, ativa, arquivoNovo, previewUrl }
@@ -882,7 +894,9 @@
     favoritoIconeArquivoNovo = null;
     favoritoIconeRemovido = false;
     document.getElementById('inputIconeFavorito').value = '';
+    favoritoIconeFundoAtual = layoutConfig['--favorito-icone-fundo-cor'] || LAYOUT_PADRAO['--favorito-icone-fundo-cor'];
     atualizarPreviewIconeFavorito();
+    atualizarUiFundoIconeFavorito();
   }
 
   // ---------- ícone do app (tela inicial do celular) ----------
@@ -894,7 +908,7 @@
       preview.innerHTML = `<img src="${URL.createObjectURL(appIconeArquivoNovo)}" style="width:100%; height:100%; object-fit:cover;">`;
       btnCancelar.style.display = '';
     } else {
-      preview.innerHTML = `<img src="assets/logo-sfix.png?${Date.now()}" style="width:100%; height:100%; object-fit:contain;" onerror="this.style.display='none'">`;
+      preview.innerHTML = `<img src="assets/icone-app.png?${Date.now()}" style="width:100%; height:100%; object-fit:contain;" onerror="this.onerror=null; this.src='assets/logo-sfix.png?${Date.now()}';">`;
       btnCancelar.style.display = 'none';
     }
   }
@@ -990,6 +1004,34 @@
     favoritoIconeRemovido = true;
     document.getElementById('inputIconeFavorito').value = '';
     atualizarPreviewIconeFavorito();
+  });
+
+  // cor de fundo do ícone de favoritar: mesmo esquema do ícone de descrição
+  // (o preview usa um xadrez cinza/branco pra indicar "transparente")
+  function atualizarUiFundoIconeFavorito() {
+    const btnTransparente = document.getElementById('btnFundoIconeFavoritoTransparente');
+    const inputCor = document.getElementById('inputFundoIconeFavoritoCor');
+    const preview = document.getElementById('previewIconeFavorito');
+    const transparenteAtivo = favoritoIconeFundoAtual === 'transparent';
+
+    btnTransparente.classList.toggle('ativo-cor', transparenteAtivo);
+    if (!transparenteAtivo) {
+      inputCor.value = favoritoIconeFundoAtual;
+    }
+
+    preview.style.background = transparenteAtivo
+      ? 'repeating-conic-gradient(#d1d5db 0% 25%, #fff 0% 50%) 50% / 12px 12px'
+      : favoritoIconeFundoAtual;
+  }
+
+  document.getElementById('btnFundoIconeFavoritoTransparente').addEventListener('click', () => {
+    favoritoIconeFundoAtual = 'transparent';
+    atualizarUiFundoIconeFavorito();
+  });
+
+  document.getElementById('inputFundoIconeFavoritoCor').addEventListener('input', e => {
+    favoritoIconeFundoAtual = e.target.value;
+    atualizarUiFundoIconeFavorito();
   });
 
   document.getElementById('inputIconeInfo').addEventListener('change', e => {
@@ -1161,6 +1203,7 @@
       '--favorito-icone-filtro-padrao': favoritoIconeRemovido
         ? 'none'
         : ((favoritoIconeArquivoNovo || (layoutConfig['--favorito-icone-url'] && layoutConfig['--favorito-icone-url'] !== 'none')) ? 'grayscale(65%) brightness(1.9) opacity(.55)' : 'none'),
+      '--favorito-icone-fundo-cor': favoritoIconeFundoAtual || LAYOUT_PADRAO['--favorito-icone-fundo-cor'],
       '--favorito-btn-tamanho': document.getElementById('layoutFavoritoBtnTamanho').value + 'px'
     };
     bodyClasseLayout = document.getElementById('layoutFotoPosicao').value === 'lateral' ? 'layout-foto-lateral' : '';
@@ -2442,7 +2485,7 @@ self.addEventListener('fetch', event => {
       watermarkArquivoNovo ? { label: 'Marca d\'água de fundo', arquivo: watermarkArquivoNovo, nomeArq: 'watermark-tile.png' } : null,
       infoIconeArquivoNovo ? { label: 'Ícone do botão de descrição (i)', arquivo: infoIconeArquivoNovo, nomeArq: 'info-icone.png' } : null,
       favoritoIconeArquivoNovo ? { label: 'Ícone do coração de favoritar', arquivo: favoritoIconeArquivoNovo, nomeArq: 'favorito-icone.png' } : null,
-      appIconeArquivoNovo ? { label: 'Ícone do app (tela inicial)', arquivo: appIconeArquivoNovo, nomeArq: 'logo-sfix.png' } : null
+      appIconeArquivoNovo ? { label: 'Ícone do app (tela inicial)', arquivo: appIconeArquivoNovo, nomeArq: 'icone-app.png' } : null
     ].filter(Boolean).concat(logosNovas);
 
     const { novoLandingHtml, landingArquivosNovos } = montarLandingFinal();
@@ -2587,6 +2630,3 @@ self.addEventListener('fetch', event => {
 
 </body>
 </html>
-
-
-

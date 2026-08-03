@@ -36,6 +36,7 @@
     --favorito-icone-url: url("assets/favorito-icone.png");
     --favorito-icone-simbolo-display: none;
     --favorito-icone-filtro-padrao: grayscale(65%) brightness(1.9) opacity(.55);
+    --favorito-icone-fundo-cor: #ffffff;
     --favorito-btn-tamanho: 28px;
     /* ==LAYOUT-FIM== */
   }
@@ -297,7 +298,7 @@
   height: var(--favorito-btn-tamanho);
   border-radius:50%;
   border:2px solid #fff;
-  background-color:rgba(255,255,255,.92);
+  background-color: var(--favorito-icone-fundo-cor, rgba(255,255,255,.92));
   background-image: var(--favorito-icone-url);
   background-size:cover;
   background-position:center;
@@ -1355,7 +1356,7 @@
   // ==LOGOS-INICIO==
   const LOGOS = [
     {
-      arquivo: "assets/logo-sfix.png",
+      arquivo: "assets/logo-sfix-sem-fundo-1-.png",
       alt: "S-Fix Distribuindo Soluções",
       altura: "65px",
       ativa: true
@@ -1395,7 +1396,7 @@
   // para mostrar "Atualizado hoje às HH:MM" / "Atualizado no dia X".
   // ==========================================================
   // ==DATA-ATUALIZACAO-INICIO==
-  const ULTIMA_ATUALIZACAO_ISO = "2026-07-31T19:58:48.644Z";
+  const ULTIMA_ATUALIZACAO_ISO = "2026-08-03T18:24:30.797Z";
   // ==DATA-ATUALIZACAO-FIM==
 
   // ==========================================================
@@ -1417,7 +1418,7 @@
       {
         nome: "Esmerilhadeira Makita 4.1/2\" M9510B",
         imagem: "assets/produtos/1-m9510b.png",
-        descricao: "",
+        descricao: "TESTE",
         criadoEm: "",
         codigos: [
           { voltagem: "127v", codigo: "3300 115 110" },
@@ -3022,10 +3023,12 @@
     const m = c && parseInt(c.multiplo, 10);
     return (m && m > 1) ? m : 1;
   }
-  // true se QUALQUER produto do catálogo tiver algum código com múltiplo
-  // definido — usado para decidir se o aviso sobre múltiplos deve aparecer
-  function catalogoPossuiMultiplo() {
-    return ABAS.some(aba => (aba.produtos || []).some(p => (p.codigos || []).some(c => passoDoCodigo(c) > 1)));
+  // true se ALGUM item salvo no carrinho tiver código com múltiplo definido —
+  // usado para decidir se o aviso sobre múltiplos deve aparecer no painel do
+  // carrinho (só quando isso realmente afeta algo que a pessoa já salvou, e
+  // não sempre que o catálogo tem QUALQUER produto com essa regra)
+  function carrinhoPossuiMultiplo(carrinho) {
+    return carrinho.some(item => (item.codigos || []).some(c => passoDoCodigo(c) > 1));
   }
   // salva no carrinho apenas os códigos/voltagens escolhidos (codigosEscolhidos é
   // um subconjunto de p.codigos, já com a propriedade "quantidade" definida) — o
@@ -3143,7 +3146,7 @@
     btnLimparCarrinho.style.display = temItensSalvos ? 'block' : 'none';
 
     const avisoMultiploEl = document.getElementById('avisoMultiploCarrinho');
-    if (avisoMultiploEl) avisoMultiploEl.style.display = catalogoPossuiMultiplo() ? 'block' : 'none';
+    if (avisoMultiploEl) avisoMultiploEl.style.display = carrinhoPossuiMultiplo(carrinhoCompleto) ? 'block' : 'none';
 
     carrinho.forEach(item => {
       const linha = document.createElement('div');
@@ -3765,6 +3768,7 @@
     resetZoomImagem();
     lightbox.classList.add('open');
     btnMenu.classList.add('escondido');
+    btnCarrinho.classList.add('escondido');
     marcarProdutoComoVisto(abaId, p, cardEl);
   }
 
@@ -3781,6 +3785,7 @@
       resetZoomImagem();
       lightbox.classList.add('open');
       btnMenu.classList.add('escondido');
+      btnCarrinho.classList.add('escondido');
     });
   });
 
@@ -3789,6 +3794,7 @@
     zoomPane.style.display = 'none';
     resetZoomImagem();
     btnMenu.classList.remove('escondido');
+    btnCarrinho.classList.remove('escondido');
   });
   lightbox.addEventListener('click', e => {
     if (e.target === lightbox) {
@@ -3796,6 +3802,7 @@
       zoomPane.style.display = 'none';
       resetZoomImagem();
       btnMenu.classList.remove('escondido');
+      btnCarrinho.classList.remove('escondido');
     }
   });
 

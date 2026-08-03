@@ -1,5 +1,5 @@
 // ==CACHE-INICIO==
-const CACHE_NAME = 'catalogo-cache-v44';
+const CACHE_NAME = 'catalogo-cache-v52';
 
 const SHELL_FILES = [
   "./",
@@ -7,6 +7,7 @@ const SHELL_FILES = [
   "./catalogo.html",
   "./manifest.json",
   "./assets/logo-sfix.png",
+  "./assets/icone-app.png",
   "./assets/logo-makita.png",
   "./assets/watermark-tile.png",
   "./assets/seta-voltar.png",
@@ -131,7 +132,7 @@ const SHELL_FILES = [
   "./assets/produtos/stanley-soprador-termico-1800w.png",
   "./assets/produtos/stanley-organizador-tstak-10-compartimento.png",
   "./assets/produtos/pf-cab-chata-phs-branco.png",
-  "./assets/logo-sfix.png",
+  "./assets/logo-sfix-sem-fundo-1-.png",
   "./assets/logo-makita.png",
   "./assets/info-icone.png",
   "./assets/favorito-icone.png"
