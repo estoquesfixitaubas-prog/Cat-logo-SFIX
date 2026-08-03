@@ -3583,6 +3583,14 @@
         favoritarProduto(p, btnFavorito);
       });
 
+      if (temDescricao) {
+        const btnInfo = card.querySelector('.btn-info-produto');
+        btnInfo.addEventListener('click', (e) => {
+          e.stopPropagation(); // não abre a lightbox ao clicar no botão de info
+          abrirModalDescricao(p.nome, p.descricao);
+        });
+      }
+
       if (temMuitosCodigos) {
         const btnVerMais = card.querySelector('.btn-ver-mais');
         btnVerMais.addEventListener('click', (e) => {
@@ -4059,6 +4067,7 @@
 
 </body>
 </html>
+
 
 
 
