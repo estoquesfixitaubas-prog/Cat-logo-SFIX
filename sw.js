@@ -1,5 +1,5 @@
 // ==CACHE-INICIO==
-const CACHE_NAME = 'catalogo-cache-v52';
+const CACHE_NAME = 'catalogo-cache-v53';
 
 const SHELL_FILES = [
   "./",
@@ -222,4 +222,3 @@ self.addEventListener('fetch', event => {
     })
   );
 });
-
