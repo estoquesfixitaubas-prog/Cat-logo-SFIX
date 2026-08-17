@@ -1,3 +1,5 @@
+### Arquivo: `admin.html`
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -5,6 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Painel do Catálogo — S-Fix</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root{
     --azul:#0f5c8c; --azul-escuro:#0a4468; --vermelho:#c81e2c;
@@ -50,6 +53,23 @@
   .aviso-ok { background:#e7f7f3; color:#065f52; }
   .aviso-atencao { background:#fff4e5; color:#92620a; }
 
+  /* ---------- aviso de produto duplicado (toast) ---------- */
+  #avisoDuplicado {
+    position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px);
+    background:#fff4e5; color:#92620a; border:2px solid #f0b429;
+    padding:14px 18px; border-radius:10px; box-shadow:0 6px 22px rgba(0,0,0,.25);
+    display:flex; align-items:center; gap:14px; z-index:500;
+    font-size:13.5px; max-width:92vw; flex-wrap:wrap; justify-content:center;
+    opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s ease;
+  }
+  #avisoDuplicado.mostrar { opacity:1; transform:translateX(-50%) translateY(0); pointer-events:auto; }
+  #avisoDuplicado strong { color:#7a4d06; }
+  #avisoDuplicado button {
+    background:#92620a; color:#fff; border:none; border-radius:7px;
+    padding:7px 12px; font-weight:800; font-size:12.5px; cursor:pointer; white-space:nowrap;
+  }
+  #avisoDuplicado button:hover { filter:brightness(1.1); }
+
   #editorArea { display:none; }
 
   /* ---------- abas (dinâmicas) no painel admin ---------- */
@@ -63,6 +83,8 @@
     font-weight:800; font-size:14px; text-align:center;
   }
   .tab-btn-admin.ativo { background:var(--azul-escuro); color:#fff; }
+  .tab-btn-admin.tab-inativa { opacity:.55; border-style:dashed; }
+  .tab-btn-admin.tab-inativa.ativo { opacity:.85; }
   .tab-btn-admin.tab-layout { border-color:var(--cinza); color:var(--cinza); }
   .tab-btn-admin.tab-layout.ativo { background:var(--cinza); color:#fff; }
   #btnNovaAba {
@@ -100,6 +122,26 @@
   }
   .produto-topo .preview img { width:100%; height:100%; object-fit:contain; }
   .campos { flex:1; display:flex; flex-direction:column; gap:8px; }
+
+  .fotos-extra { margin-top:12px; }
+  .fotos-extra p.dica { margin:2px 0 6px; font-size:12px; color:var(--cinza); }
+  .fotos-extra-lista { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px; }
+  .fotos-extra-item {
+    width:96px; flex-shrink:0; display:flex; flex-direction:column; gap:4px;
+  }
+  .fotos-extra-item .fotos-extra-thumb {
+    position:relative; width:96px; height:64px; border-radius:8px; overflow:hidden;
+    background:#eee; border:1px solid #e5e7eb;
+  }
+  .fotos-extra-item img { width:100%; height:100%; object-fit:contain; display:block; }
+  .fotos-extra-item button {
+    position:absolute; top:2px; right:2px; width:18px; height:18px; border-radius:50%;
+    border:none; background:rgba(0,0,0,.65); color:#fff; font-size:11px; line-height:1;
+    cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;
+  }
+  .fotos-extra-item .legenda-foto-extra {
+    width:96px; padding:4px 6px; font-size:11px; border:1px solid #d1d5db; border-radius:5px;
+  }
   label { font-size:12px; font-weight:700; color:var(--cinza); display:block; margin-bottom:3px; }
   input[type="text"] {
     width:100%; padding:8px 10px; border:1px solid #d1d5db; border-radius:6px; font-size:14px;
@@ -143,13 +185,123 @@
   #resultado { margin-top:16px; font-size:14px; line-height:1.6; }
   #resultado .ok { color:#065f52; font-weight:700; }
   #resultado .lista-arquivos { background:#f4f5f6; border-radius:8px; padding:12px; margin-top:8px; font-family:monospace; font-size:12.5px; }
-  #resultado a.download-link {
+  #resultado a.download-link, #relatorioResultado a.download-link {
     display:inline-block; margin:6px 8px 0 0; background:var(--azul); color:#fff;
     padding:8px 14px; border-radius:6px; text-decoration:none; font-size:13.5px; font-weight:700;
   }
+  #relatorioResultado { margin-top:16px; font-size:14px; line-height:1.6; }
+  #relatorioResultado .ok { color:#065f52; font-weight:700; }
+
+  /* ---------- busca de produtos ---------- */
+  .busca-linha { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .busca-linha input[type="text"] {
+    flex:1; min-width:220px; padding:10px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:14px;
+  }
+  #buscaContagem { font-size:12.5px; color:var(--cinza); margin:8px 0 0; }
+  #resultadosBusca { margin-top:12px; display:none; flex-direction:column; gap:8px; }
+  .resultado-busca-item {
+    display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    border:1px solid #e5e7eb; border-radius:8px; padding:10px 12px; background:#fafbfc;
+  }
+  .resultado-busca-info { display:flex; flex-direction:column; gap:2px; }
+  .resultado-busca-info strong { font-size:14px; }
+  .resultado-busca-aba {
+    display:inline-block; width:fit-content; font-size:11px; font-weight:800; color:var(--azul);
+    background:#e8f1f8; border-radius:5px; padding:2px 7px; margin-top:2px;
+  }
+  .resultado-busca-codigos { font-size:12.5px; color:var(--cinza); }
+  .produto-destacado { outline:3px solid var(--teal); outline-offset:3px; animation:piscaBusca 1s ease-in-out 2; }
+  @keyframes piscaBusca {
+    0%, 100% { background:#fafbfc; }
+    50% { background:#e7f7f3; }
+  }
+
+  /* ---------- editor de foto (cortar / reenquadrar) ---------- */
+  #editorFotoOverlay, #fotoPreviewOverlay {
+    position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:1000;
+    display:none; align-items:center; justify-content:center; padding:16px;
+  }
+  #editorFotoOverlay.mostrar, #fotoPreviewOverlay.mostrar { display:flex; }
+  .editor-foto-caixa {
+    background:#fff; border-radius:12px; padding:18px; width:100%; max-width:380px;
+    box-shadow:0 10px 40px rgba(0,0,0,.3);
+  }
+  .editor-foto-caixa h3 { margin:0 0 4px; font-size:15px; color:var(--azul-escuro); }
+  .editor-foto-caixa p.editor-foto-dica { margin:0 0 12px; font-size:12px; color:var(--cinza); }
+  #fotoPreviewStageWrap {
+    display:flex; align-items:center; justify-content:center; max-height:60vh;
+    overflow:hidden; border-radius:6px;
+    background:repeating-conic-gradient(#e5e7eb 0% 25%, #f4f5f6 0% 50%) 50% / 20px 20px;
+  }
+  #fotoPreviewImg { display:block; max-width:100%; max-height:60vh; }
+  #editorFotoStageWrap { display:flex; justify-content:center; }
+  #editorFotoStage {
+    position:relative; overflow:hidden; border-radius:6px; touch-action:none;
+    background:repeating-conic-gradient(#e5e7eb 0% 25%, #f4f5f6 0% 50%) 50% / 20px 20px;
+  }
+  #editorFotoStage img {
+    display:block; width:100%; height:100%; user-select:none; -webkit-user-drag:none; pointer-events:none;
+  }
+  #editorFotoCropBox {
+    position:absolute; box-sizing:border-box; border:2px solid #fff; cursor:move;
+    box-shadow:0 0 0 9999px rgba(0,0,0,.55);
+  }
+  .editor-foto-handle {
+    position:absolute; width:18px; height:18px; margin:-9px; background:#fff;
+    border:2px solid var(--azul); border-radius:50%; touch-action:none;
+  }
+  .editor-foto-handle.nw { top:0; left:0; cursor:nwse-resize; }
+  .editor-foto-handle.ne { top:0; left:100%; cursor:nesw-resize; }
+  .editor-foto-handle.sw { top:100%; left:0; cursor:nesw-resize; }
+  .editor-foto-handle.se { top:100%; left:100%; cursor:nwse-resize; }
+  .editor-foto-acoes { display:flex; gap:10px; margin-top:16px; justify-content:flex-end; }
 </style>
 </head>
 <body>
+
+<div id="avisoDuplicado">
+  <span id="avisoDuplicadoTexto"></span>
+  <button type="button" id="btnFecharAvisoDuplicado">Entendi</button>
+</div>
+
+<div id="fotoPreviewOverlay">
+  <div class="editor-foto-caixa">
+    <h3>🖼️ Foto escolhida</h3>
+    <p class="editor-foto-dica">Confira a foto. Se estiver boa do jeito que está, use direto — ou corte uma parte se quiser reenquadrar.</p>
+    <div id="fotoPreviewStageWrap">
+      <img id="fotoPreviewImg" alt="">
+    </div>
+    <div class="editor-foto-acoes" style="justify-content:space-between; flex-wrap:wrap;">
+      <button type="button" class="btn-secundaria" id="fotoPreviewCancelar">Cancelar</button>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button type="button" class="btn-secundaria" id="fotoPreviewCortar">✂️ Cortar</button>
+        <button type="button" class="btn-sucesso" id="fotoPreviewUsar">✓ Usar assim</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="editorFotoOverlay">
+  <div class="editor-foto-caixa">
+    <h3>✂️ Cortar foto</h3>
+    <p class="editor-foto-dica">Arraste os cantos do quadro pra ajustar o corte e arraste o meio pra mover — deixe só a parte do produto que você quer usar, cortando fora o espaço em branco.</p>
+    <div id="editorFotoStageWrap">
+      <div id="editorFotoStage">
+        <img id="editorFotoImg" alt="">
+        <div id="editorFotoCropBox">
+          <div class="editor-foto-handle nw"></div>
+          <div class="editor-foto-handle ne"></div>
+          <div class="editor-foto-handle sw"></div>
+          <div class="editor-foto-handle se"></div>
+        </div>
+      </div>
+    </div>
+    <div class="editor-foto-acoes">
+      <button type="button" class="btn-secundaria" id="editorFotoCancelar">Cancelar</button>
+      <button type="button" class="btn-sucesso" id="editorFotoUsar">✓ Cortar e usar</button>
+    </div>
+  </div>
+</div>
 
 <header>
   <div>
@@ -159,6 +311,15 @@
 </header>
 
 <main>
+
+  <div class="painel" id="bannerRascunho" style="display:none; border:2px solid #f0b429; background:#fff9ec;">
+    <h2 style="margin:0 0 8px;">📝 Encontramos um rascunho salvo automaticamente</h2>
+    <p id="textoBannerRascunho" style="margin-bottom:14px;"></p>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <button type="button" class="btn-sucesso" id="btnContinuarRascunho">↩ Continuar de onde eu parei</button>
+      <button type="button" class="btn-perigo" id="btnDescartarRascunho">🗑 Descartar e abrir um catálogo do zero</button>
+    </div>
+  </div>
 
   <div class="painel" id="painelInicio">
     <h2>Passo 1 — Abrir o catálogo</h2>
@@ -219,6 +380,17 @@
     <div class="tabs-admin-linha">
       <div class="tabs-admin" id="tabsAdmin"></div>
       <button type="button" id="btnNovaAba">+ Nova aba</button>
+    </div>
+
+    <div class="painel" id="painelBusca">
+      <h2>🔍 Pesquisar produto</h2>
+      <p>Busque por nome, código ou voltagem. Mostra os produtos parecidos com qualquer um desses dados, em todas as abas.</p>
+      <div class="busca-linha">
+        <input type="text" id="inputBuscaProduto" placeholder="Ex: makita, 220v, DHP489Z...">
+        <button type="button" class="btn-secundaria icone" id="btnLimparBusca">Limpar</button>
+      </div>
+      <p id="buscaContagem"></p>
+      <div id="resultadosBusca"></div>
     </div>
 
     <div id="secoesAbas"></div>
@@ -552,6 +724,49 @@
       </div>
     </div>
 
+    <div id="secaoRelatorio" class="secao-marca">
+      <div class="painel">
+        <h2>📄 Relatório de produtos</h2>
+        <p>Gera um arquivo .md com nome, código e voltagem de cada produto (em ordem alfabética dentro de cada aba) — pra você conferir no seu sistema o que já existe e o que falta cadastrar. Descrição e múltiplo não entram no relatório.</p>
+
+        <label>O que incluir no relatório</label>
+        <p style="margin:2px 0 8px; font-size:12px; color:var(--cinza);">Marque uma ou mais abas.</p>
+        <div style="display:flex; gap:10px; margin-bottom:8px;">
+          <button type="button" class="btn-secundaria icone" id="btnRelatorioMarcarTodas" style="font-size:12.5px;">Marcar todas</button>
+          <button type="button" class="btn-secundaria icone" id="btnRelatorioDesmarcarTodas" style="font-size:12.5px;">Desmarcar todas</button>
+        </div>
+        <div id="relatorioAbaCheckboxes" style="display:flex; flex-direction:column; gap:6px; max-width:420px; margin-bottom:16px;"></div>
+        <button type="button" class="btn-primaria" id="btnGerarRelatorio">📄 Gerar relatório (.md)</button>
+
+        <div id="relatorioResultado"></div>
+      </div>
+    </div>
+
+    <div id="secaoEstoque" class="secao-marca">
+      <div class="painel">
+        <h2>📦 Estoque Puma</h2>
+        <p>Exporte o "Relatório de Estoque - Simples" do Puma (Excel/CSV) e importe aqui. O painel cruza automaticamente pelo <strong>código de fornecedor</strong> (coluna "Refer. Fornec." do relatório) com os códigos já cadastrados em cada produto, e marca cada variante como em estoque ou indisponível. Produtos com saldo no relatório que ainda não existem no catálogo são adicionados automaticamente na aba "🗂️ SEM FOTO", usando esse mesmo código de fornecedor.</p>
+        <p style="font-size:12.5px; color:var(--cinza);">Produto/variante que não aparece no relatório importado continua marcado como <strong>"em estoque"</strong> — só fica <strong>indisponível</strong> quando aparece no relatório com saldo zerado. Isso ainda não publica nada sozinho: depois de importar, revise o resumo abaixo e use o botão "Salvar alterações" normalmente.</p>
+
+        <input type="file" id="inputEstoquePuma" accept=".xlsx,.xls,.csv">
+        <div id="resultadoImportEstoque" style="margin-top:14px; font-size:13.5px; line-height:1.7;"></div>
+      </div>
+    </div>
+
+    <div id="secaoSemFoto" class="secao-marca">
+      <div class="painel">
+        <h2>🗂️ Sem foto</h2>
+        <p>Produtos que apareceram num relatório do Puma com saldo em estoque, mas que ainda não existiam no catálogo. Ficam guardados só aqui (nunca são publicados no site) até você colocar a foto, revisar o nome/código e clicar em "Mover para a aba" — só a partir daí eles entram no catálogo de verdade, na próxima publicação.</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin:12px 0;">
+          <button type="button" class="btn-secundaria" id="btnAtualizarPendentes">🔄 Atualizar lista (buscar do GitHub)</button>
+          <button type="button" class="btn-sucesso" id="btnSalvarPendentes">💾 Salvar lista "Sem foto"</button>
+        </div>
+        <div id="resultadoPendentes" style="font-size:13.5px; margin-bottom:10px;"></div>
+        <div id="listaPendentesSemFoto"></div>
+        <button type="button" class="btn-secundaria" id="btnAddPendenteManual">+ Adicionar manualmente</button>
+      </div>
+    </div>
+
     <div id="rodapeAcoes">
       <button class="btn-primaria" id="btnPublicar">🚀 Publicar automaticamente</button>
       <button class="btn-sucesso" id="btnSalvar">💾 Salvar alterações no catálogo</button>
@@ -643,9 +858,291 @@
   let landingMarcasAtual = []; // lista de nomes (strings) em edição, ver renderizarLandingMarcas()
 
   // abas[] — cada item: { id, nome, capa, capaPosicao, arquivoNovoCapa, previewUrlCapa,
-  //                        produtos: [{ nome, imagem, codigos:[{voltagem,codigo}], arquivoNovo, previewUrl }] }
+  //                        produtos: [{ nome, imagem, imagensExtras:[{arquivo,arquivoNovo,previewUrl}], codigos:[{voltagem,codigo}], arquivoNovo, previewUrl }] }
   let abas = [];
+
+  // pendentesSemFoto[] — produtos detectados no relatório do Puma que ainda não
+  // existiam no catálogo. NUNCA fazem parte de `abas`/do catalogo.html publicado
+  // — vivem só num arquivo à parte (pendentes-sem-foto.json) até você adicionar
+  // foto e mover pra uma aba de verdade. Mesmo formato de objeto de produto.
+  let pendentesSemFoto = [];
+
+  // "Produtos desativados" agora é só uma aba normal (id 'desativados') dentro
+  // de `abas`, criada sozinha na primeira vez que for usada (ver
+  // garantirAbaDesativados) e marcada como inativa — assim ela viaja junto com
+  // o resto do catálogo (rascunho, pasta, GitHub) em vez de depender de um
+  // arquivo à parte que precisava ser recarregado manualmente a cada sessão.
+
+  // ================= RASCUNHO LOCAL (memória automática do painel) =================
+  // Guarda uma cópia de TUDO (abas, produtos, "sem foto", "desativados", layout,
+  // landing...) no armazenamento local deste navegador, sozinho, a cada poucos
+  // segundos e sempre que algo importante muda — pra não perder nada se a aba
+  // fechar, recarregar ou cair sem querer antes de clicar em salvar/publicar.
+  // Isso NÃO substitui os botões de salvar/publicar (que são o que realmente
+  // atualiza os arquivos de verdade) — é só uma rede de segurança desta aba do
+  // navegador. Fotos NOVAS que ainda não foram enviadas (arquivo escolhido no
+  // computador mas não publicado/salvo ainda) não sobrevivem a um recarregamento
+  // — isso é uma limitação do navegador, não dá pra guardar o arquivo em si aqui.
+  //
+  // Guardado em DUAS chaves separadas, de propósito:
+  //  - RASCUNHO_CHAVE (catálogo): abas/produtos/layout/logos — muda toda hora
+  //    (a cada tecla digitada, praticamente), então essa é a parte que roda no
+  //    intervalo automático.
+  //  - RASCUNHO_CHAVE_SITE (textos dos arquivos do site): index.html, sw.js e
+  //    a landing inteiros como texto — são STRINGS GRANDES que só mudam em
+  //    poucos momentos específicos (abrir a pasta, trocar a landing, salvar/
+  //    publicar). Re-serializar isso junto com o catálogo a cada poucos
+  //    segundos era o principal motivo do painel travar durante o uso — agora
+  //    essa parte só é salva nesses momentos específicos, nunca no intervalo.
+  const RASCUNHO_CHAVE = 'sfixAdminRascunhoV1';
+  const RASCUNHO_CHAVE_SITE = 'sfixAdminRascunhoSiteV1';
+  let rascunhoAtivo = false;
+  let timeoutRascunho = null;
+  let intervaloRascunho = null;
+
+  // roda uma função sem travar a tela na hora: espera o navegador ficar
+  // ocioso (ou, no máximo, o tempo limite) pra então executar — assim o
+  // autosave não interrompe o que a pessoa está fazendo no momento exato
+  // em que o timer dispara.
+  function executarQuandoOcioso(fn, tempoLimiteMs) {
+    if (typeof requestIdleCallback === 'function') {
+      requestIdleCallback(fn, { timeout: tempoLimiteMs || 2000 });
+    } else {
+      setTimeout(fn, 0);
+    }
+  }
+
+  function limparProdutosParaRascunho(lista) {
+    return (lista || []).map(p => {
+      const copia = { ...p };
+      delete copia.arquivoNovo;
+      delete copia.previewUrl;
+      copia.imagensExtras = (p.imagensExtras || []).map(ex => {
+        const c = { ...ex };
+        delete c.arquivoNovo;
+        delete c.previewUrl;
+        return c;
+      });
+      return copia;
+    });
+  }
+
+  function coletarEstadoRascunhoCatalogo() {
+    return {
+      versao: 1,
+      salvoEm: new Date().toISOString(),
+      abaAtivaId, bodyClasseLayout,
+      layoutConfig,
+      logos: (logos || []).map(l => {
+        const copia = { ...l };
+        delete copia.arquivoNovo;
+        delete copia.previewUrl;
+        return copia;
+      }),
+      abas: (abas || []).map(a => {
+        const copia = { ...a };
+        delete copia.arquivoNovoCapa;
+        delete copia.previewUrlCapa;
+        copia.produtos = limparProdutosParaRascunho(a.produtos);
+        return copia;
+      }),
+      pendentesSemFoto: limparProdutosParaRascunho(pendentesSemFoto)
+    };
+  }
+
+  function coletarEstadoRascunhoSite() {
+    return { versao: 1, salvoEm: new Date().toISOString(), indexHtmlTexto, swJsTexto, landingHtmlTexto };
+  }
+
+  // parte "quente" (catálogo) — chamada pelo intervalo automático e pelo
+  // debounce de 600ms; roda em segundo plano (ocioso) pra não travar a tela
+  function salvarRascunhoLocal() {
+    if (!rascunhoAtivo) return;
+    executarQuandoOcioso(() => {
+      try {
+        localStorage.setItem(RASCUNHO_CHAVE, JSON.stringify(coletarEstadoRascunhoCatalogo()));
+      } catch (err) {
+        console.warn('[rascunho] não consegui salvar no navegador (talvez pouco espaço):', err);
+      }
+    });
+  }
+
+  // parte "fria" (textos do site) — chamada só nos momentos em que esses
+  // textos de fato mudam (ver comentário acima), nunca pelo intervalo
+  function salvarRascunhoSiteLocal() {
+    if (!rascunhoAtivo) return;
+    executarQuandoOcioso(() => {
+      try {
+        localStorage.setItem(RASCUNHO_CHAVE_SITE, JSON.stringify(coletarEstadoRascunhoSite()));
+      } catch (err) {
+        console.warn('[rascunho] não consegui salvar os textos do site (talvez pouco espaço):', err);
+      }
+    });
+  }
+
+  // chamado depois de qualquer mudança estrutural (aba, produto, desativar,
+  // reativar, mover pendente, importar estoque...); espera um instante pra não
+  // salvar dezenas de vezes seguidas em sequências rápidas de cliques
+  function agendarSalvarRascunho() {
+    if (!rascunhoAtivo) return;
+    clearTimeout(timeoutRascunho);
+    timeoutRascunho = setTimeout(salvarRascunhoLocal, 600);
+  }
+
+  function limparRascunhoLocal() {
+    localStorage.removeItem(RASCUNHO_CHAVE);
+    localStorage.removeItem(RASCUNHO_CHAVE_SITE);
+  }
+
+  function lerRascunhoLocal() {
+    try {
+      const bruto = localStorage.getItem(RASCUNHO_CHAVE);
+      if (!bruto) return null;
+      const dados = JSON.parse(bruto);
+      const brutoSite = localStorage.getItem(RASCUNHO_CHAVE_SITE);
+      if (brutoSite) {
+        try {
+          const dadosSite = JSON.parse(brutoSite);
+          dados.indexHtmlTexto = dadosSite.indexHtmlTexto || '';
+          dados.swJsTexto = dadosSite.swJsTexto || '';
+          dados.landingHtmlTexto = dadosSite.landingHtmlTexto || '';
+        } catch (err) { /* rascunho de textos do site corrompido — segue sem ele */ }
+      }
+      // dados.indexHtmlTexto etc já vêm preenchidos se for um rascunho antigo
+      // (de antes dessa separação em duas chaves) — nesse caso o bloco acima
+      // simplesmente não sobrescreve nada, e restaurarRascunho() usa o que já
+      // estava ali.
+      return dados;
+    } catch (err) {
+      return null;
+    }
+  }
+
+  function iniciarAutosaveRascunho() {
+    rascunhoAtivo = true;
+    salvarRascunhoLocal();
+    salvarRascunhoSiteLocal();
+    if (intervaloRascunho) clearInterval(intervaloRascunho);
+    // só a parte do catálogo roda no intervalo — cobre edições de texto
+    // (nome, descrição etc.) que não passam por agendarSalvarRascunho()
+    intervaloRascunho = setInterval(salvarRascunhoLocal, 12000);
+    window.addEventListener('beforeunload', () => { salvarRascunhoLocal(); salvarRascunhoSiteLocal(); });
+  }
+
+  function restaurarRascunho(dados) {
+    indexHtmlTexto = dados.indexHtmlTexto || '';
+    swJsTexto = dados.swJsTexto || '';
+    landingHtmlTexto = dados.landingHtmlTexto || '';
+    bodyClasseLayout = dados.bodyClasseLayout || '';
+    layoutConfig = { ...LAYOUT_PADRAO, ...(dados.layoutConfig || {}) };
+    logos = (dados.logos || []).map(l => ({ ...l, arquivoNovo: null, previewUrl: null }));
+    const limparProdutoRestaurado = p => ({
+      ...p,
+      arquivoNovo: null,
+      previewUrl: null,
+      imagensExtras: (p.imagensExtras || []).map(ex => ({ ...ex, arquivoNovo: null, previewUrl: null }))
+    });
+    abas = (dados.abas || []).map(a => ({
+      ...a,
+      arquivoNovoCapa: null,
+      previewUrlCapa: null,
+      produtos: (a.produtos || []).map(limparProdutoRestaurado)
+    }));
+    pendentesSemFoto = (dados.pendentesSemFoto || []).map(limparProdutoRestaurado);
+    // migração: rascunhos antigos guardavam "desativados" numa lista separada;
+    // agora isso é só uma aba normal marcada como inativa — se um rascunho
+    // antigo (de antes dessa mudança) ainda tiver essa lista, jogamos os
+    // produtos dela pra dentro da aba "Desativados" pra não perder nada.
+    if (Array.isArray(dados.produtosDesativados) && dados.produtosDesativados.length) {
+      const abaMigrada = garantirAbaDesativados();
+      dados.produtosDesativados.forEach(p => {
+        const copia = { ...p, arquivoNovo: null, previewUrl: null };
+        delete copia.origemAbaId;
+        delete copia.origemAbaNome;
+        delete copia.desativadoEm;
+        abaMigrada.produtos.push(copia);
+      });
+    }
+    abaAtivaId = (abas.some(a => a.id === dados.abaAtivaId)) ? dados.abaAtivaId : ((abas[0] && abas[0].id) || 'layout');
+    dirHandle = null;
+    landingHandle = null; // handles de arquivo do disco não sobrevivem ao recarregamento — modo automático de gravação direta precisa ser reaberto se for usado
+    if (landingHtmlTexto) carregarLandingDoTexto(landingHtmlTexto);
+    abrirEditor();
+  }
+
+  // ---------- aviso de produto duplicado (mesmo produto já cadastrado em outra aba) ----------
+  let timeoutAvisoDuplicado = null;
+
+  function normalizarTextoDuplicado(txt) {
+    return String(txt || '')
+      .toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim();
+  }
+
+  // Procura, em TODAS as abas (incluindo a atual), um produto com o mesmo nome
+  // (comparação sem acentos/maiúsculas) ou com o mesmo código já cadastrado.
+  // Retorna { nomeAba, mesmaAba } com a aba onde encontrou, ou null se não achou duplicidade.
+  function encontrarAbaComProdutoDuplicado(produtoAtual, abaAtual) {
+    const nomeAtual = normalizarTextoDuplicado(produtoAtual.nome);
+    const codigosAtuais = (produtoAtual.codigos || [])
+      .map(c => normalizarTextoDuplicado(c.codigo))
+      .filter(Boolean);
+
+    if (!nomeAtual && !codigosAtuais.length) return null;
+
+    for (const aba of abas) {
+      for (const p of aba.produtos) {
+        if (p === produtoAtual) continue;
+
+        let bate = false;
+        if (nomeAtual && normalizarTextoDuplicado(p.nome) === nomeAtual) bate = true;
+
+        if (!bate) {
+          const codigosDoOutro = (p.codigos || []).map(c => normalizarTextoDuplicado(c.codigo)).filter(Boolean);
+          if (codigosAtuais.some(cod => codigosDoOutro.includes(cod))) bate = true;
+        }
+
+        if (bate) {
+          return { nomeAba: aba.nome || '(sem nome)', mesmaAba: aba.id === abaAtual.id };
+        }
+      }
+    }
+    return null;
+  }
+
+  function mostrarAvisoDuplicado(nomeProduto, resultado) {
+    const caixa = document.getElementById('avisoDuplicado');
+    const texto = document.getElementById('avisoDuplicadoTexto');
+    const onde = resultado.mesmaAba
+      ? `nesta mesma aba (<strong>${escapeHtml(resultado.nomeAba)}</strong>)`
+      : `no catálogo <strong>${escapeHtml(resultado.nomeAba)}</strong>`;
+    texto.innerHTML = `⚠️ <strong>${escapeHtml(nomeProduto || 'Este produto')}</strong> já foi adicionado ${onde}.`;
+    caixa.classList.add('mostrar');
+    clearTimeout(timeoutAvisoDuplicado);
+    timeoutAvisoDuplicado = setTimeout(() => caixa.classList.remove('mostrar'), 7000);
+  }
+
+  function verificarDuplicidadeProduto(produtoAtual, abaAtual) {
+    const resultado = encontrarAbaComProdutoDuplicado(produtoAtual, abaAtual);
+    if (resultado) {
+      mostrarAvisoDuplicado(produtoAtual.nome, resultado);
+    }
+  }
+
+  // dispara a checagem ~600ms depois que a pessoa para de digitar, pra não
+  // verificar a cada letra digitada
+  let timeoutVerificacaoDuplicado = null;
+  function agendarVerificacaoDuplicado(produtoAtual, abaAtual) {
+    if (!abaAtual) return;
+    clearTimeout(timeoutVerificacaoDuplicado);
+    timeoutVerificacaoDuplicado = setTimeout(() => {
+      verificarDuplicidadeProduto(produtoAtual, abaAtual);
+    }, 600);
+  }
   let abaAtivaId = null; // 'layout' ou o id de uma aba
+  const mapaListaProdutosPorAba = {}; // aba.id -> elemento <div data-lista-produtos> (usado pela busca pra pular até o card)
 
   // layout do site: variáveis CSS + arquivo de imagem fixo (marca d'água)
   let layoutConfig = { ...LAYOUT_PADRAO };
@@ -664,6 +1161,43 @@
   let logos = [];
 
   // ---------- Passo 1: abrir pasta ou arquivo ----------
+
+  // checa se existe um rascunho salvo automaticamente de uma sessão anterior
+  // e, se sim, mostra o banner oferecendo continuar de onde parou (em vez de
+  // pedir pra selecionar a pasta/arquivos de novo)
+  (function verificarRascunhoAoAbrir() {
+    const dados = lerRascunhoLocal();
+    if (!dados) return;
+    const banner = document.getElementById('bannerRascunho');
+    const totalAbas = (dados.abas || []).length;
+    const totalPendentes = (dados.pendentesSemFoto || []).length;
+    const dataTxt = dados.salvoEm ? new Date(dados.salvoEm).toLocaleString('pt-BR') : '';
+    document.getElementById('textoBannerRascunho').innerHTML =
+      `Sua última edição neste navegador foi salva sozinha em <strong>${dataTxt}</strong> ` +
+      `(${totalAbas} aba(s)${totalPendentes ? `, ${totalPendentes} produto(s) em "Sem foto"` : ''}). ` +
+      `Se você recarregou a página ou fechou sem clicar em salvar, pode continuar exatamente de onde parou.` +
+      (dirHandleIndisponivelAviso());
+    banner.style.display = 'block';
+
+    document.getElementById('btnContinuarRascunho').addEventListener('click', () => {
+      restaurarRascunho(dados);
+    });
+    document.getElementById('btnDescartarRascunho').addEventListener('click', () => {
+      if (confirm('Descartar o rascunho salvo automaticamente? Essa ação não pode ser desfeita.')) {
+        limparRascunhoLocal();
+        banner.style.display = 'none';
+      }
+    });
+  })();
+
+  function dirHandleIndisponivelAviso() {
+    return ' (obs: se você usava o "modo automático" com a pasta selecionada direto, vai precisar selecioná-la de novo pra salvar direto nela — os dados do catálogo em si já vêm todos preenchidos.)';
+  }
+
+  document.getElementById('btnFecharAvisoDuplicado').addEventListener('click', () => {
+    document.getElementById('avisoDuplicado').classList.remove('mostrar');
+    clearTimeout(timeoutAvisoDuplicado);
+  });
 
   document.getElementById('btnModoManual').addEventListener('click', () => {
     modoManual = true;
@@ -762,7 +1296,15 @@
         aba.arquivoNovoCapa = null;
         aba.previewUrlCapa = null;
         aba.capaPosicao = aba.capaPosicao || 'center';
-        (aba.produtos || []).forEach(p => { p.arquivoNovo = null; p.previewUrl = null; });
+        aba.ativa = aba.ativa !== false;
+        aba.validade = aba.validade || '';
+        (aba.produtos || []).forEach(p => {
+          p.arquivoNovo = null; p.previewUrl = null; p.validade = p.validade || ''; p.imagemLegenda = p.imagemLegenda || '';
+          p.imagensExtras = (p.imagensExtras || []).map(ex => {
+            const obj = (typeof ex === 'string') ? { arquivo: ex, legenda: '' } : ex;
+            return { arquivo: obj.arquivo || '', legenda: obj.legenda || '', arquivoNovo: null, previewUrl: null };
+          });
+        });
       });
       return lista;
     } catch (err) {
@@ -1536,6 +2078,7 @@
     landingHtmlTexto = await file.text();
     landingHandle = null; // carregado manualmente durante a sessão: sem handle direto — vai para download/publicação
     carregarLandingDoTexto(landingHtmlTexto);
+    salvarRascunhoSiteLocal();
     if (!landingDisponivel) {
       alert('Não encontrei os marcadores esperados nesse arquivo. Verifique se é o index.html correto (gerado por esta versão do painel).');
     }
@@ -1701,7 +2244,41 @@
     return id;
   }
 
+  // garante que existe uma aba "🚫 Desativados" (criando ela, já marcada como
+  // inativa, na primeira vez que for necessária) e devolve ela — usada pelo
+  // botão "Desativar produto" e pela migração de rascunhos antigos
+  function garantirAbaDesativados() {
+    let existente = abas.find(a => a.id === 'desativados');
+    if (existente) return existente;
+    const aba = {
+      id: 'desativados',
+      nome: '🚫 Desativados',
+      capa: '',
+      capaPosicao: 'center',
+      ativa: false,
+      validade: '',
+      arquivoNovoCapa: null,
+      previewUrlCapa: null,
+      produtos: [],
+      criadoEm: new Date().toISOString()
+    };
+    abas.push(aba);
+    const container = document.getElementById('secoesAbas');
+    if (container) container.appendChild(construirSecaoAba(aba));
+    renderizarTabsAdmin();
+    return aba;
+  }
+
   // ---------- abas admin: renderização dos botões de aba + seções ----------
+
+  function rotuloAbaAdmin(aba) {
+    return (aba.nome || '(sem nome)') + (aba.ativa === false ? ' 🚫' : '');
+  }
+
+  function atualizarRotuloAbaAdmin(aba) {
+    const btn = document.querySelector('.tab-btn-admin[data-aba-id="' + aba.id + '"]');
+    if (btn) btn.textContent = rotuloAbaAdmin(aba);
+  }
 
   function renderizarTabsAdmin() {
     const tabsWrap = document.getElementById('tabsAdmin');
@@ -1709,8 +2286,9 @@
     abas.forEach(aba => {
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = 'tab-btn-admin' + (abaAtivaId === aba.id ? ' ativo' : '');
-      btn.textContent = aba.nome || '(sem nome)';
+      btn.className = 'tab-btn-admin' + (abaAtivaId === aba.id ? ' ativo' : '') + (aba.ativa === false ? ' tab-inativa' : '');
+      btn.title = aba.ativa === false ? 'Aba desativada — não aparece para os clientes' : '';
+      btn.textContent = rotuloAbaAdmin(aba);
       btn.dataset.abaId = aba.id;
       btn.addEventListener('click', () => {
         abaAtivaId = aba.id;
@@ -1740,6 +2318,42 @@
       renderizarSecoesVisiveis();
     });
     tabsWrap.appendChild(btnLanding);
+
+    const btnRelatorio = document.createElement('button');
+    btnRelatorio.type = 'button';
+    btnRelatorio.className = 'tab-btn-admin tab-layout' + (abaAtivaId === 'relatorio' ? ' ativo' : '');
+    btnRelatorio.textContent = '📄 RELATÓRIO PRODUTOS';
+    btnRelatorio.addEventListener('click', () => {
+      abaAtivaId = 'relatorio';
+      renderizarTabsAdmin();
+      renderizarSecoesVisiveis();
+      renderizarRelatorioForm();
+    });
+    tabsWrap.appendChild(btnRelatorio);
+
+    const btnEstoque = document.createElement('button');
+    btnEstoque.type = 'button';
+    btnEstoque.className = 'tab-btn-admin tab-layout' + (abaAtivaId === 'estoque' ? ' ativo' : '');
+    btnEstoque.textContent = '📦 ESTOQUE PUMA';
+    btnEstoque.addEventListener('click', () => {
+      abaAtivaId = 'estoque';
+      renderizarTabsAdmin();
+      renderizarSecoesVisiveis();
+    });
+    tabsWrap.appendChild(btnEstoque);
+
+    const btnSemFoto = document.createElement('button');
+    btnSemFoto.type = 'button';
+    btnSemFoto.className = 'tab-btn-admin tab-layout' + (abaAtivaId === 'semfoto' ? ' ativo' : '');
+    btnSemFoto.textContent = '🗂️ SEM FOTO' + (pendentesSemFoto.length ? ` (${pendentesSemFoto.length})` : '');
+    btnSemFoto.addEventListener('click', () => {
+      abaAtivaId = 'semfoto';
+      renderizarTabsAdmin();
+      renderizarSecoesVisiveis();
+    });
+    tabsWrap.appendChild(btnSemFoto);
+
+    agendarSalvarRascunho();
   }
 
   function renderizarSecoesVisiveis() {
@@ -1748,6 +2362,13 @@
       document.getElementById('secaoLayout').classList.add('ativo');
     } else if (abaAtivaId === 'landing') {
       document.getElementById('secaoLanding').classList.add('ativo');
+    } else if (abaAtivaId === 'relatorio') {
+      document.getElementById('secaoRelatorio').classList.add('ativo');
+    } else if (abaAtivaId === 'estoque') {
+      document.getElementById('secaoEstoque').classList.add('ativo');
+    } else if (abaAtivaId === 'semfoto') {
+      document.getElementById('secaoSemFoto').classList.add('ativo');
+      renderizarPendentes();
     } else {
       const el = document.getElementById('secao-aba-' + abaAtivaId);
       if (el) el.classList.add('ativo');
@@ -1777,6 +2398,19 @@
         </div>
         <button type="button" class="btn-perigo" data-remover-aba>🗑 Remover esta aba</button>
       </div>
+      <label style="display:flex; align-items:center; gap:8px; margin-top:12px; font-size:13.5px; font-weight:700; color:var(--azul-escuro); cursor:pointer;">
+        <input type="checkbox" data-campo-ativa ${aba.ativa !== false ? 'checked' : ''} style="width:16px; height:16px;">
+        Aba ativa (visível para os clientes)
+      </label>
+      <p data-aviso-inativa style="margin:6px 0 0; font-size:12px; color:#92620a; background:#fff4e5; padding:8px 10px; border-radius:6px; display:${aba.ativa === false ? 'block' : 'none'};">⚠️ Esta aba está desativada: continua aqui no painel com todos os produtos e fotos pra você editar, mas some do catálogo publicado — os clientes não vão vê-la, como se ela não existisse.</p>
+
+      ${aba.id === 'promocoes' ? `
+      <div style="margin-top:14px; padding-top:14px; border-top:1px dashed #e0e0e0;">
+        <label>Data de validade ABSOLUTA da aba (opcional)</label>
+        <p style="margin:2px 0 6px; font-size:12px; color:var(--cinza);">Vale para TODOS os produtos desta aba de uma vez. A partir do dia seguinte a essa data, todos os produtos somem do catálogo — exceto os que tiverem uma "Data de validade" própria preenchida no produto, que continuam usando a data individual deles no lugar desta.</p>
+        <input type="date" data-campo-validade-aba value="${escapeAttr(aba.validade || '')}" style="max-width:200px;">
+      </div>
+      ` : ''}
     `;
 
     const blocoCapa = document.createElement('div');
@@ -1809,8 +2443,7 @@
     // ---- eventos ----
     secao.querySelector('[data-campo-nome-aba]').addEventListener('input', e => {
       aba.nome = e.target.value;
-      const btn = document.querySelector('.tab-btn-admin[data-aba-id="' + aba.id + '"]');
-      if (btn) btn.textContent = aba.nome || '(sem nome)';
+      atualizarRotuloAbaAdmin(aba);
       const h2 = painelProdutos.querySelector('h2');
       h2.textContent = 'Produtos — ' + (aba.nome || '');
     });
@@ -1827,6 +2460,19 @@
         renderizarSecoesAbas();
       }
     });
+
+    secao.querySelector('[data-campo-ativa]').addEventListener('change', e => {
+      aba.ativa = e.target.checked;
+      secao.querySelector('[data-aviso-inativa]').style.display = aba.ativa ? 'none' : 'block';
+      atualizarRotuloAbaAdmin(aba);
+    });
+
+    const inputValidadeAba = secao.querySelector('[data-campo-validade-aba]');
+    if (inputValidadeAba) {
+      inputValidadeAba.addEventListener('change', e => {
+        aba.validade = e.target.value;
+      });
+    }
 
     const previewWrap = secao.querySelector('[data-preview-capa-wrap]');
     function atualizarPreviewCapa() {
@@ -1854,11 +2500,12 @@
     selectPos.addEventListener('change', e => { aba.capaPosicao = e.target.value; });
 
     const listaEl = painelProdutos.querySelector('[data-lista-produtos]');
-    renderizarProdutos(aba.produtos, listaEl);
+    mapaListaProdutosPorAba[aba.id] = listaEl;
+    renderizarProdutos(aba.produtos, listaEl, aba);
 
     painelProdutos.querySelector('[data-add-produto]').addEventListener('click', () => {
-      aba.produtos.push({ nome: '', imagem: '', descricao: '', codigos: [{ voltagem: '', codigo: '', multiplo: null }], arquivoNovo: null, previewUrl: null, criadoEm: new Date().toISOString() });
-      renderizarProdutos(aba.produtos, listaEl);
+      aba.produtos.push({ nome: '', imagem: '', imagemLegenda: '', imagensExtras: [], descricao: '', validade: '', codigos: [{ voltagem: '', codigo: '', multiplo: null }], arquivoNovo: null, previewUrl: null, criadoEm: new Date().toISOString() });
+      renderizarProdutos(aba.produtos, listaEl, aba);
     });
 
     return secao;
@@ -1874,6 +2521,8 @@
       nome: nomeFinal,
       capa: '',
       capaPosicao: 'center',
+      ativa: true,
+      validade: '',
       arquivoNovoCapa: null,
       previewUrlCapa: null,
       produtos: [],
@@ -1888,13 +2537,16 @@
   function abrirEditor() {
     document.getElementById('editorArea').style.display = 'block';
     document.getElementById('painelInicio').style.display = 'none';
+    document.getElementById('bannerRascunho').style.display = 'none';
     renderizarTabsAdmin();
     renderizarSecoesAbas();
     renderizarLayoutForm();
     renderizarLandingForm();
+    renderizarRelatorioForm();
     carregarConfigGithub();
     document.getElementById('btnIrParaFim').classList.add('mostrar');
     document.getElementById('btnIrParaTopo').classList.add('mostrar');
+    iniciarAutosaveRascunho();
   }
 
   document.getElementById('btnIrParaFim').addEventListener('click', () => {
@@ -1935,6 +2587,220 @@
     }
     return btoa(binario);
   }
+
+  // ================= pré-visualização da foto (antes de decidir cortar) =================
+  // Ao escolher uma foto, mostra ela num modal leve (só uma <img>, sem montar o
+  // quadro de corte) com as opções "Usar assim" ou "Cortar". A janela de corte
+  // (mais pesada, monta canvas/handles/pointer-events) só é aberta se a pessoa
+  // pedir — isso evita o travamento de abrir o editor de corte automaticamente
+  // toda vez que uma foto é escolhida.
+  const fotoPreview = { overlay: null, img: null, urlTemp: null, arquivo: null, callback: null };
+
+  function fotoPreviewIniciar() {
+    fotoPreview.overlay = document.getElementById('fotoPreviewOverlay');
+    fotoPreview.img = document.getElementById('fotoPreviewImg');
+    document.getElementById('fotoPreviewCancelar').addEventListener('click', fotoPreviewFechar);
+    document.getElementById('fotoPreviewUsar').addEventListener('click', () => {
+      const callback = fotoPreview.callback;
+      const arquivo = fotoPreview.arquivo;
+      fotoPreviewFechar();
+      if (callback) callback(arquivo);
+    });
+    document.getElementById('fotoPreviewCortar').addEventListener('click', () => {
+      const callback = fotoPreview.callback;
+      const arquivo = fotoPreview.arquivo;
+      fotoPreviewFechar();
+      editorFotoAbrir(arquivo, callback);
+    });
+  }
+
+  function fotoPreviewAbrir(file, callback) {
+    if (!fotoPreview.overlay) fotoPreviewIniciar();
+    fotoPreview.arquivo = file;
+    fotoPreview.callback = callback;
+    if (fotoPreview.urlTemp) URL.revokeObjectURL(fotoPreview.urlTemp);
+    fotoPreview.urlTemp = URL.createObjectURL(file);
+    fotoPreview.img.src = fotoPreview.urlTemp;
+    fotoPreview.overlay.classList.add('mostrar');
+  }
+
+  function fotoPreviewFechar() {
+    fotoPreview.overlay.classList.remove('mostrar');
+    fotoPreview.callback = null;
+    fotoPreview.arquivo = null;
+    if (fotoPreview.urlTemp) { URL.revokeObjectURL(fotoPreview.urlTemp); fotoPreview.urlTemp = null; }
+  }
+
+  // ================= editor de foto (cortar / reenquadrar) =================
+  // Abre um modal com a foto inteira visível e um quadro de corte que a pessoa
+  // arrasta/redimensiona pelos cantos pra escolher só a parte que quer usar
+  // (ex.: cortar fora o espaço em branco e deixar o produto centralizado).
+  // Ao confirmar, gera um novo arquivo já cortado e chama callback(arquivoEditado).
+  // Se cancelar, callback não é chamado.
+  const editorFoto = {
+    overlay: null, stage: null, img: null, cropBox: null,
+    natW: 0, natH: 0, escala: 1, dispW: 0, dispH: 0,
+    caixa: { x: 0, y: 0, w: 0, h: 0 },
+    arrastando: null, inicioPonteiro: { x: 0, y: 0 }, inicioCaixa: { x: 0, y: 0, w: 0, h: 0 },
+    TAM_MIN: 24,
+    nomeArquivoOriginal: '', tipoArquivoOriginal: '', callback: null, urlTemp: null
+  };
+
+  function editorFotoIniciar() {
+    editorFoto.overlay = document.getElementById('editorFotoOverlay');
+    editorFoto.stage = document.getElementById('editorFotoStage');
+    editorFoto.img = document.getElementById('editorFotoImg');
+    editorFoto.cropBox = document.getElementById('editorFotoCropBox');
+
+    function aplicarCaixa() {
+      editorFoto.cropBox.style.left = editorFoto.caixa.x + 'px';
+      editorFoto.cropBox.style.top = editorFoto.caixa.y + 'px';
+      editorFoto.cropBox.style.width = editorFoto.caixa.w + 'px';
+      editorFoto.cropBox.style.height = editorFoto.caixa.h + 'px';
+    }
+    editorFoto._aplicarCaixa = aplicarCaixa;
+
+    function clamp(v, min, max) { return Math.min(max, Math.max(min, v)); }
+
+    editorFoto.cropBox.addEventListener('pointerdown', e => {
+      const alvo = e.target.closest('.editor-foto-handle');
+      editorFoto.arrastando = alvo ? alvo.classList[1] : 'mover'; // nw/ne/sw/se ou 'mover'
+      editorFoto.inicioPonteiro = { x: e.clientX, y: e.clientY };
+      editorFoto.inicioCaixa = { ...editorFoto.caixa };
+      editorFoto.cropBox.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    });
+
+    editorFoto.cropBox.addEventListener('pointermove', e => {
+      if (!editorFoto.arrastando) return;
+      const dx = e.clientX - editorFoto.inicioPonteiro.x;
+      const dy = e.clientY - editorFoto.inicioPonteiro.y;
+      const ini = editorFoto.inicioCaixa;
+      const stageW = editorFoto.dispW, stageH = editorFoto.dispH;
+      const MIN = editorFoto.TAM_MIN;
+      let nova = { ...editorFoto.caixa };
+
+      if (editorFoto.arrastando === 'mover') {
+        nova.x = clamp(ini.x + dx, 0, stageW - ini.w);
+        nova.y = clamp(ini.y + dy, 0, stageH - ini.h);
+        nova.w = ini.w; nova.h = ini.h;
+      } else if (editorFoto.arrastando === 'nw') {
+        const direita = ini.x + ini.w, baixo = ini.y + ini.h;
+        nova.x = clamp(ini.x + dx, 0, direita - MIN);
+        nova.w = direita - nova.x;
+        nova.y = clamp(ini.y + dy, 0, baixo - MIN);
+        nova.h = baixo - nova.y;
+      } else if (editorFoto.arrastando === 'ne') {
+        const esquerda = ini.x, baixo = ini.y + ini.h;
+        const novaDireita = clamp(ini.x + ini.w + dx, esquerda + MIN, stageW);
+        nova.x = esquerda; nova.w = novaDireita - esquerda;
+        nova.y = clamp(ini.y + dy, 0, baixo - MIN);
+        nova.h = baixo - nova.y;
+      } else if (editorFoto.arrastando === 'sw') {
+        const direita = ini.x + ini.w, topo = ini.y;
+        nova.x = clamp(ini.x + dx, 0, direita - MIN);
+        nova.w = direita - nova.x;
+        const novoBaixo = clamp(ini.y + ini.h + dy, topo + MIN, stageH);
+        nova.y = topo; nova.h = novoBaixo - topo;
+      } else if (editorFoto.arrastando === 'se') {
+        nova.x = ini.x; nova.y = ini.y;
+        nova.w = clamp(ini.w + dx, MIN, stageW - ini.x);
+        nova.h = clamp(ini.h + dy, MIN, stageH - ini.y);
+      }
+
+      editorFoto.caixa = nova;
+      aplicarCaixa();
+    });
+
+    function pararArraste() { editorFoto.arrastando = null; }
+    editorFoto.cropBox.addEventListener('pointerup', pararArraste);
+    editorFoto.cropBox.addEventListener('pointercancel', pararArraste);
+
+    document.getElementById('editorFotoCancelar').addEventListener('click', editorFotoFechar);
+    document.getElementById('editorFotoUsar').addEventListener('click', editorFotoConfirmar);
+  }
+
+  function editorFotoAbrir(file, callback) {
+    if (!editorFoto.overlay) editorFotoIniciar();
+    editorFoto.callback = callback;
+    editorFoto.nomeArquivoOriginal = file.name;
+    editorFoto.tipoArquivoOriginal = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+    if (editorFoto.urlTemp) URL.revokeObjectURL(editorFoto.urlTemp);
+    editorFoto.urlTemp = URL.createObjectURL(file);
+
+    editorFoto.img.onload = () => {
+      editorFoto.natW = editorFoto.img.naturalWidth;
+      editorFoto.natH = editorFoto.img.naturalHeight;
+
+      const TAM_MAX = 320;
+      editorFoto.escala = Math.min(TAM_MAX / editorFoto.natW, TAM_MAX / editorFoto.natH);
+      editorFoto.dispW = Math.round(editorFoto.natW * editorFoto.escala);
+      editorFoto.dispH = Math.round(editorFoto.natH * editorFoto.escala);
+      editorFoto.stage.style.width = editorFoto.dispW + 'px';
+      editorFoto.stage.style.height = editorFoto.dispH + 'px';
+
+      // quadro de corte inicial: 90% da imagem, centralizado
+      const w = Math.round(editorFoto.dispW * 0.9);
+      const h = Math.round(editorFoto.dispH * 0.9);
+      editorFoto.caixa = {
+        x: Math.round((editorFoto.dispW - w) / 2),
+        y: Math.round((editorFoto.dispH - h) / 2),
+        w, h
+      };
+      editorFoto._aplicarCaixa();
+      editorFoto.overlay.classList.add('mostrar');
+    };
+    editorFoto.img.src = editorFoto.urlTemp;
+  }
+
+  function editorFotoFechar() {
+    editorFoto.overlay.classList.remove('mostrar');
+    editorFoto.callback = null;
+    if (editorFoto.urlTemp) { URL.revokeObjectURL(editorFoto.urlTemp); editorFoto.urlTemp = null; }
+  }
+
+  function editorFotoConfirmar() {
+    const TAM_MAX_SAIDA = 1000; // resolução máxima do lado maior do arquivo final
+
+    // converte o quadro de corte (em pixels exibidos) pra pixels da imagem original
+    let sourceX = editorFoto.caixa.x / editorFoto.escala;
+    let sourceY = editorFoto.caixa.y / editorFoto.escala;
+    let sourceW = editorFoto.caixa.w / editorFoto.escala;
+    let sourceH = editorFoto.caixa.h / editorFoto.escala;
+    sourceX = Math.min(Math.max(0, sourceX), editorFoto.natW - 1);
+    sourceY = Math.min(Math.max(0, sourceY), editorFoto.natH - 1);
+    sourceW = Math.min(sourceW, editorFoto.natW - sourceX);
+    sourceH = Math.min(sourceH, editorFoto.natH - sourceY);
+
+    let outW, outH;
+    if (sourceW >= sourceH) {
+      outW = Math.min(TAM_MAX_SAIDA, Math.round(sourceW));
+      outH = Math.round(outW * sourceH / sourceW);
+    } else {
+      outH = Math.min(TAM_MAX_SAIDA, Math.round(sourceH));
+      outW = Math.round(outH * sourceW / sourceH);
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = outW;
+    canvas.height = outH;
+    const ctx = canvas.getContext('2d');
+    if (editorFoto.tipoArquivoOriginal === 'image/jpeg') {
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, outW, outH);
+    }
+    ctx.drawImage(editorFoto.img, sourceX, sourceY, sourceW, sourceH, 0, 0, outW, outH);
+
+    const callback = editorFoto.callback;
+    const nomeOriginal = editorFoto.nomeArquivoOriginal;
+    canvas.toBlob(blob => {
+      if (!blob) { alert('Não consegui processar essa imagem. Tente outra foto.'); return; }
+      const arquivoEditado = new File([blob], nomeOriginal, { type: editorFoto.tipoArquivoOriginal });
+      editorFotoFechar();
+      if (callback) callback(arquivoEditado);
+    }, editorFoto.tipoArquivoOriginal, 0.9);
+  }
+
 
   async function publicarArquivoNoGithub({ token, repo, branch, caminho, conteudoBase64, mensagem }) {
     const apiUrl = `https://api.github.com/repos/${repo}/contents/${caminho}`;
@@ -2054,6 +2920,7 @@
       indexHtmlTexto = novoIndexHtml;
       swJsTexto = novoSwJs;
       if (landingDisponivel && novoLandingHtml) landingHtmlTexto = novoLandingHtml;
+      salvarRascunhoSiteLocal();
 
       resultado.innerHTML = `
         <p class="ok">✓ Publicado no GitHub!</p>
@@ -2078,7 +2945,114 @@
       .replace(/^-|-$/g, '');
   }
 
-  function renderizarProdutos(lista, containerEl) {
+  // ---------- relatório de produtos (.md) ----------
+
+  function renderizarRelatorioForm() {
+    const container = document.getElementById('relatorioAbaCheckboxes');
+    if (!container) return;
+    // guarda quais abas já estavam marcadas, pra não perder a seleção ao
+    // simplesmente trocar de aba no painel e voltar pra tela de relatório
+    const marcadasAntes = new Set(
+      [...container.querySelectorAll('input[type="checkbox"]')].filter(c => c.checked).map(c => c.value)
+    );
+    container.innerHTML = '';
+
+    abas.forEach(aba => {
+      const label = document.createElement('label');
+      label.style.cssText = 'display:flex; align-items:center; gap:8px; font-size:13.5px; cursor:pointer;';
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.value = aba.id;
+      checkbox.style.cssText = 'width:16px; height:16px;';
+      // na primeira vez (nada marcado ainda) começa tudo marcado; depois disso
+      // respeita o que o usuário escolheu
+      checkbox.checked = marcadasAntes.size ? marcadasAntes.has(aba.id) : true;
+      label.appendChild(checkbox);
+      label.append(`${aba.nome || '(sem nome)'} (${aba.produtos.length} produto${aba.produtos.length === 1 ? '' : 's'})`);
+      container.appendChild(label);
+    });
+
+    document.getElementById('relatorioResultado').innerHTML = '';
+  }
+
+  document.getElementById('btnRelatorioMarcarTodas').addEventListener('click', () => {
+    document.querySelectorAll('#relatorioAbaCheckboxes input[type="checkbox"]').forEach(c => c.checked = true);
+  });
+  document.getElementById('btnRelatorioDesmarcarTodas').addEventListener('click', () => {
+    document.querySelectorAll('#relatorioAbaCheckboxes input[type="checkbox"]').forEach(c => c.checked = false);
+  });
+
+  function construirMarkdownRelatorio(abasEscolhidas) {
+    const agora = new Date();
+    const dataFormatada = agora.toLocaleDateString('pt-BR') + ' ' + agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    const totalProdutos = abasEscolhidas.reduce((soma, a) => soma + a.produtos.length, 0);
+
+    const linhas = [];
+    linhas.push('# Relatório de Produtos — Catálogo S-Fix');
+    linhas.push('');
+    linhas.push(`Gerado em: ${dataFormatada}`);
+    linhas.push(`Abas incluídas: ${abasEscolhidas.map(a => a.nome || '(sem nome)').join(', ') || '-'}`);
+    linhas.push(`Total de produtos: ${totalProdutos}`);
+    linhas.push('');
+
+    abasEscolhidas.forEach(aba => {
+      const nomeAba = (aba.nome || '(sem nome)').toUpperCase();
+      linhas.push(`${nomeAba} (${aba.produtos.length} PRODUTO${aba.produtos.length === 1 ? '' : 'S'}):`);
+      linhas.push('');
+
+      if (!aba.produtos.length) {
+        linhas.push('(Nenhum produto cadastrado nesta aba.)');
+        linhas.push('');
+        return;
+      }
+
+      const produtosOrdenados = [...aba.produtos].sort((a, b) =>
+        (a.nome || '').localeCompare(b.nome || '', 'pt-BR', { sensitivity: 'base' })
+      );
+
+      produtosOrdenados.forEach(p => {
+        linhas.push(`${p.nome || '(sem nome)'}:`);
+        const codigos = (p.codigos && p.codigos.length) ? p.codigos : [{ voltagem: '', codigo: '' }];
+        codigos.forEach(c => {
+          const codigoTxt = (c.codigo && String(c.codigo).trim()) ? String(c.codigo).trim() : '-';
+          const voltagemTxt = (c.voltagem && String(c.voltagem).trim()) ? String(c.voltagem).trim() : '-';
+          linhas.push(`Código: ${codigoTxt}`);
+          linhas.push(`Voltagem: ${voltagemTxt}`);
+        });
+        linhas.push('');
+      });
+    });
+
+    return linhas.join('\n');
+  }
+
+  document.getElementById('btnGerarRelatorio').addEventListener('click', () => {
+    const resultadoEl = document.getElementById('relatorioResultado');
+    if (!abas.length) {
+      alert('Não há abas cadastradas ainda.');
+      return;
+    }
+    const idsEscolhidos = [...document.querySelectorAll('#relatorioAbaCheckboxes input[type="checkbox"]:checked')].map(c => c.value);
+    if (!idsEscolhidos.length) {
+      alert('Marque pelo menos uma aba.');
+      return;
+    }
+    const abasEscolhidas = abas.filter(a => idsEscolhidos.includes(a.id));
+
+    const md = construirMarkdownRelatorio(abasEscolhidas);
+    const blob = new Blob([md], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const nomeArquivo = abasEscolhidas.length === abas.length
+      ? 'relatorio-produtos-todas-abas.md'
+      : `relatorio-produtos-${abasEscolhidas.map(a => sanitizarNomeArquivo(a.nome || a.id)).join('-')}.md`;
+
+    resultadoEl.innerHTML = `
+      <p class="ok">✓ Relatório gerado!</p>
+      <a class="download-link" href="${url}" download="${nomeArquivo}">⬇ Baixar ${nomeArquivo}</a>
+    `;
+  });
+
+  function renderizarProdutos(lista, containerEl, aba, aoTrocarFoto) {
     containerEl.innerHTML = '';
 
     lista.forEach((p, i) => {
@@ -2101,7 +3075,20 @@
               <label>Foto do produto ${p.imagem ? '(já tem uma — escolha só se quiser trocar)' : ''}</label>
               <input type="file" accept="image/*" data-campo="foto">
             </div>
+            <div>
+              <label>Legenda desta foto (opcional)</label>
+              <p style="margin:2px 0 6px; font-size:12px; color:var(--cinza);">Aparece escrita em cima da foto no catálogo — útil pra dizer a qual dos códigos abaixo ela se refere (ex: "Sem Válvula").</p>
+              <input type="text" data-campo="imagemLegenda" maxlength="40" placeholder="ex: Sem Válvula" value="${escapeAttr(p.imagemLegenda || '')}">
+            </div>
           </div>
+        </div>
+
+        <div class="fotos-extra">
+          <label>Fotos extras (variações do mesmo produto)</label>
+          <p class="dica">Use quando o produto tem mais de um modelo — ex: máscara PFF2 com válvula e sem válvula. Todas aparecem juntas no card do produto no catálogo. Cada foto pode ter uma legenda curta pra dizer a qual código ela se refere.</p>
+          <div class="fotos-extra-lista" data-fotos-extra-lista></div>
+          <input type="file" accept="image/*" data-input-foto-extra style="display:none;">
+          <button type="button" class="btn-secundaria icone" data-add-foto-extra>+ Adicionar outra foto</button>
         </div>
 
         <div style="margin-top:12px;">
@@ -2110,30 +3097,118 @@
           <textarea data-campo="descricao" rows="3" style="width:100%; font-family:inherit; font-size:13.5px; padding:8px 10px; border:1px solid #d1d5db; border-radius:8px; resize:vertical;">${escapeHtml(p.descricao || '')}</textarea>
         </div>
 
+        <div style="margin-top:12px;">
+          <label>Data de validade individual deste produto (opcional)</label>
+          <p style="margin:2px 0 6px; font-size:12px; color:var(--cinza);">${aba && aba.id === 'promocoes'
+            ? 'Se preencher, vale só pra este produto e manda mais que a "Data de validade geral da aba" configurada acima. Se deixar em branco, este produto segue a data geral da aba (se houver uma).'
+            : 'Se preencher, este produto some sozinho do catálogo a partir do dia seguinte a essa data — não precisa gerar/publicar de novo depois, a checagem acontece sozinha quando o cliente abre o catálogo. Deixe em branco para nunca expirar.'}</p>
+          <input type="date" data-campo="validade" value="${escapeAttr(p.validade || '')}" style="max-width:200px;">
+        </div>
+
         <div class="codigos-lista" data-codigos></div>
         <button type="button" class="btn-secundaria icone" data-add-codigo>+ Adicionar código/voltagem</button>
 
         <div class="produto-acoes">
           <button type="button" class="btn-secundaria icone" data-mover="-1" ${i === 0 ? 'disabled' : ''}>↑ Subir</button>
           <button type="button" class="btn-secundaria icone" data-mover="1" ${i === lista.length - 1 ? 'disabled' : ''}>↓ Descer</button>
+          ${aba ? `
+          <select data-select-mover-aba style="padding:7px 8px; border:1px solid #d1d5db; border-radius:6px; font-size:13px;">
+            <option value="">Mover para aba…</option>
+            ${abas.filter(a => a.id !== aba.id).map(a => `<option value="${a.id}">${escapeHtml(a.nome || '(sem nome)')}</option>`).join('')}
+          </select>
+          <button type="button" class="btn-secundaria icone" data-mover-aba>↪ Mover</button>
+          <button type="button" class="btn-secundaria icone" data-desativar-produto>🚫 Desativar produto</button>` : ''}
           <button type="button" class="btn-perigo icone" data-remover-produto>🗑 Remover produto</button>
         </div>
       `;
 
       card.querySelector('[data-campo="nome"]').addEventListener('input', e => {
         p.nome = e.target.value;
+        agendarVerificacaoDuplicado(p, aba);
+      });
+      card.querySelector('[data-campo="nome"]').addEventListener('blur', () => {
+        if (aba) verificarDuplicidadeProduto(p, aba);
       });
 
       card.querySelector('[data-campo="descricao"]').addEventListener('input', e => {
         p.descricao = e.target.value;
       });
 
+      card.querySelector('[data-campo="imagemLegenda"]').addEventListener('input', e => {
+        p.imagemLegenda = e.target.value;
+      });
+
+      card.querySelector('[data-campo="validade"]').addEventListener('change', e => {
+        p.validade = e.target.value;
+      });
+
+      // reconstrói a lista de novo depois de qualquer ação que remova/mova um
+      // item — usa o "aoTrocarFoto" quando fornecido (telas como "Sem foto"
+      // que têm um botão extra montado por fora desta função e precisam dele
+      // de volta depois de reconstruir), senão redesenha do jeito padrão
+      function rerenderizar() {
+        if (aoTrocarFoto) aoTrocarFoto();
+        else renderizarProdutos(lista, containerEl, aba);
+      }
+
       card.querySelector('[data-campo="foto"]').addEventListener('change', e => {
         const file = e.target.files[0];
         if (!file) return;
-        p.arquivoNovo = file;
-        p.previewUrl = URL.createObjectURL(file);
-        renderizarProdutos(lista, containerEl);
+        fotoPreviewAbrir(file, arquivoEditado => {
+          p.arquivoNovo = arquivoEditado;
+          p.previewUrl = URL.createObjectURL(arquivoEditado);
+          rerenderizar();
+        });
+        e.target.value = ''; // permite escolher o mesmo arquivo de novo depois
+      });
+
+      // ---- fotos extras (variações do mesmo produto, ex: com/sem válvula) ----
+      if (!p.imagensExtras) p.imagensExtras = [];
+      const fotosExtraLista = card.querySelector('[data-fotos-extra-lista]');
+      const inputFotoExtra = card.querySelector('[data-input-foto-extra]');
+
+      function renderFotosExtras() {
+        fotosExtraLista.innerHTML = '';
+        p.imagensExtras.forEach((extra, k) => {
+          const src = extra.previewUrl || extra.arquivo;
+          if (!src) return;
+          const item = document.createElement('div');
+          item.className = 'fotos-extra-item';
+          item.innerHTML = `
+            <div class="fotos-extra-thumb">
+              <img src="${src}">
+              <button type="button" title="Remover esta foto">✕</button>
+            </div>
+            <input type="text" class="legenda-foto-extra" maxlength="40" placeholder="legenda (ex: Com Válvula)" value="${escapeAttr(extra.legenda || '')}">
+          `;
+          item.querySelector('.legenda-foto-extra').addEventListener('input', e => {
+            extra.legenda = e.target.value;
+          });
+          item.querySelector('button').addEventListener('click', () => {
+            p.imagensExtras.splice(k, 1);
+            renderFotosExtras();
+            agendarSalvarRascunho();
+          });
+          fotosExtraLista.appendChild(item);
+        });
+      }
+      renderFotosExtras();
+
+      card.querySelector('[data-add-foto-extra]').addEventListener('click', () => inputFotoExtra.click());
+      inputFotoExtra.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        fotoPreviewAbrir(file, arquivoEditado => {
+          p.imagensExtras.push({
+            arquivo: '',
+            legenda: '',
+            arquivoNovo: arquivoEditado,
+            previewUrl: URL.createObjectURL(arquivoEditado)
+          });
+          renderFotosExtras();
+          agendarSalvarRascunho();
+        });
+        e.target.value = ''; // permite escolher o mesmo arquivo de novo depois
       });
 
       const codigosWrap = card.querySelector('[data-codigos]');
@@ -2150,7 +3225,13 @@
           `;
           const [voltInput, codInput, multiploInput, delBtn] = row.querySelectorAll('input, button');
           voltInput.addEventListener('input', e => c.voltagem = e.target.value);
-          codInput.addEventListener('input', e => c.codigo = e.target.value);
+          codInput.addEventListener('input', e => {
+            c.codigo = e.target.value;
+            agendarVerificacaoDuplicado(p, aba);
+          });
+          codInput.addEventListener('blur', () => {
+            if (aba) verificarDuplicidadeProduto(p, aba);
+          });
           multiploInput.addEventListener('input', e => {
             const val = parseInt(e.target.value, 10);
             c.multiplo = (val && val > 1) ? val : null;
@@ -2189,22 +3270,148 @@
       card.querySelector('[data-remover-produto]').addEventListener('click', () => {
         if (confirm(`Remover "${p.nome}" do catálogo?`)) {
           lista.splice(i, 1);
-          renderizarProdutos(lista, containerEl);
+          rerenderizar();
         }
       });
 
+      // move o produto desta lista pra dentro de outra aba já existente,
+      // atualizando a tela de origem e (se já estiver montada) a de destino também
+      function moverProdutoParaAba(abaDestino) {
+        lista.splice(i, 1);
+        abaDestino.produtos.push(p);
+        rerenderizar();
+        renderizarTabsAdmin();
+        const listaDestinoEl = mapaListaProdutosPorAba[abaDestino.id];
+        if (listaDestinoEl) renderizarProdutos(abaDestino.produtos, listaDestinoEl, abaDestino);
+      }
+
+      const btnMoverAba = card.querySelector('[data-mover-aba]');
+      if (btnMoverAba) {
+        btnMoverAba.addEventListener('click', () => {
+          const select = card.querySelector('[data-select-mover-aba]');
+          const destId = select.value;
+          if (!destId) { alert('Escolha pra qual aba mover primeiro.'); return; }
+          const abaDestino = abas.find(a => a.id === destId);
+          if (!abaDestino) return;
+          moverProdutoParaAba(abaDestino);
+        });
+      }
+
+      const btnDesativar = card.querySelector('[data-desativar-produto]');
+      if (btnDesativar) {
+        btnDesativar.addEventListener('click', () => {
+          if (confirm(`Desativar "${p.nome || '(sem nome)'}"? Ele vai pra aba "🚫 Desativados" (que fica marcada como inativa) — some do catálogo publicado, mas continua aqui no painel pra você reativar quando quiser, movendo ele de volta pra outra aba.`)) {
+            moverProdutoParaAba(garantirAbaDesativados());
+          }
+        });
+      }
+
       card.querySelector('[data-mover="-1"]').addEventListener('click', () => {
         [lista[i - 1], lista[i]] = [lista[i], lista[i - 1]];
-        renderizarProdutos(lista, containerEl);
+        rerenderizar();
       });
       card.querySelector('[data-mover="1"]').addEventListener('click', () => {
         [lista[i + 1], lista[i]] = [lista[i], lista[i + 1]];
-        renderizarProdutos(lista, containerEl);
+        rerenderizar();
       });
 
       containerEl.appendChild(card);
     });
   }
+
+  // ---------- busca de produtos (por nome, voltagem e código) ----------
+
+  function normalizarBusca(s) {
+    return (s || '').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+  }
+
+  function buscarProdutos(termo) {
+    const alvo = normalizarBusca(termo);
+    if (!alvo) return [];
+    const resultados = [];
+    abas.forEach(aba => {
+      (aba.produtos || []).forEach(p => {
+        const nomeBate = normalizarBusca(p.nome).includes(alvo);
+        const codigosBatem = (p.codigos || []).filter(c =>
+          normalizarBusca(c.codigo).includes(alvo) || normalizarBusca(c.voltagem).includes(alvo)
+        );
+        if (nomeBate || codigosBatem.length) {
+          resultados.push({ aba, produto: p, codigosBatem });
+        }
+      });
+    });
+    return resultados;
+  }
+
+  function irParaProduto(aba, produto) {
+    abaAtivaId = aba.id;
+    renderizarTabsAdmin();
+    renderizarSecoesVisiveis();
+    requestAnimationFrame(() => {
+      const listaEl = mapaListaProdutosPorAba[aba.id];
+      if (!listaEl) return;
+      const idx = aba.produtos.indexOf(produto);
+      const card = listaEl.children[idx];
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        card.classList.add('produto-destacado');
+        setTimeout(() => card.classList.remove('produto-destacado'), 2000);
+      }
+    });
+  }
+
+  function renderizarResultadosBusca() {
+    const termo = document.getElementById('inputBuscaProduto').value;
+    const wrap = document.getElementById('resultadosBusca');
+    const contagem = document.getElementById('buscaContagem');
+
+    if (!normalizarBusca(termo)) {
+      wrap.style.display = 'none';
+      wrap.innerHTML = '';
+      contagem.textContent = '';
+      return;
+    }
+
+    const resultados = buscarProdutos(termo);
+    wrap.style.display = 'flex';
+
+    if (!resultados.length) {
+      contagem.textContent = '';
+      wrap.innerHTML = '<p style="font-size:13.5px; color:var(--cinza); margin:0;">Nenhum produto encontrado com esse nome, código ou voltagem.</p>';
+      return;
+    }
+
+    contagem.textContent = resultados.length === 1 ? '1 produto encontrado' : `${resultados.length} produtos encontrados`;
+    wrap.innerHTML = '';
+    resultados.forEach(r => {
+      const codigosTexto = (r.produto.codigos || [])
+        .map(c => [c.voltagem, c.codigo].filter(Boolean).join(' · '))
+        .filter(Boolean).join('  |  ') || 'sem código cadastrado';
+
+      const item = document.createElement('div');
+      item.className = 'resultado-busca-item';
+      item.innerHTML = `
+        <div class="resultado-busca-info">
+          <strong>${escapeHtml(r.produto.nome || '(sem nome)')}</strong>
+          <span class="resultado-busca-aba">${escapeHtml(r.aba.nome || '')}</span>
+          <div class="resultado-busca-codigos">${escapeHtml(codigosTexto)}</div>
+        </div>
+        <button type="button" class="btn-secundaria icone" data-ir-produto>Ver produto →</button>
+      `;
+      item.querySelector('[data-ir-produto]').addEventListener('click', () => irParaProduto(r.aba, r.produto));
+      wrap.appendChild(item);
+    });
+  }
+
+  let timeoutBuscaProduto = null;
+  document.getElementById('inputBuscaProduto').addEventListener('input', () => {
+    clearTimeout(timeoutBuscaProduto);
+    timeoutBuscaProduto = setTimeout(renderizarResultadosBusca, 200);
+  });
+  document.getElementById('btnLimparBusca').addEventListener('click', () => {
+    document.getElementById('inputBuscaProduto').value = '';
+    renderizarResultadosBusca();
+  });
 
   function escapeAttr(s) {
     return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
@@ -2223,13 +3430,17 @@
       linhas.push('      {');
       linhas.push(`        nome: ${JSON.stringify(p.nome || '')},`);
       linhas.push(`        imagem: ${JSON.stringify(p.imagem || '')},`);
+      linhas.push(`        imagemLegenda: ${JSON.stringify(p.imagemLegenda || '')},`);
+      linhas.push(`        imagensExtras: ${JSON.stringify((p.imagensExtras || []).filter(ex => ex.arquivo).map(ex => ({ arquivo: ex.arquivo, legenda: ex.legenda || '' })))},`);
       linhas.push(`        descricao: ${JSON.stringify(p.descricao || '')},`);
+      linhas.push(`        validade: ${JSON.stringify(p.validade || '')},`);
       linhas.push(`        criadoEm: ${JSON.stringify(p.criadoEm || '')},`);
       linhas.push('        codigos: [');
       p.codigos.forEach((c, j) => {
         const virgula = j < p.codigos.length - 1 ? ',' : '';
         const multiploTxt = (c.multiplo && c.multiplo > 1) ? `, multiplo: ${JSON.stringify(parseInt(c.multiplo, 10))}` : '';
-        linhas.push(`          { voltagem: ${JSON.stringify(c.voltagem || '')}, codigo: ${JSON.stringify(c.codigo || '')}${multiploTxt} }${virgula}`);
+        const estoqueTxt = (c.emEstoque !== undefined) ? `, emEstoque: ${JSON.stringify(!!c.emEstoque)}` : '';
+        linhas.push(`          { voltagem: ${JSON.stringify(c.voltagem || '')}, codigo: ${JSON.stringify(c.codigo || '')}${multiploTxt}${estoqueTxt} }${virgula}`);
       });
       linhas.push('        ]');
       linhas.push(`      }${i < lista.length - 1 ? ',' : ''}`);
@@ -2246,6 +3457,8 @@
       linhas.push(`    nome: ${JSON.stringify(aba.nome || '')},`);
       linhas.push(`    capa: ${JSON.stringify(aba.capaFinal || '')},`);
       linhas.push(`    capaPosicao: ${JSON.stringify(aba.capaPosicao || 'center')},`);
+      linhas.push(`    ativa: ${aba.ativa !== false},`);
+      linhas.push(`    validade: ${JSON.stringify(aba.validade || '')},`);
       linhas.push(`    criadoEm: ${JSON.stringify(aba.criadoEm || '')},`);
       linhas.push('    produtos:');
       linhas.push(serializarProdutos(aba.produtos));
@@ -2261,6 +3474,7 @@
     const shellFiles = FIXED_SHELL
       .concat(capasFinais.filter(Boolean).map(p => './' + p))
       .concat(todosProdutos.map(p => './' + p.imagem))
+      .concat(todosProdutos.flatMap(p => (p.imagensExtras || []).map(ex => ex && ex.arquivo).filter(Boolean).map(cam => './' + cam)))
       .concat((logosFinais || []).filter(Boolean).map(p => './' + p))
       .concat(temIconeCustom ? ['./assets/info-icone.png'] : [])
       .concat(temIconeFavoritoCustom ? ['./assets/favorito-icone.png'] : []);
@@ -2414,6 +3628,12 @@ self.addEventListener('fetch', event => {
           const nomeArq = sanitizarNomeArquivo(p.arquivoNovo.name);
           p.imagem = 'assets/produtos/' + nomeArq;
         }
+        (p.imagensExtras || []).forEach(extra => {
+          if (extra.arquivoNovo) {
+            const nomeArqExtra = sanitizarNomeArquivo(extra.arquivoNovo.name);
+            extra.arquivo = 'assets/produtos/' + nomeArqExtra;
+          }
+        });
       });
     });
 
@@ -2473,7 +3693,14 @@ self.addEventListener('fetch', event => {
     const resultadoSw = gerarNovoSwJs(swJsTexto, todosProdutos, capasFinais, logosFinais);
     const novoSwJs = resultadoSw.codigo;
 
-    const fotosNovas = todosProdutos.filter(p => p.arquivoNovo);
+    const fotosNovas = todosProdutos.flatMap(p => {
+      const lista = [];
+      if (p.arquivoNovo) lista.push({ nome: p.nome, arquivoNovo: p.arquivoNovo });
+      (p.imagensExtras || []).forEach((extra, k) => {
+        if (extra.arquivoNovo) lista.push({ nome: `${p.nome} (foto extra ${k + 1})`, arquivoNovo: extra.arquivoNovo });
+      });
+      return lista;
+    });
     const capasNovas = abas
       .filter(a => a.arquivoNovoCapa)
       .map(a => ({ label: 'Capa ' + a.nome, arquivo: a.arquivoNovoCapa, nomeArq: sanitizarNomeArquivo(a.arquivoNovoCapa.name) }));
@@ -2491,6 +3718,77 @@ self.addEventListener('fetch', event => {
     const { novoLandingHtml, landingArquivosNovos } = montarLandingFinal();
 
     return { novoIndexHtml, novoSwJs, fotosNovas, capasNovas, layoutArquivosNovos, novoLandingHtml, landingArquivosNovos, perderiaConteudoExistente: resultadoSw.perderiaConteudoExistente };
+  }
+
+  // Gera o pacote ZIP (catalogo.html + assets + sw.js) pra download manual.
+  // Usado tanto no "modo manual" normal quanto como rede de segurança quando
+  // o salvamento automático na pasta falha no meio do caminho — assim nada
+  // do que foi editado se perde, mesmo se o navegador não reconhecer mais a
+  // pasta.
+  async function gerarPacoteZipParaDownload(dados, avisoExtraHtml) {
+    const { novoIndexHtml, novoSwJs, fotosNovas, capasNovas, layoutArquivosNovos, novoLandingHtml, landingArquivosNovos } = dados;
+    const resultado = document.getElementById('resultado');
+    resultado.innerHTML = `<p>Gerando o pacote atualizado…</p>`;
+
+    try {
+      if (typeof JSZip === 'undefined') throw new Error('Biblioteca de ZIP não carregou (sem internet?).');
+
+      const zip = new JSZip();
+      zip.file('catalogo.html', novoIndexHtml);
+      fotosNovas.forEach(p => {
+        const nomeArq = sanitizarNomeArquivo(p.arquivoNovo.name);
+        zip.file('assets/produtos/' + nomeArq, p.arquivoNovo);
+      });
+      capasNovas.forEach(c => {
+        zip.file('assets/' + c.nomeArq, c.arquivo);
+      });
+      layoutArquivosNovos.forEach(item => {
+        zip.file('assets/' + item.nomeArq, item.arquivo);
+      });
+
+      let temLanding = false;
+      if (landingDisponivel && novoLandingHtml) {
+        temLanding = true;
+        zip.file('index.html', novoLandingHtml);
+        landingArquivosNovos.forEach(item => {
+          zip.file('assets/' + item.nomeArq, item.arquivo);
+        });
+      }
+
+      const blobZip = await zip.generateAsync({ type: 'blob' });
+      const urlZip = URL.createObjectURL(blobZip);
+
+      const blobSw = new Blob([novoSwJs], { type: 'text/javascript' });
+      const urlSw = URL.createObjectURL(blobSw);
+
+      const listaFotos = fotosNovas.map(p => `<li>${escapeAttr(p.nome)}</li>`).join('');
+      const listaCapas = capasNovas.map(c => `<li>${escapeAttr(c.label)}</li>`).join('');
+      const listaLayout = layoutArquivosNovos.map(item => `<li>${escapeAttr(item.label)}</li>`).join('');
+      const listaLanding = temLanding ? landingArquivosNovos.map(item => `<li>${escapeAttr(item.label)}</li>`).join('') : '';
+
+      const avisoSemPasta = avisoExtraHtml || ((!modoManual && temFileSystemAccess && !dirHandle)
+        ? `<p style="background:#fff4e5; border:1px solid #f0c36d; border-radius:8px; padding:10px 12px; margin-bottom:10px;">
+             <strong>⚠️ Isso caiu no modo manual (ZIP) porque a pasta não está mais "aberta" nesta sessão</strong> — a conexão direta com a pasta some sempre que a página é recarregada ou reaberta (é uma limitação do navegador, não um bug: ele não guarda esse acesso entre sessões).
+             Pra voltar a salvar direto na pasta sem baixar nada, clique em <strong>"📂 Abrir pasta do catálogo"</strong> no topo da página e selecione a pasta de novo antes de salvar — ou, mais prático, use o botão <strong>"🚀 Publicar automaticamente"</strong>, que publica direto no GitHub (e no site) sem depender de pasta nenhuma.
+           </p>`
+        : '');
+      resultado.innerHTML = `
+        ${avisoSemPasta}
+        <p class="ok">✓ Arquivos prontos!</p>
+        <a class="download-link" href="${urlZip}" download="catalogo-atualizado.zip">⬇ Baixar catalogo-atualizado.zip</a>
+        <a class="download-link" href="${urlSw}" download="sw.js">⬇ Baixar sw.js</a>
+        ${(fotosNovas.length || capasNovas.length || layoutArquivosNovos.length || listaLanding) ? `
+          <div class="lista-arquivos">
+            <strong>Fotos incluídas no ZIP (já com o nome certo, na pasta certa):</strong>
+            <ul>${listaCapas}${listaFotos}${listaLayout}${listaLanding}</ul>
+          </div>` : ''}
+        <p style="margin-top:12px;"><strong>Como usar:</strong> baixe os dois arquivos. Extraia (descompacte) o ZIP — ele contém o <code>catalogo.html</code>${temLanding ? ', o <code>index.html</code> (landing)' : ''} e a pasta <code>assets</code>. Depois arraste esses arquivos, a pasta <code>assets</code> extraída e o <code>sw.js</code> baixado separadamente para dentro da pasta <code>catalogo-pwa</code> do seu computador, substituindo os arquivos quando perguntar. Por fim, suba a pasta atualizada de novo na hospedagem (Netlify/Vercel).${!temLanding ? ' (A landing/index.html não foi alterada porque não foi carregada nesta sessão — use a aba "LANDING DO SITE" e, se precisar, o campo pra carregar o index.html manualmente.)' : ''}</p>
+      `;
+      return true;
+    } catch (err) {
+      resultado.innerHTML = `<p style="color:#c81e2c">Erro ao gerar o pacote: ${err.message}</p><p>Tente novamente com internet ligada (o gerador de ZIP precisa carregar uma vez), ou use o modo automático (Chrome/Edge) descrito no início da página.</p>`;
+      return false;
+    }
   }
 
   document.getElementById('btnSalvar').addEventListener('click', async () => {
@@ -2563,71 +3861,463 @@ self.addEventListener('fetch', event => {
         } else if (!landingDisponivel) {
           avisoLanding = ' A landing (index.html) não foi carregada nesta sessão, então não foi alterada — use a aba "LANDING DO SITE" se quiser editá-la também.';
         }
+        salvarRascunhoSiteLocal();
 
         resultado.innerHTML = `
           <p class="ok">✓ Catálogo salvo direto na pasta!</p>
           <p><strong>Importante:</strong> isso salvou os arquivos só no seu computador. Para as mudanças aparecerem no site publicado, é preciso subir a pasta de novo na hospedagem (Netlify) — arraste a pasta atualizada de novo, ou sincronize, se seu provedor fizer isso sozinho.${avisoLanding}</p>
         `;
       } catch (err) {
-        resultado.innerHTML = `<p style="color:#c81e2c">Erro ao salvar: ${err.message}</p>`;
+        // O salvamento direto na pasta falhou no meio do caminho (ex: a pasta
+        // foi movida/renomeada e o navegador perdeu a referência a ela).
+        // Em vez de só mostrar o erro e deixar o trabalho perdido, cai
+        // automaticamente pro ZIP — assim tudo que foi editado continua
+        // disponível pra baixar manualmente.
+        const avisoErro = `<p style="background:#fdecea; border:1px solid #f2b8b5; border-radius:8px; padding:10px 12px; margin-bottom:10px;">
+            <strong>⚠️ O salvamento direto na pasta falhou:</strong> ${escapeAttr(err.message)}<br>
+            Isso costuma acontecer quando a pasta foi movida, renomeada, ou o navegador perdeu o acesso a ela depois de recarregar a página.
+            <strong>Nada foi perdido</strong> — gerei o pacote abaixo pra você baixar e colocar na pasta manualmente.
+            Depois disso, clique em <strong>"📂 Abrir pasta do catálogo"</strong> de novo e selecione a pasta certa pra voltar a salvar automático.
+          </p>`;
+        await gerarPacoteZipParaDownload(dados, avisoErro);
       }
     } else {
-      resultado.innerHTML = `<p>Gerando o pacote atualizado…</p>`;
-
-      try {
-        if (typeof JSZip === 'undefined') throw new Error('Biblioteca de ZIP não carregou (sem internet?).');
-
-        const zip = new JSZip();
-        zip.file('catalogo.html', novoIndexHtml);
-        fotosNovas.forEach(p => {
-          const nomeArq = sanitizarNomeArquivo(p.arquivoNovo.name);
-          zip.file('assets/produtos/' + nomeArq, p.arquivoNovo);
-        });
-        capasNovas.forEach(c => {
-          zip.file('assets/' + c.nomeArq, c.arquivo);
-        });
-        layoutArquivosNovos.forEach(item => {
-          zip.file('assets/' + item.nomeArq, item.arquivo);
-        });
-
-        let temLanding = false;
-        if (landingDisponivel && novoLandingHtml) {
-          temLanding = true;
-          zip.file('index.html', novoLandingHtml);
-          landingArquivosNovos.forEach(item => {
-            zip.file('assets/' + item.nomeArq, item.arquivo);
-          });
-        }
-
-        const blobZip = await zip.generateAsync({ type: 'blob' });
-        const urlZip = URL.createObjectURL(blobZip);
-
-        const blobSw = new Blob([novoSwJs], { type: 'text/javascript' });
-        const urlSw = URL.createObjectURL(blobSw);
-
-        const listaFotos = fotosNovas.map(p => `<li>${escapeAttr(p.nome)}</li>`).join('');
-        const listaCapas = capasNovas.map(c => `<li>${escapeAttr(c.label)}</li>`).join('');
-        const listaLayout = layoutArquivosNovos.map(item => `<li>${escapeAttr(item.label)}</li>`).join('');
-        const listaLanding = temLanding ? landingArquivosNovos.map(item => `<li>${escapeAttr(item.label)}</li>`).join('') : '';
-
-        resultado.innerHTML = `
-          <p class="ok">✓ Arquivos prontos!</p>
-          <a class="download-link" href="${urlZip}" download="catalogo-atualizado.zip">⬇ Baixar catalogo-atualizado.zip</a>
-          <a class="download-link" href="${urlSw}" download="sw.js">⬇ Baixar sw.js</a>
-          ${(fotosNovas.length || capasNovas.length || layoutArquivosNovos.length || listaLanding) ? `
-            <div class="lista-arquivos">
-              <strong>Fotos incluídas no ZIP (já com o nome certo, na pasta certa):</strong>
-              <ul>${listaCapas}${listaFotos}${listaLayout}${listaLanding}</ul>
-            </div>` : ''}
-          <p style="margin-top:12px;"><strong>Como usar:</strong> baixe os dois arquivos. Extraia (descompacte) o ZIP — ele contém o <code>catalogo.html</code>${temLanding ? ', o <code>index.html</code> (landing)' : ''} e a pasta <code>assets</code>. Depois arraste esses arquivos, a pasta <code>assets</code> extraída e o <code>sw.js</code> baixado separadamente para dentro da pasta <code>catalogo-pwa</code> do seu computador, substituindo os arquivos quando perguntar. Por fim, suba a pasta atualizada de novo na hospedagem (Netlify/Vercel).${!temLanding ? ' (A landing/index.html não foi alterada porque não foi carregada nesta sessão — use a aba "LANDING DO SITE" e, se precisar, o campo pra carregar o index.html manualmente.)' : ''}</p>
-        `;
-      } catch (err) {
-        resultado.innerHTML = `<p style="color:#c81e2c">Erro ao gerar o pacote: ${err.message}</p><p>Tente novamente com internet ligada (o gerador de ZIP precisa carregar uma vez), ou use o modo automático (Chrome/Edge) descrito no início da página.</p>`;
-      }
+      await gerarPacoteZipParaDownload(dados);
     }
   });
+
+  // ================= IMPORTAÇÃO DE ESTOQUE (RELATÓRIO PUMA) =================
+
+  // Deixa só letras/números maiúsculos pra comparar códigos sem se importar
+  // com espaços, pontos ou hífens digitados de formas diferentes no Puma e
+  // no catálogo (ex: "3300 517" e "3300517" batem; "DLX2336SYX" e
+  // "dlx-2336-syx" também).
+  function normalizarCodigoEstoque(txt) {
+    return String(txt || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  }
+
+  // Deixa só letras/números minúsculos pra achar a coluna do cabeçalho mesmo
+  // que o Puma escreva "Refer. Fornec.", "Refer. Fornecedor", "Ref.Fornecedor",
+  // "Referência Fornecedor" etc. — variações de pontuação/espaço/acento/abreviação
+  // não importam.
+  function normalizarCabecalho(txt) {
+    return String(txt || '')
+      .trim()
+      .toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]/g, '');
+  }
+
+  // Converte "1,0000" / "1.234,50" / "1234.5" (formatos que o Excel pode
+  // devolver dependendo da configuração regional de quem gerou o relatório)
+  // num número JS confiável.
+  function parseNumeroBR(txt) {
+    let s = String(txt || '').trim().replace(/[^\d.,-]/g, '');
+    if (!s) return 0;
+    const temVirgula = s.includes(','), temPonto = s.includes('.');
+    if (temVirgula && temPonto) {
+      s = s.lastIndexOf(',') > s.lastIndexOf('.')
+        ? s.replace(/\./g, '').replace(',', '.')
+        : s.replace(/,/g, '');
+    } else if (temVirgula) {
+      s = s.replace(',', '.');
+    }
+    const n = parseFloat(s);
+    return isNaN(n) ? 0 : n;
+  }
+
+  // Lê o "Relatório de Estoque - Simples" do Puma (xlsx/xls/csv) e devolve um
+  // mapa: código normalizado -> saldo em estoque (soma, caso o código apareça
+  // mais de uma vez no relatório). Usa tanto a coluna "Código" quanto
+  // "Ref.Fabric." como chave, porque o catálogo às vezes usa uma, às vezes
+  // outra, dependendo do produto.
+  function lerRelatorioPuma(workbook) {
+    const nomeAba = workbook.SheetNames[0];
+    const planilha = workbook.Sheets[nomeAba];
+    const linhas = XLSX.utils.sheet_to_json(planilha, { header: 1, raw: false, defval: '' });
+
+    // acha a linha de cabeçalho procurando a célula "Código" (não é sempre a
+    // mesma linha — o relatório do Puma tem um bloco de título/empresa em
+    // cima, de tamanho variável)
+    let idxCabecalho = -1, colCodigo = -1, colFornecedor = -1, colEstoque = -1, colNome = -1;
+    for (let i = 0; i < linhas.length; i++) {
+      const linha = linhas[i];
+      const idxC = linha.findIndex(v => String(v).trim().toLowerCase() === 'código');
+      if (idxC !== -1) {
+        idxCabecalho = i;
+        colCodigo = idxC;
+        // "fornec" (em vez de "fornecedor" inteiro) casa tanto com o nome
+        // completo quanto com a abreviação real do Puma, "Refer. Fornec."
+        colFornecedor = linha.findIndex(v => normalizarCabecalho(v).includes('fornec'));
+        colEstoque = linha.findIndex(v => String(v).trim().toLowerCase() === 'estoque');
+        colNome = linha.findIndex(v => String(v).trim().toLowerCase().startsWith('nome fantasia'));
+        break;
+      }
+    }
+    if (idxCabecalho === -1) {
+      throw new Error('Não encontrei a coluna "Código" neste arquivo. Confirme que é o "Relatório de Estoque" exportado do Puma.');
+    }
+    if (colFornecedor === -1) {
+      throw new Error('Não encontrei a coluna do código de fornecedor (ex: "Refer. Fornec." ou "Refer. Fornecedor") neste arquivo. Confirme que o relatório do Puma inclui essa coluna.');
+    }
+
+    const mapaEstoque = new Map(); // código de fornecedor normalizado -> saldo somado
+    const linhasDetalhe = []; // uma entrada por linha do relatório, pra criar produtos novos depois
+    let linhasLidas = 0;
+    for (let i = idxCabecalho + 1; i < linhas.length; i++) {
+      const linha = linhas[i];
+      const codigo = linha[colCodigo];
+      const codigoFornecedor = linha[colFornecedor];
+      const estoqueTxto = colEstoque !== -1 ? linha[colEstoque] : '';
+      const nomeFantasia = colNome !== -1 ? String(linha[colNome] || '').trim() : '';
+      // ignora linhas de separador ("====...") e a linha final "Saldo Geral"
+      // (a linha ainda é identificada pela coluna "Código", que continua
+      // existindo no relatório — só não é mais usada pra casar o estoque)
+      if (!codigo || /^=+$/.test(String(codigo).trim())) continue;
+      const saldo = parseNumeroBR(estoqueTxto);
+      // cruzamento agora é feito só pelo código de fornecedor
+      const chave = normalizarCodigoEstoque(codigoFornecedor);
+      if (chave) {
+        mapaEstoque.set(chave, (mapaEstoque.get(chave) || 0) + saldo);
+      }
+      linhasDetalhe.push({ codigo: String(codigo).trim(), codigoFornecedor: String(codigoFornecedor || '').trim(), nomeFantasia, saldo });
+      linhasLidas++;
+    }
+    return { mapaEstoque, linhasLidas, linhasDetalhe };
+  }
+
+  // Cruza o mapa de estoque com todos os produtos/variantes carregados no
+  // painel, marcando c.emEstoque em cada código. Retorna um resumo pra
+  // mostrar pro usuário — com uma entrada POR CÓDIGO (não só por produto)
+  // em cada lista de detalhe, já que um mesmo produto pode ter uma
+  // voltagem em estoque e outra não.
+  function aplicarEstoqueNosProdutos(mapaEstoque) {
+    let totalVariantes = 0, emEstoque = 0, indisponiveis = 0, naoEncontrados = 0;
+    const naoEncontradosDetalhe = []; // {produtoNome, codigo, voltagem, abaNome} — código não apareceu em nenhuma linha do relatório
+    const indisponiveisDetalhe = []; // {produtoNome, codigo, voltagem, abaNome} — apareceu no relatório com saldo zerado
+    abas.forEach(aba => {
+      aba.produtos.forEach(p => {
+        p.codigos.forEach(c => {
+          totalVariantes++;
+          const chave = normalizarCodigoEstoque(c.codigo);
+          const saldo = mapaEstoque.has(chave) ? mapaEstoque.get(chave) : null;
+          const detalhe = { produtoNome: p.nome || '(sem nome)', codigo: c.codigo || '(sem código)', voltagem: c.voltagem || '', abaNome: aba.nome || '(sem nome)' };
+          if (saldo === null) {
+            c.emEstoque = true; // não achou no relatório → fica "em estoque"
+            naoEncontrados++;
+            naoEncontradosDetalhe.push(detalhe);
+          } else if (saldo > 0) {
+            c.emEstoque = true;
+            emEstoque++;
+          } else {
+            c.emEstoque = false;
+            indisponiveis++;
+            indisponiveisDetalhe.push(detalhe);
+          }
+        });
+      });
+    });
+    return { totalVariantes, emEstoque, indisponiveis, naoEncontrados, naoEncontradosDetalhe, indisponiveisDetalhe };
+  }
+
+  // Detecta, dentro das linhas do relatório, códigos com saldo > 0 que não
+  // existem em NENHUMA aba do catálogo nem já estão na lista "Sem foto" —
+  // e cria uma entrada nova em pendentesSemFoto pra cada um (deduplicando
+  // por código, caso o mesmo produto apareça em mais de uma linha).
+  function detectarProdutosNovos(linhasDetalhe) {
+    const codigosConhecidos = new Set();
+    abas.forEach(aba => aba.produtos.forEach(p => p.codigos.forEach(c => {
+      const chave = normalizarCodigoEstoque(c.codigo);
+      if (chave) codigosConhecidos.add(chave);
+    })));
+    pendentesSemFoto.forEach(p => p.codigos.forEach(c => {
+      const chave = normalizarCodigoEstoque(c.codigo);
+      if (chave) codigosConhecidos.add(chave);
+    }));
+
+    // Um mesmo código pode aparecer em mais de uma linha do relatório (ex:
+    // um saldo zerado num depósito e um saldo positivo em outro). Por isso,
+    // antes de decidir quem foi "ignorado", mapeamos todos os códigos que
+    // têm saldo positivo em ALGUMA linha — só ignoramos quem nunca aparece
+    // com saldo em nenhuma linha.
+    const codigosComSaldoNoRelatorio = new Set();
+    linhasDetalhe.forEach(linha => {
+      if (linha.saldo > 0) {
+        const codigoEscolhido = linha.codigoFornecedor || linha.codigo;
+        const chave = normalizarCodigoEstoque(codigoEscolhido);
+        if (chave) codigosComSaldoNoRelatorio.add(chave);
+      }
+    });
+
+    let criados = 0, ignorados = 0;
+    const codigosIgnoradosContados = new Set();
+    linhasDetalhe.forEach(linha => {
+      const codigoEscolhido = linha.codigoFornecedor || linha.codigo;
+      const chave = normalizarCodigoEstoque(codigoEscolhido);
+      if (!chave) return;
+
+      if (linha.saldo <= 0) {
+        // Produto com saldo zerado nesta linha, que não existe no catálogo
+        // e nunca aparece com saldo positivo em nenhuma outra linha do
+        // relatório: não tem o que fazer com ele (sem foto, sem saldo) —
+        // simplesmente ignora, não cria nada em "Sem foto".
+        if (!codigosConhecidos.has(chave) && !codigosComSaldoNoRelatorio.has(chave) && !codigosIgnoradosContados.has(chave)) {
+          codigosIgnoradosContados.add(chave);
+          ignorados++;
+        }
+        return;
+      }
+
+      // usa o código de fornecedor; só cai pro Código normal se a linha do
+      // relatório vier sem código de fornecedor preenchido
+      if (codigosConhecidos.has(chave)) return;
+      codigosConhecidos.add(chave);
+      pendentesSemFoto.push({
+        nome: linha.nomeFantasia || ('Produto ' + codigoEscolhido),
+        imagem: '',
+        imagemLegenda: '',
+        imagensExtras: [],
+        descricao: '',
+        criadoEm: new Date().toISOString(),
+        arquivoNovo: null,
+        previewUrl: null,
+        codigos: [{ voltagem: '', codigo: codigoEscolhido, multiplo: null, emEstoque: true }]
+      });
+      criados++;
+    });
+    return { criados, ignorados };
+  }
+
+  const inputEstoquePuma = document.getElementById('inputEstoquePuma');
+  const resultadoImportEstoque = document.getElementById('resultadoImportEstoque');
+  if (inputEstoquePuma) {
+    inputEstoquePuma.addEventListener('change', async () => {
+      const arquivo = inputEstoquePuma.files[0];
+      if (!arquivo) return;
+      resultadoImportEstoque.innerHTML = '<p>Lendo o arquivo…</p>';
+      try {
+        const buffer = await arquivo.arrayBuffer();
+        const workbook = XLSX.read(buffer, { type: 'array' });
+        const { mapaEstoque, linhasLidas, linhasDetalhe } = lerRelatorioPuma(workbook);
+        if (linhasLidas === 0) {
+          resultadoImportEstoque.innerHTML = '<p style="color:#c81e2c">Não encontrei nenhuma linha de produto neste arquivo. Confirme que exportou o relatório certo do Puma.</p>';
+          return;
+        }
+        const resumo = aplicarEstoqueNosProdutos(mapaEstoque);
+        const { criados, ignorados } = detectarProdutosNovos(linhasDetalhe);
+        renderizarTabsAdmin(); // atualiza o contador "(N)" na aba SEM FOTO
+
+        function construirListaDetalheEstoque(titulo, corTitulo, detalhes) {
+          if (!detalhes.length) return '';
+          return `
+            <details style="margin-top:10px;">
+              <summary style="cursor:pointer; font-weight:700; color:${corTitulo};">${titulo} (${detalhes.length})</summary>
+              <ul style="margin:8px 0 0 18px; padding:0; max-height:280px; overflow:auto;">
+                ${detalhes.map(d => `<li><strong>${escapeHtml(d.produtoNome)}</strong> — código: <code>${escapeHtml(d.codigo)}</code>${d.voltagem ? ' (' + escapeHtml(d.voltagem) + ')' : ''} — aba: <em>${escapeHtml(d.abaNome)}</em></li>`).join('')}
+              </ul>
+            </details>`;
+        }
+
+        const listaIndisponiveisHtml = construirListaDetalheEstoque(
+          '🔴 Ver produto(s) do catálogo SEM estoque (saldo zerado no Puma)',
+          'var(--vermelho)',
+          resumo.indisponiveisDetalhe
+        );
+        const listaNaoEncontradosHtml = construirListaDetalheEstoque(
+          '👀 Ver produto(s) do catálogo que não apareceram no relatório',
+          'var(--azul-escuro)',
+          resumo.naoEncontradosDetalhe
+        );
+
+        resultadoImportEstoque.innerHTML = `
+          <p class="ok">✓ Importado! ${linhasLidas} linha(s) lida(s) do relatório.</p>
+          <ul style="margin:8px 0 0 18px; padding:0;">
+            <li><strong>${resumo.emEstoque}</strong> variante(s) marcada(s) como em estoque</li>
+            <li><strong>${resumo.indisponiveis}</strong> variante(s) marcada(s) como indisponível (saldo zerado no Puma)</li>
+            <li><strong>${resumo.naoEncontrados}</strong> variante(s) do catálogo não apareceram no relatório — mantidas como disponíveis</li>
+            ${criados ? `<li><strong>${criados}</strong> produto(s) novo(s) — que tinham saldo no Puma mas não existiam no catálogo — foram pra aba <strong>"🗂️ SEM FOTO"</strong></li>` : ''}
+            ${ignorados ? `<li><strong>${ignorados}</strong> produto(s) do relatório com saldo zerado e que não existem no catálogo — ignorado(s), nada foi criado</li>` : ''}
+          </ul>
+          ${listaIndisponiveisHtml}
+          ${listaNaoEncontradosHtml}
+          <p style="margin-top:10px;">Isso só mudou o que está carregado aqui na tela. Confira as abas de produtos se quiser, e clique em <strong>"💾 Salvar alterações no catálogo"</strong> (ou "🚀 Publicar automaticamente") lá embaixo pra valer.${criados ? ' Os produtos novos, além disso, precisam ser salvos separadamente na aba "🗂️ SEM FOTO" (têm um botão próprio de salvar lá).' : ''}</p>
+        `;
+      } catch (err) {
+        resultadoImportEstoque.innerHTML = `<p style="color:#c81e2c">Erro ao ler o arquivo: ${err.message}</p><p>Confirme que é o Excel/CSV exportado direto do relatório de estoque do Puma, sem edições.</p>`;
+      }
+    });
+  }
+
+  // ================= "SEM FOTO" — produtos pendentes, fora do catálogo publicado =================
+
+  function caminhoPendentesJson() {
+    const subpasta = document.getElementById('ghSubpasta').value.trim().replace(/^\/+|\/+$/g, '');
+    return (subpasta ? subpasta + '/' : '') + 'pendentes-sem-foto.json';
+  }
+
+  async function carregarPendentesDoGithub() {
+    const token = document.getElementById('ghToken').value.trim();
+    const repo = document.getElementById('ghRepo').value.trim();
+    const branch = document.getElementById('ghBranch').value.trim() || 'main';
+    const resultadoEl = document.getElementById('resultadoPendentes');
+    if (!token || !repo) {
+      resultadoEl.innerHTML = '<p style="color:#c81e2c">Preencha o token e o repositório do GitHub (na aba de publicação automática) primeiro.</p>';
+      return;
+    }
+    resultadoEl.innerHTML = '<p>Buscando lista no GitHub…</p>';
+    try {
+      const apiUrl = `https://api.github.com/repos/${repo}/contents/${caminhoPendentesJson()}?ref=${encodeURIComponent(branch)}`;
+      const resp = await fetch(apiUrl, { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' } });
+      if (resp.status === 404) {
+        resultadoEl.innerHTML = '<p>Nenhuma lista salva ainda no GitHub (normal se você nunca importou um relatório com produto novo). A lista abaixo é só o que está aqui na tela.</p>';
+        return;
+      }
+      if (!resp.ok) throw new Error(`GitHub respondeu ${resp.status}`);
+      const dados = await resp.json();
+      const texto = decodeURIComponent(escape(atob(dados.content.replace(/\n/g, ''))));
+      const lista = JSON.parse(texto);
+      lista.forEach(p => {
+        p.arquivoNovo = null; p.previewUrl = null; p.imagemLegenda = p.imagemLegenda || '';
+        p.imagensExtras = (p.imagensExtras || []).map(ex => {
+          const obj = (typeof ex === 'string') ? { arquivo: ex, legenda: '' } : ex;
+          return { arquivo: obj.arquivo || '', legenda: obj.legenda || '', arquivoNovo: null, previewUrl: null };
+        });
+      });
+      pendentesSemFoto = lista;
+      renderizarTabsAdmin();
+      renderizarPendentes();
+      resultadoEl.innerHTML = `<p class="ok">✓ ${lista.length} produto(s) pendente(s) carregado(s) do GitHub.</p>`;
+    } catch (err) {
+      resultadoEl.innerHTML = `<p style="color:#c81e2c">Erro ao buscar: ${err.message}</p>`;
+    }
+  }
+
+  async function salvarPendentesSemFoto() {
+    const token = document.getElementById('ghToken').value.trim();
+    const repo = document.getElementById('ghRepo').value.trim();
+    const branch = document.getElementById('ghBranch').value.trim() || 'main';
+    const resultadoEl = document.getElementById('resultadoPendentes');
+    if (!token || !repo) {
+      resultadoEl.innerHTML = '<p style="color:#c81e2c">Preencha o token e o repositório do GitHub (na aba de publicação automática) primeiro.</p>';
+      return;
+    }
+    for (const p of pendentesSemFoto) {
+      if (!p.nome || !p.nome.trim()) { alert('Tem um produto sem nome na lista "Sem foto". Preencha o nome de todos antes de salvar.'); return; }
+    }
+    resultadoEl.innerHTML = '<p>Salvando…</p>';
+    try {
+      // envia fotos novas que já tenham sido adicionadas aqui, mesmo antes de mover pra uma aba
+      for (const p of pendentesSemFoto) {
+        if (p.arquivoNovo) {
+          const nomeArq = sanitizarNomeArquivo(p.arquivoNovo.name);
+          const base64 = await arquivoParaBase64(p.arquivoNovo);
+          await publicarArquivoNoGithub({
+            token, repo, branch,
+            caminho: `${document.getElementById('ghSubpasta').value.trim().replace(/^\/+|\/+$/g, '') ? document.getElementById('ghSubpasta').value.trim().replace(/^\/+|\/+$/g, '') + '/' : ''}assets/produtos/${nomeArq}`,
+            conteudoBase64: base64,
+            mensagem: `Adiciona foto (pendente): ${p.nome}`
+          });
+          p.imagem = 'assets/produtos/' + nomeArq;
+          p.arquivoNovo = null;
+          p.previewUrl = null;
+        }
+        for (const extra of (p.imagensExtras || [])) {
+          if (extra.arquivoNovo) {
+            const nomeArqExtra = sanitizarNomeArquivo(extra.arquivoNovo.name);
+            const base64Extra = await arquivoParaBase64(extra.arquivoNovo);
+            await publicarArquivoNoGithub({
+              token, repo, branch,
+              caminho: `${document.getElementById('ghSubpasta').value.trim().replace(/^\/+|\/+$/g, '') ? document.getElementById('ghSubpasta').value.trim().replace(/^\/+|\/+$/g, '') + '/' : ''}assets/produtos/${nomeArqExtra}`,
+              conteudoBase64: base64Extra,
+              mensagem: `Adiciona foto extra (pendente): ${p.nome}`
+            });
+            extra.arquivo = 'assets/produtos/' + nomeArqExtra;
+            extra.arquivoNovo = null;
+            extra.previewUrl = null;
+          }
+        }
+      }
+      const jsonTexto = JSON.stringify(pendentesSemFoto.map(p => ({
+        nome: p.nome, imagem: p.imagem || '', imagemLegenda: p.imagemLegenda || '',
+        imagensExtras: (p.imagensExtras || []).filter(ex => ex.arquivo).map(ex => ({ arquivo: ex.arquivo, legenda: ex.legenda || '' })), descricao: p.descricao || '',
+        criadoEm: p.criadoEm || new Date().toISOString(),
+        codigos: p.codigos.map(c => ({ voltagem: c.voltagem || '', codigo: c.codigo || '', multiplo: c.multiplo || null, emEstoque: c.emEstoque }))
+      })), null, 2);
+      await publicarArquivoNoGithub({
+        token, repo, branch,
+        caminho: caminhoPendentesJson(),
+        conteudoBase64: utf8ToBase64(jsonTexto),
+        mensagem: `Atualiza lista "Sem foto" (${pendentesSemFoto.length} produto(s))`
+      });
+      renderizarPendentes();
+      resultadoEl.innerHTML = '<p class="ok">✓ Lista "Sem foto" salva no GitHub. Isso não muda nada no site público — só fica guardado até você mover cada produto pra uma aba.</p>';
+    } catch (err) {
+      resultadoEl.innerHTML = `<p style="color:#c81e2c">Erro ao salvar: ${err.message}</p>`;
+    }
+  }
+
+  function renderizarPendentes() {
+    const container = document.getElementById('listaPendentesSemFoto');
+    if (!container) return;
+    renderizarProdutos(pendentesSemFoto, container, null, renderizarPendentes);
+    const cards = container.querySelectorAll('.produto-card');
+    cards.forEach((card, i) => {
+      if (card.querySelector('[data-mover-wrap]')) return;
+      const wrap = document.createElement('div');
+      wrap.setAttribute('data-mover-wrap', '');
+      wrap.style.cssText = 'display:flex; gap:6px; align-items:center; flex-wrap:wrap; background:#e7f7f3; border:1px solid #b7e6dd; border-radius:8px; padding:10px 12px; margin-bottom:12px;';
+      const label = document.createElement('label');
+      label.style.cssText = 'width:100%; margin:0 0 2px; color:var(--teal); font-weight:800;';
+      label.textContent = '📍 Mover este produto para uma aba do catálogo:';
+      const select = document.createElement('select');
+      select.style.cssText = 'flex:1; min-width:160px; padding:8px 10px; border:1px solid #d1d5db; border-radius:6px; font-size:13.5px;';
+      select.innerHTML = '<option value="">Escolha a aba de destino…</option>' + abas.map(a => `<option value="${a.id}">${escapeHtml(a.nome || '(sem nome)')}</option>`).join('');
+      const btnMover = document.createElement('button');
+      btnMover.type = 'button';
+      btnMover.className = 'btn-sucesso icone';
+      btnMover.textContent = '➡ Mover pra essa aba';
+      btnMover.addEventListener('click', () => {
+        if (!abas.length) { alert('O catálogo ainda não tem nenhuma aba. Crie uma aba primeiro (botão "+ Nova aba" lá em cima).'); return; }
+        const destId = select.value;
+        if (!destId) { alert('Escolha a aba de destino primeiro.'); return; }
+        if (!pendentesSemFoto[i].imagem && !pendentesSemFoto[i].arquivoNovo) {
+          if (!confirm('Esse produto ainda não tem foto. Mover mesmo assim? (vai dar erro ao publicar até você colocar uma foto na aba de destino)')) return;
+        }
+        const abaDestino = abas.find(a => a.id === destId);
+        const [item] = pendentesSemFoto.splice(i, 1);
+        abaDestino.produtos.push(item);
+        renderizarTabsAdmin();
+        renderizarPendentes();
+        renderizarSecoesAbas();
+      });
+      wrap.appendChild(label);
+      wrap.appendChild(select);
+      wrap.appendChild(btnMover);
+      // logo no topo do card, antes de qualquer outro campo — impossível de não ver
+      card.insertBefore(wrap, card.firstChild);
+    });
+  }
+
+  const btnAtualizarPendentes = document.getElementById('btnAtualizarPendentes');
+  if (btnAtualizarPendentes) btnAtualizarPendentes.addEventListener('click', carregarPendentesDoGithub);
+
+  const btnSalvarPendentes = document.getElementById('btnSalvarPendentes');
+  if (btnSalvarPendentes) btnSalvarPendentes.addEventListener('click', salvarPendentesSemFoto);
+
+  const btnAddPendenteManual = document.getElementById('btnAddPendenteManual');
+  if (btnAddPendenteManual) {
+    btnAddPendenteManual.addEventListener('click', () => {
+      pendentesSemFoto.push({ nome: '', imagem: '', imagemLegenda: '', imagensExtras: [], descricao: '', codigos: [{ voltagem: '', codigo: '', multiplo: null }], arquivoNovo: null, previewUrl: null, criadoEm: new Date().toISOString() });
+      renderizarTabsAdmin();
+      renderizarPendentes();
+    });
+  }
 </script>
 
 </body>
 </html>
+
+
+
+```
 
