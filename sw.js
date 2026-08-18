@@ -1,5 +1,5 @@
 // ==CACHE-INICIO==
-const CACHE_NAME = 'catalogo-cache-v91';
+const CACHE_NAME = 'catalogo-cache-v92';
 
 const SHELL_FILES = [
   "./",
@@ -76,7 +76,7 @@ const SHELL_FILES = [
   "./assets/produtos/62-dub362z.png",
   "./assets/produtos/63-dub186z.png",
   "./assets/produtos/64-bateria-12v.png",
-  "./assets/produtos/65-bateria-18v.png",
+  "./assets/produtos/bateria-makita-bl1850b-18v-li-ion-5ah.png",
   "./assets/produtos/66-carregador-12v.png",
   "./assets/produtos/67-carregador-18v.png",
   "./assets/produtos/68-dml812.png",
@@ -122,7 +122,7 @@ const SHELL_FILES = [
   "./assets/produtos/92-dch133b-b3.png",
   "./assets/produtos/dewalt-carregador-12-20v-bivolt-dcb1102.png",
   "./assets/produtos/dewalt-carregador-12-20v-bivolt-4ah.png",
-  "./assets/produtos/dewalt-bateria-max-li-ion-20v-5-ah.png",
+  "./assets/produtos/dewalt-bateria-max-li-ion-20v-2-ah.png",
   "./assets/produtos/dewalt-bateria-20v-tabless-4ah.png",
   "./assets/produtos/dewalt-kit-2bat-5ah-c-carregador-e-bolsa.png",
   "./assets/produtos/dewalt-serra-marmore-125mm-dw862b2.png",
@@ -259,6 +259,12 @@ const SHELL_FILES = [
   "./assets/produtos/btoina-zebu-ziper-83020-areia.png",
   "./assets/produtos/botina-dubai-marrom-nobuck-bracol.png",
   "./assets/produtos/botina-denver-pro-marrom-nobuc.png",
+  "./assets/produtos/bateria-makita-bl1021b-12v-2ah.png",
+  "./assets/produtos/bateria-makita-bl1860b-18v-li-ion-6ah.png",
+  "./assets/produtos/dewalt-bateria-max-li-ion-20v-4ah.png",
+  "./assets/produtos/dewalt-bateria-max-li-ion-20v-5ah.png",
+  "./assets/produtos/dewalt-bateria-max-li-ion-20v-9ah.png",
+  "./assets/produtos/stanley-caixa-de-ferramenta-22-.png",
   "./assets/produtos/mascara-pff2-com-valvula.png",
   "./assets/produtos/mascara-pff2-carvao-ativado-valvulada.png",
   "./assets/produtos/oculos-florence-vermelho-espelhado.png",
