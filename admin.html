@@ -1,5 +1,3 @@
-### Arquivo: `admin.html`
-```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -87,6 +85,22 @@
   .tab-btn-admin.tab-inativa.ativo { opacity:.85; }
   .tab-btn-admin.tab-layout { border-color:var(--cinza); color:var(--cinza); }
   .tab-btn-admin.tab-layout.ativo { background:var(--cinza); color:#fff; }
+  .tab-admin-item { flex:1; min-width:140px; display:flex; flex-direction:column; gap:4px; }
+  .tab-admin-item .tab-btn-admin { width:100%; min-width:0; }
+  .tab-admin-setas { display:none; gap:4px; }
+  .modo-reordenar-abas .tab-admin-setas { display:flex; }
+  .tab-admin-setas button {
+    flex:1; padding:4px 2px; font-size:12px; font-weight:800; line-height:1;
+    border:1.5px solid var(--azul-escuro); background:#fff; color:var(--azul-escuro);
+    border-radius:6px; cursor:pointer;
+  }
+  .tab-admin-setas button:hover:not(:disabled) { background:var(--azul-escuro); color:#fff; }
+  .tab-admin-setas button:disabled { opacity:.3; cursor:default; }
+  #btnReordenarAbas.ativo { background:var(--azul-escuro); color:#fff; }
+  #btnReordenarAbas {
+    flex:0 0 auto; min-width:120px; border:2px solid var(--azul-escuro); background:#fff; color:var(--azul-escuro);
+    border-radius:10px; font-weight:800; font-size:14px; cursor:pointer;
+  }
   #btnNovaAba {
     flex:0 0 auto; min-width:120px; border:2px dashed var(--teal); background:#fff; color:var(--teal);
     border-radius:10px; font-weight:800; font-size:14px;
@@ -379,6 +393,7 @@
 
     <div class="tabs-admin-linha">
       <div class="tabs-admin" id="tabsAdmin"></div>
+      <button type="button" id="btnReordenarAbas" title="Ativar para mostrar setas e mudar a ordem das abas">↕️ Reordenar abas</button>
       <button type="button" id="btnNovaAba">+ Nova aba</button>
     </div>
 
@@ -1142,6 +1157,7 @@
     }, 600);
   }
   let abaAtivaId = null; // 'layout' ou o id de uma aba
+  let reordenarAbasAtivo = false; // true quando o modo "↕️ Reordenar abas" está ligado (mostra as setas ◀ ▶ nas abas)
   const mapaListaProdutosPorAba = {}; // aba.id -> elemento <div data-lista-produtos> (usado pela busca pra pular até o card)
 
   // layout do site: variáveis CSS + arquivo de imagem fixo (marca d'água)
@@ -1455,10 +1471,10 @@
     }
   }
 
-  document.getElementById('inputIconeApp').addEventListener('change', e => {
+  document.getElementById('inputIconeApp').addEventListener('change', async e => {
     const file = e.target.files[0];
     if (!file) return;
-    appIconeArquivoNovo = file;
+    appIconeArquivoNovo = await copiarArquivoParaMemoria(file);
     atualizarPreviewIconeApp();
   });
 
@@ -1533,10 +1549,10 @@
     btnRemover.style.display = temCustom ? '' : 'none';
   }
 
-  document.getElementById('inputIconeFavorito').addEventListener('change', e => {
+  document.getElementById('inputIconeFavorito').addEventListener('change', async e => {
     const file = e.target.files[0];
     if (!file) return;
-    favoritoIconeArquivoNovo = file;
+    favoritoIconeArquivoNovo = await copiarArquivoParaMemoria(file);
     favoritoIconeRemovido = false;
     atualizarPreviewIconeFavorito();
   });
@@ -1576,10 +1592,10 @@
     atualizarUiFundoIconeFavorito();
   });
 
-  document.getElementById('inputIconeInfo').addEventListener('change', e => {
+  document.getElementById('inputIconeInfo').addEventListener('change', async e => {
     const file = e.target.files[0];
     if (!file) return;
-    infoIconeArquivoNovo = file;
+    infoIconeArquivoNovo = await copiarArquivoParaMemoria(file);
     infoIconeRemovido = false;
     atualizarPreviewIconeInfo();
   });
@@ -1640,11 +1656,11 @@
         </div>
       `;
 
-      card.querySelector('[data-campo="arquivo"]').addEventListener('change', e => {
+      card.querySelector('[data-campo="arquivo"]').addEventListener('change', async e => {
         const file = e.target.files[0];
         if (!file) return;
-        logo.arquivoNovo = file;
-        logo.previewUrl = URL.createObjectURL(file);
+        logo.arquivoNovo = await copiarArquivoParaMemoria(file);
+        logo.previewUrl = URL.createObjectURL(logo.arquivoNovo);
         renderizarLogos();
       });
       card.querySelector('[data-campo="alt"]').addEventListener('input', e => {
@@ -1682,10 +1698,10 @@
     renderizarLogos();
   });
 
-  document.getElementById('inputWatermark').addEventListener('change', e => {
+  document.getElementById('inputWatermark').addEventListener('change', async e => {
     const file = e.target.files[0];
     if (!file) return;
-    watermarkArquivoNovo = file;
+    watermarkArquivoNovo = await copiarArquivoParaMemoria(file);
   });
   document.getElementById('layoutFontFamilia').addEventListener('change', e => {
     document.getElementById('layoutFontFamiliaCustom').style.display = e.target.value === '__custom__' ? 'block' : 'none';
@@ -1990,8 +2006,9 @@
     if (ultimo) ultimo.focus();
   });
 
-  document.getElementById('inputLandingLogo').addEventListener('change', (e) => {
-    landingLogoArquivoNovo = e.target.files[0] || null;
+  document.getElementById('inputLandingLogo').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    landingLogoArquivoNovo = file ? await copiarArquivoParaMemoria(file) : null;
     landingLogoRemovida = false;
     atualizarPreviewLandingImagem('logo');
   });
@@ -2002,8 +2019,9 @@
     atualizarPreviewLandingImagem('logo');
   });
 
-  document.getElementById('inputLandingHero').addEventListener('change', (e) => {
-    landingHeroArquivoNovo = e.target.files[0] || null;
+  document.getElementById('inputLandingHero').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    landingHeroArquivoNovo = file ? await copiarArquivoParaMemoria(file) : null;
     landingHeroRemovida = false;
     atualizarPreviewLandingImagem('hero');
   });
@@ -2014,8 +2032,9 @@
     atualizarPreviewLandingImagem('hero');
   });
 
-  document.getElementById('inputLandingSobre').addEventListener('change', (e) => {
-    landingSobreArquivoNovo = e.target.files[0] || null;
+  document.getElementById('inputLandingSobre').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    landingSobreArquivoNovo = file ? await copiarArquivoParaMemoria(file) : null;
     landingSobreRemovida = false;
     atualizarPreviewLandingImagem('sobre');
   });
@@ -2283,7 +2302,11 @@
   function renderizarTabsAdmin() {
     const tabsWrap = document.getElementById('tabsAdmin');
     tabsWrap.innerHTML = '';
-    abas.forEach(aba => {
+    tabsWrap.classList.toggle('modo-reordenar-abas', reordenarAbasAtivo);
+    abas.forEach((aba, i) => {
+      const item = document.createElement('div');
+      item.className = 'tab-admin-item';
+
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'tab-btn-admin' + (abaAtivaId === aba.id ? ' ativo' : '') + (aba.ativa === false ? ' tab-inativa' : '');
@@ -2295,7 +2318,38 @@
         renderizarTabsAdmin();
         renderizarSecoesVisiveis();
       });
-      tabsWrap.appendChild(btn);
+      item.appendChild(btn);
+
+      // setas ◀ ▶ pra mudar a ordem das abas — só aparecem com o modo
+      // "↕️ Reordenar abas" ligado (fica escondido no dia a dia pra não
+      // atrapalhar, já que trocar a ordem é uma ação ocasional)
+      const setas = document.createElement('div');
+      setas.className = 'tab-admin-setas';
+      const btnEsq = document.createElement('button');
+      btnEsq.type = 'button';
+      btnEsq.textContent = '◀';
+      btnEsq.title = 'Mover esta aba para a esquerda';
+      btnEsq.disabled = i === 0;
+      btnEsq.addEventListener('click', e => {
+        e.stopPropagation();
+        [abas[i - 1], abas[i]] = [abas[i], abas[i - 1]];
+        renderizarTabsAdmin();
+      });
+      const btnDir = document.createElement('button');
+      btnDir.type = 'button';
+      btnDir.textContent = '▶';
+      btnDir.title = 'Mover esta aba para a direita';
+      btnDir.disabled = i === abas.length - 1;
+      btnDir.addEventListener('click', e => {
+        e.stopPropagation();
+        [abas[i + 1], abas[i]] = [abas[i], abas[i + 1]];
+        renderizarTabsAdmin();
+      });
+      setas.appendChild(btnEsq);
+      setas.appendChild(btnDir);
+      item.appendChild(setas);
+
+      tabsWrap.appendChild(item);
     });
     const btnLayout = document.createElement('button');
     btnLayout.type = 'button';
@@ -2487,11 +2541,11 @@
     }
     atualizarPreviewCapa();
 
-    secao.querySelector('[data-input-capa]').addEventListener('change', e => {
+    secao.querySelector('[data-input-capa]').addEventListener('change', async e => {
       const file = e.target.files[0];
       if (!file) return;
-      aba.arquivoNovoCapa = file;
-      aba.previewUrlCapa = URL.createObjectURL(file);
+      aba.arquivoNovoCapa = await copiarArquivoParaMemoria(file);
+      aba.previewUrlCapa = URL.createObjectURL(aba.arquivoNovoCapa);
       atualizarPreviewCapa();
     });
 
@@ -2510,6 +2564,13 @@
 
     return secao;
   }
+
+  document.getElementById('btnReordenarAbas').addEventListener('click', () => {
+    reordenarAbasAtivo = !reordenarAbasAtivo;
+    document.getElementById('btnReordenarAbas').classList.toggle('ativo', reordenarAbasAtivo);
+    document.getElementById('btnReordenarAbas').textContent = reordenarAbasAtivo ? '✓ Concluir reordenação' : '↕️ Reordenar abas';
+    renderizarTabsAdmin();
+  });
 
   document.getElementById('btnNovaAba').addEventListener('click', () => {
     const nome = prompt('Nome da nova aba (ex: BOSCH, ferramentas manuais...):');
@@ -2588,6 +2649,21 @@
     return btoa(binario);
   }
 
+  // Copia o arquivo pra memória (bytes) assim que ele é escolhido no seletor.
+  // Isso existe porque um objeto File do navegador guarda uma referência ao
+  // arquivo no disco (caminho + data de modificação) e não o conteúdo em si —
+  // se a pessoa renomear, mover ou apagar o arquivo original DEPOIS de
+  // escolhê-lo aqui mas ANTES de clicar em salvar/gerar o pacote, o navegador
+  // não consegue mais ler esse File e trava com "A requested file or
+  // directory could not be found...". Copiando os bytes pra memória logo na
+  // escolha, a foto já escolhida fica imune a qualquer coisa que aconteça
+  // com o arquivo original depois.
+  function copiarArquivoParaMemoria(file) {
+    return file.arrayBuffer()
+      .then(bytes => new File([bytes], file.name, { type: file.type, lastModified: file.lastModified }))
+      .catch(() => file); // não conseguiu copiar agora (raro) — segue com o original
+  }
+
   // ================= pré-visualização da foto (antes de decidir cortar) =================
   // Ao escolher uma foto, mostra ela num modal leve (só uma <img>, sem montar o
   // quadro de corte) com as opções "Usar assim" ou "Cortar". A janela de corte
@@ -2614,12 +2690,13 @@
     });
   }
 
-  function fotoPreviewAbrir(file, callback) {
+  async function fotoPreviewAbrir(file, callback) {
     if (!fotoPreview.overlay) fotoPreviewIniciar();
-    fotoPreview.arquivo = file;
+    const arquivoEmMemoria = await copiarArquivoParaMemoria(file);
+    fotoPreview.arquivo = arquivoEmMemoria;
     fotoPreview.callback = callback;
     if (fotoPreview.urlTemp) URL.revokeObjectURL(fotoPreview.urlTemp);
-    fotoPreview.urlTemp = URL.createObjectURL(file);
+    fotoPreview.urlTemp = URL.createObjectURL(arquivoEmMemoria);
     fotoPreview.img.src = fotoPreview.urlTemp;
     fotoPreview.overlay.classList.add('mostrar');
   }
@@ -4317,7 +4394,4 @@ self.addEventListener('fetch', event => {
 </body>
 </html>
 
-
-
-```
 
