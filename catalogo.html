@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1035,10 +1036,9 @@
     padding: var(--produto-imagem-preenchimento);
   }
   .card img[data-img-principal] {
-    transition: transform .18s ease-in, opacity .18s ease-in;
-    backface-visibility: hidden;
+    transition: transform .2s ease-in, opacity .2s ease-in;
   }
-  .produto-img-wrap { position:relative; perspective:900px; }
+  .produto-img-wrap { position:relative; overflow:hidden; }
   .legenda-imagem-produto {
     position:absolute;
     right:10px;
@@ -1516,7 +1516,7 @@
   // para mostrar "Atualizado hoje às HH:MM" / "Atualizado no dia X".
   // ==========================================================
   // ==DATA-ATUALIZACAO-INICIO==
-  const ULTIMA_ATUALIZACAO_ISO = "2026-08-18T22:27:25.297Z";
+  const ULTIMA_ATUALIZACAO_ISO = "2026-08-19T20:56:05.617Z";
   // ==DATA-ATUALIZACAO-FIM==
 
   // ==========================================================
@@ -1954,7 +1954,7 @@
   },
   {
     id: "discos",
-    nome: "DISCOS",
+    nome: "DISCOS & SERRAS",
     capa: "assets/gemini-generated-image-z4pxx9z4pxx9z4px.png",
     capaPosicao: "center",
     ativa: true,
@@ -2150,7 +2150,7 @@
       },
       {
         nome: "Disco de Corte Diamantado Turbo SFIX",
-        imagem: "assets/produtos/disco-corte-diam-turbo-white.png",
+        imagem: "assets/produtos/disco-corte-diam-turbo-sfix-white.png",
         imagemLegenda: "White",
         imagensExtras: [{"arquivo":"assets/produtos/disco-corte-diamantado-turbo-sfix.png","legenda":"Azul"},{"arquivo":"assets/produtos/disco-corte-diamantado-turbo-black-sfix.png","legenda":"Black"}],
         descricao: "",
@@ -2357,9 +2357,9 @@
       },
       {
         nome: "Disco de Corte Metal Stanley",
-        imagem: "assets/produtos/disco-corte-metal-304mm-stanley.png",
+        imagem: "assets/produtos/disco-corte-metal-300mm-stanley.png",
         imagemLegenda: "300x3,0x15,9mm",
-        imagensExtras: [{"arquivo":"assets/produtos/disco-corte-metal-300mm-stanley.png","legenda":"300x3,0x19mm"},{"arquivo":"assets/produtos/disco-corte-metal-355mm-stanley.png","legenda":"355x2,8x25,4mm"}],
+        imagensExtras: [{"arquivo":"assets/produtos/disco-corte-metal-304mm-stanley.png","legenda":"300x3,0x19mm"},{"arquivo":"assets/produtos/disco-corte-metal-355mm-stanley.png","legenda":"355x2,8x25,4mm"}],
         descricao: "",
         validade: "",
         criadoEm: "2026-08-18T21:01:23.121Z",
@@ -2406,7 +2406,7 @@
         ]
       },
       {
-        nome: "Disco de Corte Vidro",
+        nome: "Disco de Corte Vidro Verde",
         imagem: "assets/produtos/disco-corte-vidro-verde.png",
         imagemLegenda: "",
         imagensExtras: [],
@@ -2431,7 +2431,7 @@
       },
       {
         nome: "Disco de Desbaste Heavy Duty",
-        imagem: "assets/produtos/disco-de-desbaste-heavy-duty-178mm.png",
+        imagem: "assets/produtos/disco-de-desbaste-heavy-duty-230mm.png",
         imagemLegenda: "",
         imagensExtras: [],
         descricao: "",
@@ -2454,6 +2454,330 @@
         codigos: [
           { voltagem: "125x6,0x22,23", codigo: "0668 115" },
           { voltagem: "180x6,0x22,23", codigo: "0668 180" }
+        ]
+      },
+      {
+        nome: "Disco de Desbaste Diamantado Jumbo 110mm",
+        imagem: "assets/produtos/disco-desbaste-diamantado-jumbo-110mm-g36.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-19T19:16:53.212Z",
+        codigos: [
+          { voltagem: "GR36", codigo: "3673 110 36" }
+        ]
+      },
+      {
+        nome: "Disco de Desbaste Diamantado 100mm",
+        imagem: "assets/produtos/disco-desbaste-diamantado-100mm.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-19T19:19:08.691Z",
+        codigos: [
+          { voltagem: "GR36", codigo: "3673 100 36" },
+          { voltagem: "GR60", codigo: "3673 100 60" },
+          { voltagem: "GR120", codigo: "3673 100 120" }
+        ]
+      },
+      {
+        nome: "Disco de Desbaste Diamantado 115mm",
+        imagem: "assets/produtos/disco-desbaste-diamantado-115mm.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-19T19:33:46.124Z",
+        codigos: [
+          { voltagem: "GR36", codigo: "3673 141 15" },
+          { voltagem: "Promo GR36", codigo: "3675 115" },
+          { voltagem: "GR60", codigo: "3673 115 60" },
+          { voltagem: "GR120", codigo: "3673 141 20" }
+        ]
+      },
+      {
+        nome: "Disco de Desbaste Diamantado GR36",
+        imagem: "assets/produtos/disco-desbaste-diamantado-turbo.png",
+        imagemLegenda: "150mm",
+        imagensExtras: [{"arquivo":"assets/produtos/disco-desbaste-diamantado-180mm.png","legenda":"180mm"}],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-19T19:35:15.108Z",
+        codigos: [
+          { voltagem: "150mm", codigo: "3673 150" },
+          { voltagem: "180mm", codigo: "3673 180" }
+        ]
+      },
+      {
+        nome: "Disco de Desbaste Diamantado Curvo 100mm",
+        imagem: "assets/produtos/disco-desbaste-diamantado-curvo.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-19T19:36:02.196Z",
+        codigos: [
+          { voltagem: "GR36", codigo: "3675 111 36" }
+        ]
+      },
+      {
+        nome: "Disco de Desbaste Diamantado Norton Pro 115mm",
+        imagem: "assets/produtos/disco-desbaste-diamantado-norton-pro.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-19T19:38:17.819Z",
+        codigos: [
+          { voltagem: "GR36", codigo: "3673 236" }
+        ]
+      },
+      {
+        nome: "Disco de Desbaste Diamantado Shark",
+        imagem: "assets/produtos/disco-desbaste-diamantado-shark-125mm.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-19T19:39:30.764Z",
+        codigos: [
+          { voltagem: "125mm", codigo: "3675 125" }
+        ]
+      },
+      {
+        nome: "Disco de Desbaste Liso Diamantado Mármore",
+        imagem: "assets/produtos/disco-desbaste-liso.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-19T19:50:46.468Z",
+        codigos: [
+          { voltagem: "GR36", codigo: "3673 336" },
+          { voltagem: "GR60", codigo: "3673 360" },
+          { voltagem: "GR100", codigo: "3673 3100" },
+          { voltagem: "GR120", codigo: "3673 3120" },
+          { voltagem: "GR180", codigo: "3673 3180" },
+          { voltagem: "GR220", codigo: "3673 3220" },
+          { voltagem: "GR400", codigo: "3673 3400" }
+        ]
+      },
+      {
+        nome: "Disco de Desbaste Liso Norton Pro 95mm",
+        imagem: "assets/produtos/disco-desbaste-liso-norton-pro.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-19T19:52:54.779Z",
+        codigos: [
+          { voltagem: "GR36", codigo: "3673 1036" },
+          { voltagem: "GR60", codigo: "3673 1060" },
+          { voltagem: "GR220", codigo: "3673 1220" }
+        ]
+      },
+      {
+        nome: "Disco de Desbaste Tyrolit A30Q-BF",
+        imagem: "assets/produtos/disco-desbaste-tyrolit-a30q-bf.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-19T19:54:06.412Z",
+        codigos: [
+          { voltagem: "115x6x22,23", codigo: "0666 1156" },
+          { voltagem: "125x6x22,23", codigo: "0666 1256" },
+          { voltagem: "178x6x22,23", codigo: "0666 1786" }
+        ]
+      },
+      {
+        nome: "Disco Diamantado IRWIN MetalMax",
+        imagem: "assets/produtos/disco-corte-diamantado-metalmax.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-19T19:56:51.075Z",
+        codigos: [
+          { voltagem: "4x3/8x3/4\"", codigo: "3220 434" },
+          { voltagem: "4,5\"x7/8\"", codigo: "3220 4578" },
+          { voltagem: "7\"x7/8\"", codigo: "3220 7078" },
+          { voltagem: "9\"x7/8\"", codigo: "3220 9078" }
+        ]
+      },
+      {
+        nome: "Disco Porko Extreme IMP",
+        imagem: "assets/produtos/disco-porko-extreme-430mm.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-19T20:00:56.148Z",
+        codigos: [
+          { voltagem: "430mm", codigo: "0666 430" }
+        ]
+      },
+      {
+        nome: "Disco Removedor Strip Flex Roxo",
+        imagem: "assets/produtos/disco-removedor-strip-flex-roxo-115x22.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-19T20:02:38.155Z",
+        codigos: [
+          { voltagem: "115x22mm", codigo: "0665 115 22" }
+        ]
+      },
+      {
+        nome: "Disco de Serra Circular Alumínio Dewalt 100D",
+        imagem: "assets/produtos/disco-serra-circular-aluminio-dewalt-12.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-19T20:05:02.564Z",
+        codigos: [
+          { voltagem: "10\"", codigo: "4410 101 00" },
+          { voltagem: "12\"", codigo: "4410 121 00" }
+        ]
+      },
+      {
+        nome: "Disco de Serra Circular Alumínio Makita",
+        imagem: "assets/produtos/disco-serra-circular-alumino-makita.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "235x30mm - 60 dentes\n260x30mm - 100 dentes\n305x30mm - 100 Dentes\n405mm - 100 Dentes",
+        validade: "",
+        criadoEm: "2026-08-19T20:06:46.116Z",
+        codigos: [
+          { voltagem: "235x30mm", codigo: "3323 235" },
+          { voltagem: "260x30mm", codigo: "3323 260" },
+          { voltagem: "305x30mm", codigo: "3323 305" },
+          { voltagem: "405mm", codigo: "3323 405" }
+        ]
+      },
+      {
+        nome: "Disco de Serra Circular Bosch COOLTEQ",
+        imagem: "assets/produtos/disco-serra-circular-bosch-coolteq.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-19T20:09:00.732Z",
+        codigos: [
+          { voltagem: "110mm", codigo: "3323 110" }
+        ]
+      },
+      {
+        nome: "Disco de Serra Circular Starrett Alumínio 100D",
+        imagem: "assets/produtos/disco-serra-circular-starret-aluminio.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-19T20:10:23.116Z",
+        codigos: [
+          { voltagem: "254x30mm", codigo: "6030 254" },
+          { voltagem: "305x32mm", codigo: "6030 305" }
+        ]
+      },
+      {
+        nome: "Disco de Serra Irwin Corte Rápido 60D",
+        imagem: "assets/produtos/disco-serra-irwin-corte-rapido-60d.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-19T20:11:25.173Z",
+        codigos: [
+          { voltagem: "184x20mm", codigo: "3332 186" }
+        ]
+      },
+      {
+        nome: "Disco de Serra Makita TCT",
+        imagem: "assets/produtos/disco-serra-makita-tct.png",
+        imagemLegenda: "165mm",
+        imagensExtras: [{"arquivo":"assets/produtos/disco-serra-makita-tct-185.png","legenda":"185mm"}],
+        descricao: "165x20mm - 56 dentes\n185x20mm - 60 dentes",
+        validade: "",
+        criadoEm: "2026-08-19T20:12:05.725Z",
+        codigos: [
+          { voltagem: "165x20mm", codigo: "3332 165 56" },
+          { voltagem: "185x20mm", codigo: "3332 185 60" }
+        ]
+      },
+      {
+        nome: "Flap Disco Basic 115x22mm",
+        imagem: "assets/produtos/flap-disco-basic.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-19T20:38:12.997Z",
+        codigos: [
+          { voltagem: "GR40", codigo: "0667 411 040" },
+          { voltagem: "GR60", codigo: "0667 411 060" },
+          { voltagem: "GR80", codigo: "0667 411 080" },
+          { voltagem: "GR120", codigo: "0667 411 120" }
+        ]
+      },
+      {
+        nome: "Flap Disco 180x22mm",
+        imagem: "assets/produtos/flap-disco-180x22mm-gr80.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-19T20:41:02.581Z",
+        codigos: [
+          { voltagem: "GR40", codigo: "0667 007 040" },
+          { voltagem: "GR60", codigo: "0667 007 060" },
+          { voltagem: "GR80", codigo: "0667 007 080" },
+          { voltagem: "GR120", codigo: "0667 007 120" }
+        ]
+      },
+      {
+        nome: "Flap Disco Feltro 28PWA SHF Branco",
+        imagem: "assets/produtos/flap-disco-feltro-28-pwa-shf-branco.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-19T20:43:21.540Z",
+        codigos: [
+          { voltagem: "115x22,2", codigo: "0664 1150" }
+        ]
+      },
+      {
+        nome: "Flap Disco Tyrolit Inox 115x22mm",
+        imagem: "assets/produtos/flap-disco-tyrolit-inox-115x22mm.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-19T20:46:02.269Z",
+        codigos: [
+          { voltagem: "GR40", codigo: "0667 412 040" },
+          { voltagem: "GR60", codigo: "0667 412 060" },
+          { voltagem: "GR120", codigo: "0667 412 120" }
+        ]
+      },
+      {
+        nome: "Flap Disco Zircônio 115x22mm",
+        imagem: "assets/produtos/flap-disco-zirconio.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-19T20:48:09.173Z",
+        codigos: [
+          { voltagem: "GR40", codigo: "0667 413 040" },
+          { voltagem: "GR60", codigo: "0667 413 060" },
+          { voltagem: "GR80", codigo: "0667 413 080" },
+          { voltagem: "GR120", codigo: "0667 413 120" }
         ]
       }
     ]
@@ -6281,18 +6605,30 @@
   const AUTOPLAY_GALERIA_MS = 3000;
   const autoplayIntervalsCard = new WeakMap();
 
-  function trocarImagemCard(card, imagensProduto, novoIndex, imgPrincipalEl, legendaEl) {
+  function trocarImagemCard(card, imagensProduto, novoIndex, imgPrincipalEl, legendaEl, direcao) {
+    const atual = parseInt(card.dataset.imgIndex, 10) || 0;
+    // deduz a direção do slide quando quem chamou não informou (ex: clique
+    // direto numa miniatura): anda pra frente se o novo índice é maior
+    if (direcao !== 1 && direcao !== -1) {
+      direcao = novoIndex >= atual ? 1 : -1;
+    }
     card.dataset.imgIndex = String(novoIndex);
-    // efeito "flip" (folha virando, tipo passar página): a foto gira e
-    // afina até a borda, troca de imagem no meio do giro e volta a abrir
-    const DURACAO_MEIO_GIRO_MS = 180;
-    imgPrincipalEl.style.transform = 'rotateY(90deg)';
-    imgPrincipalEl.style.opacity = '.4';
+    // efeito "slide" (como apresentação de slides): a foto atual desliza
+    // pra fora de um lado, troca de imagem e a nova entra deslizando do
+    // lado oposto
+    const DURACAO_SLIDE_MS = 200;
+    imgPrincipalEl.style.transition = `transform ${DURACAO_SLIDE_MS}ms ease-in, opacity ${DURACAO_SLIDE_MS}ms ease-in`;
+    imgPrincipalEl.style.transform = `translateX(${direcao * -35}%)`;
+    imgPrincipalEl.style.opacity = '0';
     window.setTimeout(() => {
       imgPrincipalEl.src = imagensProduto[novoIndex].src;
-      imgPrincipalEl.style.transform = 'rotateY(0deg)';
+      imgPrincipalEl.style.transition = 'none';
+      imgPrincipalEl.style.transform = `translateX(${direcao * 35}%)`;
+      imgPrincipalEl.offsetWidth; // força o navegador a aplicar a posição antes de animar de volta
+      imgPrincipalEl.style.transition = `transform ${DURACAO_SLIDE_MS}ms ease-out, opacity ${DURACAO_SLIDE_MS}ms ease-out`;
+      imgPrincipalEl.style.transform = 'translateX(0)';
       imgPrincipalEl.style.opacity = '1';
-    }, DURACAO_MEIO_GIRO_MS);
+    }, DURACAO_SLIDE_MS);
     if (legendaEl) {
       legendaEl.textContent = imagensProduto[novoIndex].legenda || '';
       legendaEl.style.display = imagensProduto[novoIndex].legenda ? '' : 'none';
@@ -6422,7 +6758,7 @@
         const irParaSeta = (delta) => {
           const atual = parseInt(card.dataset.imgIndex, 10) || 0;
           const novoIndex = (atual + delta + imagensProduto.length) % imagensProduto.length;
-          trocarImagemCard(card, imagensProduto, novoIndex, imgPrincipalEl, legendaEl);
+          trocarImagemCard(card, imagensProduto, novoIndex, imgPrincipalEl, legendaEl, delta > 0 ? 1 : -1);
           card.dataset.autoplayPausado = '1';
           pausarAutoplayCardAteProximoClique(card, () => {
             card.dataset.autoplayPausado = '0';
@@ -7053,6 +7389,7 @@
 
 </body>
 </html>
+
 
 
 

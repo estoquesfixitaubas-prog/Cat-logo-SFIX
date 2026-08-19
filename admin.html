@@ -156,6 +156,8 @@
   .fotos-extra-item .legenda-foto-extra {
     width:96px; padding:4px 6px; font-size:11px; border:1px solid #d1d5db; border-radius:5px;
   }
+  .fotos-extra-item .fotos-extra-thumb { cursor:pointer; }
+  .produto-topo .preview.clicavel { cursor:pointer; }
   label { font-size:12px; font-weight:700; color:var(--cinza); display:block; margin-bottom:3px; }
   input[type="text"] {
     width:100%; padding:8px 10px; border:1px solid #d1d5db; border-radius:6px; font-size:14px;
@@ -167,6 +169,14 @@
   .codigo-row input[type="text"] { flex:1; min-width:100px; }
   .codigo-row input.voltagem-input { max-width:90px; flex:none; }
   .codigo-row input.multiplo-input { max-width:150px; flex:none; }
+  .codigo-setas { display:flex; flex-direction:column; gap:2px; flex:none; }
+  .codigo-setas button {
+    width:24px; height:17px; padding:0; font-size:10px; font-weight:800; line-height:1;
+    border:1.5px solid var(--azul-escuro); background:#fff; color:var(--azul-escuro);
+    border-radius:4px; cursor:pointer;
+  }
+  .codigo-setas button:hover:not(:disabled) { background:var(--azul-escuro); color:#fff; }
+  .codigo-setas button:disabled { opacity:.3; cursor:default; }
   .multiplo-aviso-info {
     font-size:11.5px; color:var(--teal); background:#e7f7f3; border-radius:6px;
     padding:6px 9px; margin-top:4px; line-height:1.4;
@@ -289,6 +299,7 @@
       <button type="button" class="btn-secundaria" id="fotoPreviewCancelar">Cancelar</button>
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
         <button type="button" class="btn-secundaria" id="fotoPreviewCortar">✂️ Cortar</button>
+        <button type="button" class="btn-secundaria" id="fotoPreviewTrocar" style="display:none;">🔄 Trocar foto</button>
         <button type="button" class="btn-sucesso" id="fotoPreviewUsar">✓ Usar assim</button>
       </div>
     </div>
@@ -785,6 +796,7 @@
     <div id="rodapeAcoes">
       <button class="btn-primaria" id="btnPublicar">🚀 Publicar automaticamente</button>
       <button class="btn-sucesso" id="btnSalvar">💾 Salvar alterações no catálogo</button>
+      <button type="button" class="btn-secundaria" id="btnBaixarManual">⬇ Baixar manualmente</button>
     </div>
 
     <div id="resultado"></div>
@@ -2670,7 +2682,10 @@
   // (mais pesada, monta canvas/handles/pointer-events) só é aberta se a pessoa
   // pedir — isso evita o travamento de abrir o editor de corte automaticamente
   // toda vez que uma foto é escolhida.
-  const fotoPreview = { overlay: null, img: null, urlTemp: null, arquivo: null, callback: null };
+  const fotoPreview = {
+    overlay: null, img: null, urlTemp: null, arquivo: null, callback: null,
+    modo: 'novo', aoCortarExistente: null, aoTrocarExistente: null
+  };
 
   function fotoPreviewIniciar() {
     fotoPreview.overlay = document.getElementById('fotoPreviewOverlay');
@@ -2683,21 +2698,59 @@
       if (callback) callback(arquivo);
     });
     document.getElementById('fotoPreviewCortar').addEventListener('click', () => {
+      // no modo "existente" (foto já salva, só visualizando) não temos um File
+      // em mãos — quem chamou fotoPreviewAbrirExistente é quem sabe buscar a
+      // imagem e abrir o editor de corte, então só repassamos pra ele
+      if (fotoPreview.modo === 'existente') {
+        const aoCortar = fotoPreview.aoCortarExistente;
+        fotoPreviewFechar();
+        if (aoCortar) aoCortar();
+        return;
+      }
       const callback = fotoPreview.callback;
       const arquivo = fotoPreview.arquivo;
       fotoPreviewFechar();
       editorFotoAbrir(arquivo, callback);
     });
+    document.getElementById('fotoPreviewTrocar').addEventListener('click', () => {
+      const aoTrocar = fotoPreview.aoTrocarExistente;
+      fotoPreviewFechar();
+      if (aoTrocar) aoTrocar();
+    });
   }
 
+  // Modo "novo": acabou de escolher um arquivo no input e ainda vai decidir
+  // se usa direto ou corta antes de salvar (fluxo original, sem mudanças).
   async function fotoPreviewAbrir(file, callback) {
     if (!fotoPreview.overlay) fotoPreviewIniciar();
     const arquivoEmMemoria = await copiarArquivoParaMemoria(file);
+    fotoPreview.modo = 'novo';
     fotoPreview.arquivo = arquivoEmMemoria;
     fotoPreview.callback = callback;
+    fotoPreview.aoCortarExistente = null;
+    fotoPreview.aoTrocarExistente = null;
     if (fotoPreview.urlTemp) URL.revokeObjectURL(fotoPreview.urlTemp);
     fotoPreview.urlTemp = URL.createObjectURL(arquivoEmMemoria);
     fotoPreview.img.src = fotoPreview.urlTemp;
+    document.getElementById('fotoPreviewUsar').style.display = '';
+    document.getElementById('fotoPreviewTrocar').style.display = 'none';
+    fotoPreview.overlay.classList.add('mostrar');
+  }
+
+  // Modo "existente": clicou numa foto que já está no produto, só pra ver
+  // como ela fica / decidir se corta ou troca por outra. aoCortar e aoTrocar
+  // são callbacks fornecidos por quem chamou (sabem qual produto/foto é).
+  function fotoPreviewAbrirExistente(src, { aoCortar, aoTrocar } = {}) {
+    if (!fotoPreview.overlay) fotoPreviewIniciar();
+    fotoPreview.modo = 'existente';
+    fotoPreview.arquivo = null;
+    fotoPreview.callback = null;
+    fotoPreview.aoCortarExistente = aoCortar || null;
+    fotoPreview.aoTrocarExistente = aoTrocar || null;
+    if (fotoPreview.urlTemp) { URL.revokeObjectURL(fotoPreview.urlTemp); fotoPreview.urlTemp = null; }
+    fotoPreview.img.src = src;
+    document.getElementById('fotoPreviewUsar').style.display = 'none';
+    document.getElementById('fotoPreviewTrocar').style.display = '';
     fotoPreview.overlay.classList.add('mostrar');
   }
 
@@ -2705,7 +2758,20 @@
     fotoPreview.overlay.classList.remove('mostrar');
     fotoPreview.callback = null;
     fotoPreview.arquivo = null;
+    fotoPreview.aoCortarExistente = null;
+    fotoPreview.aoTrocarExistente = null;
     if (fotoPreview.urlTemp) { URL.revokeObjectURL(fotoPreview.urlTemp); fotoPreview.urlTemp = null; }
+  }
+
+  // Busca uma imagem já publicada (ou um blob: de uma foto recém-escolhida)
+  // e transforma num File, pra poder abrir no editor de corte. Se a imagem
+  // for de outro domínio sem CORS liberado, o fetch falha — nesse caso quem
+  // chamou deve avisar a pessoa e sugerir "Trocar foto" no lugar.
+  async function urlParaArquivo(url, nomeArquivo) {
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error('Falha ao buscar imagem: ' + resp.status);
+    const blob = await resp.blob();
+    return new File([blob], nomeArquivo, { type: blob.type || 'image/jpeg' });
   }
 
   // ================= editor de foto (cortar / reenquadrar) =================
@@ -3228,7 +3294,8 @@
         else renderizarProdutos(lista, containerEl, aba);
       }
 
-      card.querySelector('[data-campo="foto"]').addEventListener('change', e => {
+      const inputFotoPrincipal = card.querySelector('[data-campo="foto"]');
+      inputFotoPrincipal.addEventListener('change', e => {
         const file = e.target.files[0];
         if (!file) return;
         fotoPreviewAbrir(file, arquivoEditado => {
@@ -3238,6 +3305,31 @@
         });
         e.target.value = ''; // permite escolher o mesmo arquivo de novo depois
       });
+
+      // clicar na miniatura principal (quando já existe foto) abre a
+      // visualização, com opção de cortar essa foto ou trocar por outra
+      const previewPrincipalEl = card.querySelector('[data-preview]');
+      const srcFotoPrincipal = previewSrc || p.imagem || null;
+      if (previewPrincipalEl && srcFotoPrincipal) {
+        previewPrincipalEl.classList.add('clicavel');
+        previewPrincipalEl.addEventListener('click', () => {
+          fotoPreviewAbrirExistente(srcFotoPrincipal, {
+            aoCortar: async () => {
+              try {
+                const arquivo = await urlParaArquivo(srcFotoPrincipal, sanitizarNomeArquivo(p.nome || 'foto') + '.jpg');
+                editorFotoAbrir(arquivo, arquivoEditado => {
+                  p.arquivoNovo = arquivoEditado;
+                  p.previewUrl = URL.createObjectURL(arquivoEditado);
+                  rerenderizar();
+                });
+              } catch (err) {
+                alert('Não foi possível abrir esta foto pra cortar. Use "Trocar foto" pra substituir por uma nova imagem.');
+              }
+            },
+            aoTrocar: () => inputFotoPrincipal.click()
+          });
+        });
+      }
 
       // ---- fotos extras (variações do mesmo produto, ex: com/sem válvula) ----
       if (!p.imagensExtras) p.imagensExtras = [];
@@ -3257,14 +3349,48 @@
               <button type="button" title="Remover esta foto">✕</button>
             </div>
             <input type="text" class="legenda-foto-extra" maxlength="40" placeholder="legenda (ex: Com Válvula)" value="${escapeAttr(extra.legenda || '')}">
+            <input type="file" accept="image/*" class="input-trocar-foto-extra" style="display:none;">
           `;
           item.querySelector('.legenda-foto-extra').addEventListener('input', e => {
             extra.legenda = e.target.value;
           });
-          item.querySelector('button').addEventListener('click', () => {
+          item.querySelector('button[title="Remover esta foto"]').addEventListener('click', () => {
             p.imagensExtras.splice(k, 1);
             renderFotosExtras();
             agendarSalvarRascunho();
+          });
+          const inputTrocar = item.querySelector('.input-trocar-foto-extra');
+          // clicar na miniatura (fora do "✕") abre a visualização, com opção
+          // de cortar essa foto ou trocar por outra
+          item.querySelector('.fotos-extra-thumb').addEventListener('click', e => {
+            if (e.target.closest('button')) return; // deixa o "✕" funcionar normal
+            fotoPreviewAbrirExistente(src, {
+              aoCortar: async () => {
+                try {
+                  const arquivo = await urlParaArquivo(src, sanitizarNomeArquivo((extra.legenda || p.nome || 'foto-extra')) + '.jpg');
+                  editorFotoAbrir(arquivo, arquivoEditado => {
+                    extra.arquivoNovo = arquivoEditado;
+                    extra.previewUrl = URL.createObjectURL(arquivoEditado);
+                    renderFotosExtras();
+                    agendarSalvarRascunho();
+                  });
+                } catch (err) {
+                  alert('Não foi possível abrir esta foto pra cortar. Use "Trocar foto" pra substituir por uma nova imagem.');
+                }
+              },
+              aoTrocar: () => inputTrocar.click()
+            });
+          });
+          inputTrocar.addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (!file) return;
+            fotoPreviewAbrir(file, arquivoEditado => {
+              extra.arquivoNovo = arquivoEditado;
+              extra.previewUrl = URL.createObjectURL(arquivoEditado);
+              renderFotosExtras();
+              agendarSalvarRascunho();
+            });
+            e.target.value = ''; // permite escolher o mesmo arquivo de novo depois
           });
           fotosExtraLista.appendChild(item);
         });
@@ -3295,12 +3421,17 @@
           const row = document.createElement('div');
           row.className = 'codigo-row';
           row.innerHTML = `
+            <div class="codigo-setas">
+              <button type="button" data-mover-codigo="-1" title="Subir" ${j === 0 ? 'disabled' : ''}>▲</button>
+              <button type="button" data-mover-codigo="1" title="Descer" ${j === p.codigos.length - 1 ? 'disabled' : ''}>▼</button>
+            </div>
             <input type="text" class="voltagem-input" placeholder="voltagem (ex: 220v)" value="${escapeAttr(c.voltagem || '')}">
             <input type="text" placeholder="código" value="${escapeAttr(c.codigo || '')}">
             <input type="number" min="1" step="1" class="multiplo-input" placeholder="múltiplo (ex: 200 = vende só por cx de 200un)" value="${escapeAttr(c.multiplo || '')}">
             <button type="button" class="btn-perigo icone" title="Remover">✕</button>
           `;
-          const [voltInput, codInput, multiploInput, delBtn] = row.querySelectorAll('input, button');
+          const [subirBtn, descerBtn] = row.querySelectorAll('[data-mover-codigo]');
+          const [voltInput, codInput, multiploInput, delBtn] = row.querySelectorAll('input, button:not([data-mover-codigo])');
           voltInput.addEventListener('input', e => c.voltagem = e.target.value);
           codInput.addEventListener('input', e => {
             c.codigo = e.target.value;
@@ -3316,6 +3447,16 @@
           });
           delBtn.addEventListener('click', () => {
             p.codigos.splice(j, 1);
+            renderCodigos();
+          });
+          subirBtn.addEventListener('click', () => {
+            if (j === 0) return;
+            [p.codigos[j - 1], p.codigos[j]] = [p.codigos[j], p.codigos[j - 1]];
+            renderCodigos();
+          });
+          descerBtn.addEventListener('click', () => {
+            if (j === p.codigos.length - 1) return;
+            [p.codigos[j + 1], p.codigos[j]] = [p.codigos[j], p.codigos[j + 1]];
             renderCodigos();
           });
           codigosWrap.appendChild(row);
@@ -3963,6 +4104,29 @@ self.addEventListener('fetch', event => {
     }
   });
 
+  // Botão "Baixar manualmente": gera o mesmo pacote ZIP de sempre, mas sem
+  // tentar salvar direto na pasta primeiro — útil quando você quer o arquivo
+  // pra conferir, guardar de backup, ou subir manualmente mesmo estando no
+  // modo automático (com a pasta aberta).
+  document.getElementById('btnBaixarManual').addEventListener('click', async () => {
+    const dados = montarArquivosFinais();
+    if (!dados) return;
+
+    if (dados.perderiaConteudoExistente) {
+      const continuarMesmoAssim = confirm(
+        'Atenção: o painel carregou um sw.js, mas não encontrou os marcadores internos ' +
+        '"// ==CACHE-INICIO==" / "// ==CACHE-FIM==" nele (podem ter sido apagados ou alterados ' +
+        'numa edição manual). Se continuar, o sw.js será reescrito do zero, com uma versão simples ' +
+        'do tratamento de cache — e qualquer código customizado que você tenha adicionado por fora ' +
+        'desses marcadores (como tratamento de erros offline) será perdido.\n\n' +
+        'Cancele e verifique o arquivo antes, se não tiver certeza. Quer continuar mesmo assim?'
+      );
+      if (!continuarMesmoAssim) return;
+    }
+
+    await gerarPacoteZipParaDownload(dados);
+  });
+
   // ================= IMPORTAÇÃO DE ESTOQUE (RELATÓRIO PUMA) =================
 
   // Deixa só letras/números maiúsculos pra comparar códigos sem se importar
@@ -4393,5 +4557,6 @@ self.addEventListener('fetch', event => {
 
 </body>
 </html>
+
 
 
