@@ -1333,6 +1333,28 @@
        2 colunas dentro do card espremia o código até ele sumir. Volta a
        empilhar em 1 coluna só aqui no mobile. */
     .codigos.compacto { grid-template-columns: 1fr; }
+
+    /* produtos com poucos códigos mas texto grande dentro do quadrado verde
+       (voltagem/tamanho): só empilha verde em cima do azul aqui no celular.
+       No computador tem espaço de sobra pra ficar lado a lado, então essa
+       classe fica sem efeito nenhum fora deste media query. */
+    .codigos.valores-grandes .codigo-linha {
+      flex-direction: column;
+      overflow: visible;
+    }
+    .codigos.valores-grandes .voltagem,
+    .codigos.valores-grandes .codigo {
+      border-radius: 0;
+    }
+    .codigos.valores-grandes .voltagem:first-child {
+      border-radius: 6px 6px 0 0;
+    }
+    .codigos.valores-grandes .codigo:last-child {
+      border-radius: 0 0 6px 6px;
+    }
+    .codigos.valores-grandes .codigo-linha:not(:has(.voltagem)) .codigo {
+      border-radius: 6px;
+    }
   }
 </style>
 </head>
@@ -1516,7 +1538,7 @@
   // para mostrar "Atualizado hoje às HH:MM" / "Atualizado no dia X".
   // ==========================================================
   // ==DATA-ATUALIZACAO-INICIO==
-  const ULTIMA_ATUALIZACAO_ISO = "2026-08-19T20:56:05.617Z";
+  const ULTIMA_ATUALIZACAO_ISO = "2026-08-20T22:22:20.425Z";
   // ==DATA-ATUALIZACAO-FIM==
 
   // ==========================================================
@@ -2145,7 +2167,7 @@
         validade: "",
         criadoEm: "2026-08-18T21:02:48.418Z",
         codigos: [
-          { voltagem: "110x20mm", codigo: "3234 1199" }
+          { voltagem: "110x20mm", codigo: "3234 1199", emEstoque: true }
         ]
       },
       {
@@ -2158,8 +2180,8 @@
         criadoEm: "2026-08-18T21:01:23.121Z",
         codigos: [
           { voltagem: "110x20x1,0mm - White", codigo: "3201 105", emEstoque: true },
-          { voltagem: "110x20x1,3mm - Azul", codigo: "3201 120" },
-          { voltagem: "110x20x1,6mm - Black", codigo: "3235 1102" }
+          { voltagem: "110x20x1,3mm - Azul", codigo: "3201 120", emEstoque: true },
+          { voltagem: "110x20x1,6mm - Black", codigo: "3235 1102", emEstoque: true }
         ]
       },
       {
@@ -2183,7 +2205,7 @@
         validade: "",
         criadoEm: "2026-08-18T21:14:31.305Z",
         codigos: [
-          { voltagem: "120x20x1,8mm", codigo: "3235 110" }
+          { voltagem: "120x20x1,8mm", codigo: "3235 110", emEstoque: true }
         ]
       },
       {
@@ -2196,8 +2218,8 @@
         criadoEm: "2026-08-18T21:01:23.121Z",
         codigos: [
           { voltagem: "114x3,2x22mm", codigo: "0667 114 32", emEstoque: true },
-          { voltagem: "178x3,2x22mm", codigo: "0667 178 32" },
-          { voltagem: "228x3,2x22mm", codigo: "0667 228 32" }
+          { voltagem: "178x3,2x22mm", codigo: "0667 178 32", emEstoque: true },
+          { voltagem: "228x3,2x22mm", codigo: "0667 228 32", emEstoque: true }
         ]
       },
       {
@@ -2210,7 +2232,7 @@
         criadoEm: "2026-08-18T21:01:23.121Z",
         codigos: [
           { voltagem: "12x1/8x1", codigo: "0667 304 25", emEstoque: true },
-          { voltagem: "12x1/8x3/4", codigo: "0667 304 32" }
+          { voltagem: "12x1/8x3/4", codigo: "0667 304 32", emEstoque: true }
         ]
       },
       {
@@ -2223,8 +2245,8 @@
         criadoEm: "2026-08-18T21:01:23.121Z",
         codigos: [
           { voltagem: "12x1/8x1\"", codigo: "0667 1201", emEstoque: true },
-          { voltagem: "12x1/8x3/4\"", codigo: "0667 1234" },
-          { voltagem: "12x1/8x5/8\"", codigo: "0667 1258" }
+          { voltagem: "12x1/8x3/4\"", codigo: "0667 1234", emEstoque: true },
+          { voltagem: "12x1/8x5/8\"", codigo: "0667 1258", emEstoque: true }
         ]
       },
       {
@@ -2237,8 +2259,8 @@
         criadoEm: "2026-08-18T21:01:23.121Z",
         codigos: [
           { voltagem: "250x3,5x15,9mm", codigo: "0666 250 16", emEstoque: true },
-          { voltagem: "250x3,5x19mm", codigo: "0666 250 19" },
-          { voltagem: "250x3,5x25mm", codigo: "0666 250 25" }
+          { voltagem: "250x3,5x19mm", codigo: "0666 250 19", emEstoque: true },
+          { voltagem: "250x3,5x25mm", codigo: "0666 250 25", emEstoque: true }
         ]
       },
       {
@@ -2250,7 +2272,7 @@
         validade: "",
         criadoEm: "2026-08-18T21:40:30.751Z",
         codigos: [
-          { voltagem: "300x3,5x19mm", codigo: "0666 300 19" }
+          { voltagem: "300x3,5x19mm", codigo: "0666 300 19", emEstoque: true }
         ]
       },
       {
@@ -2286,7 +2308,7 @@
         validade: "",
         criadoEm: "2026-08-18T21:47:20.583Z",
         codigos: [
-          { voltagem: "180x2x22mm", codigo: "0661 1802" }
+          { voltagem: "180x2x22mm", codigo: "0661 1802", emEstoque: true }
         ]
       },
       {
@@ -2299,8 +2321,8 @@
         criadoEm: "2026-08-18T21:01:23.121Z",
         codigos: [
           { voltagem: "115x1,0x22mm", codigo: "0669 115 10", emEstoque: true },
-          { voltagem: "178x1,6x22mm", codigo: "0669 178 19" },
-          { voltagem: "230,2,5x22mm", codigo: "0669 230 2" }
+          { voltagem: "178x1,6x22mm", codigo: "0669 178 19", emEstoque: true },
+          { voltagem: "230,2,5x22mm", codigo: "0669 230 2", emEstoque: true }
         ]
       },
       {
@@ -2312,8 +2334,8 @@
         validade: "",
         criadoEm: "2026-08-18T21:53:14.711Z",
         codigos: [
-          { voltagem: "115x1,0x22mm", codigo: "0667 115" },
-          { voltagem: "178x1,6x22mm", codigo: "0667 180" }
+          { voltagem: "115x1,0x22mm", codigo: "0667 115", emEstoque: true },
+          { voltagem: "178x1,6x22mm", codigo: "0667 180", emEstoque: true }
         ]
       },
       {
@@ -2326,7 +2348,7 @@
         criadoEm: "2026-08-18T21:01:23.121Z",
         codigos: [
           { voltagem: "115x1,0x22mm", codigo: "0665 1177", emEstoque: true },
-          { voltagem: "180x1,6x22mm", codigo: "0665 2277" }
+          { voltagem: "180x1,6x22mm", codigo: "0665 2277", emEstoque: true }
         ]
       },
       {
@@ -2338,8 +2360,8 @@
         validade: "",
         criadoEm: "2026-08-18T21:57:44.463Z",
         codigos: [
-          { voltagem: "115x1,0x22mm", codigo: "0667 115 10" },
-          { voltagem: "178x1,6x22mm", codigo: "0667 178 16" }
+          { voltagem: "115x1,0x22mm", codigo: "0667 115 10", emEstoque: true },
+          { voltagem: "178x1,6x22mm", codigo: "0667 178 16", emEstoque: true }
         ]
       },
       {
@@ -2352,7 +2374,7 @@
         criadoEm: "2026-08-18T21:01:23.121Z",
         codigos: [
           { voltagem: "115x1,0x22mm", codigo: "0667 1151", emEstoque: true },
-          { voltagem: "178x1,6x22mm", codigo: "0667 178 78" }
+          { voltagem: "178x1,6x22mm", codigo: "0667 178 78", emEstoque: true }
         ]
       },
       {
@@ -2365,8 +2387,8 @@
         criadoEm: "2026-08-18T21:01:23.121Z",
         codigos: [
           { voltagem: "300x3,0x15,9mm", codigo: "0667 304 15", emEstoque: true },
-          { voltagem: "300x3,0x19mm", codigo: "0667 304 19" },
-          { voltagem: "355x2,8x25,4mm", codigo: "0667 355 28" }
+          { voltagem: "300x3,0x19mm", codigo: "0667 304 19", emEstoque: true },
+          { voltagem: "355x2,8x25,4mm", codigo: "0667 355 28", emEstoque: true }
         ]
       },
       {
@@ -2390,7 +2412,7 @@
         validade: "",
         criadoEm: "2026-08-18T22:08:50.774Z",
         codigos: [
-          { voltagem: "355x3,0x25,4mm", codigo: "0667 355 32" }
+          { voltagem: "355x3,0x25,4mm", codigo: "0667 355 32", emEstoque: true }
         ]
       },
       {
@@ -2402,7 +2424,7 @@
         validade: "",
         criadoEm: "2026-08-18T22:09:47.758Z",
         codigos: [
-          { voltagem: "110x1,2x10mm", codigo: "3201 111" }
+          { voltagem: "110x1,2x10mm", codigo: "3201 111", emEstoque: true }
         ]
       },
       {
@@ -2426,7 +2448,7 @@
         validade: "",
         criadoEm: "2026-08-18T22:12:40.590Z",
         codigos: [
-          { voltagem: "110mm", codigo: "3331 110" }
+          { voltagem: "110mm", codigo: "3331 110", emEstoque: true }
         ]
       },
       {
@@ -2438,9 +2460,9 @@
         validade: "",
         criadoEm: "2026-08-18T22:16:40.198Z",
         codigos: [
-          { voltagem: "115x6,3x22,2mm", codigo: "0668 115 64" },
-          { voltagem: "178x6,3x22,2mm", codigo: "0668 178 64" },
-          { voltagem: "230x6x22,23mm", codigo: "0668 230 60" }
+          { voltagem: "115x6,3x22,2mm", codigo: "0668 115 64", emEstoque: true },
+          { voltagem: "178x6,3x22,2mm", codigo: "0668 178 64", emEstoque: true },
+          { voltagem: "230x6x22,23mm", codigo: "0668 230 60", emEstoque: true }
         ]
       },
       {
@@ -2452,8 +2474,8 @@
         validade: "",
         criadoEm: "2026-08-18T22:17:59.247Z",
         codigos: [
-          { voltagem: "125x6,0x22,23", codigo: "0668 115" },
-          { voltagem: "180x6,0x22,23", codigo: "0668 180" }
+          { voltagem: "125x6,0x22,23", codigo: "0668 115", emEstoque: true },
+          { voltagem: "180x6,0x22,23", codigo: "0668 180", emEstoque: true }
         ]
       },
       {
@@ -2465,7 +2487,7 @@
         validade: "",
         criadoEm: "2026-08-19T19:16:53.212Z",
         codigos: [
-          { voltagem: "GR36", codigo: "3673 110 36" }
+          { voltagem: "GR36", codigo: "3673 110 36", emEstoque: true }
         ]
       },
       {
@@ -2477,9 +2499,9 @@
         validade: "",
         criadoEm: "2026-08-19T19:19:08.691Z",
         codigos: [
-          { voltagem: "GR36", codigo: "3673 100 36" },
-          { voltagem: "GR60", codigo: "3673 100 60" },
-          { voltagem: "GR120", codigo: "3673 100 120" }
+          { voltagem: "GR36", codigo: "3673 100 36", emEstoque: true },
+          { voltagem: "GR60", codigo: "3673 100 60", emEstoque: true },
+          { voltagem: "GR120", codigo: "3673 100 120", emEstoque: true }
         ]
       },
       {
@@ -2491,10 +2513,10 @@
         validade: "",
         criadoEm: "2026-08-19T19:33:46.124Z",
         codigos: [
-          { voltagem: "GR36", codigo: "3673 141 15" },
-          { voltagem: "Promo GR36", codigo: "3675 115" },
-          { voltagem: "GR60", codigo: "3673 115 60" },
-          { voltagem: "GR120", codigo: "3673 141 20" }
+          { voltagem: "GR36", codigo: "3673 141 15", emEstoque: true },
+          { voltagem: "Promo GR36", codigo: "3675 115", emEstoque: true },
+          { voltagem: "GR60", codigo: "3673 115 60", emEstoque: true },
+          { voltagem: "GR120", codigo: "3673 141 20", emEstoque: true }
         ]
       },
       {
@@ -2506,8 +2528,8 @@
         validade: "",
         criadoEm: "2026-08-19T19:35:15.108Z",
         codigos: [
-          { voltagem: "150mm", codigo: "3673 150" },
-          { voltagem: "180mm", codigo: "3673 180" }
+          { voltagem: "150mm", codigo: "3673 150", emEstoque: true },
+          { voltagem: "180mm", codigo: "3673 180", emEstoque: true }
         ]
       },
       {
@@ -2519,7 +2541,7 @@
         validade: "",
         criadoEm: "2026-08-19T19:36:02.196Z",
         codigos: [
-          { voltagem: "GR36", codigo: "3675 111 36" }
+          { voltagem: "GR36", codigo: "3675 111 36", emEstoque: true }
         ]
       },
       {
@@ -2531,7 +2553,7 @@
         validade: "",
         criadoEm: "2026-08-19T19:38:17.819Z",
         codigos: [
-          { voltagem: "GR36", codigo: "3673 236" }
+          { voltagem: "GR36", codigo: "3673 236", emEstoque: true }
         ]
       },
       {
@@ -2543,7 +2565,7 @@
         validade: "",
         criadoEm: "2026-08-19T19:39:30.764Z",
         codigos: [
-          { voltagem: "125mm", codigo: "3675 125" }
+          { voltagem: "125mm", codigo: "3675 125", emEstoque: true }
         ]
       },
       {
@@ -2555,13 +2577,13 @@
         validade: "",
         criadoEm: "2026-08-19T19:50:46.468Z",
         codigos: [
-          { voltagem: "GR36", codigo: "3673 336" },
-          { voltagem: "GR60", codigo: "3673 360" },
-          { voltagem: "GR100", codigo: "3673 3100" },
-          { voltagem: "GR120", codigo: "3673 3120" },
-          { voltagem: "GR180", codigo: "3673 3180" },
-          { voltagem: "GR220", codigo: "3673 3220" },
-          { voltagem: "GR400", codigo: "3673 3400" }
+          { voltagem: "GR36", codigo: "3673 336", emEstoque: true },
+          { voltagem: "GR60", codigo: "3673 360", emEstoque: true },
+          { voltagem: "GR100", codigo: "3673 3100", emEstoque: true },
+          { voltagem: "GR120", codigo: "3673 3120", emEstoque: true },
+          { voltagem: "GR180", codigo: "3673 3180", emEstoque: true },
+          { voltagem: "GR220", codigo: "3673 3220", emEstoque: true },
+          { voltagem: "GR400", codigo: "3673 3400", emEstoque: true }
         ]
       },
       {
@@ -2573,9 +2595,9 @@
         validade: "",
         criadoEm: "2026-08-19T19:52:54.779Z",
         codigos: [
-          { voltagem: "GR36", codigo: "3673 1036" },
-          { voltagem: "GR60", codigo: "3673 1060" },
-          { voltagem: "GR220", codigo: "3673 1220" }
+          { voltagem: "GR36", codigo: "3673 1036", emEstoque: true },
+          { voltagem: "GR60", codigo: "3673 1060", emEstoque: true },
+          { voltagem: "GR220", codigo: "3673 1220", emEstoque: true }
         ]
       },
       {
@@ -2587,9 +2609,9 @@
         validade: "",
         criadoEm: "2026-08-19T19:54:06.412Z",
         codigos: [
-          { voltagem: "115x6x22,23", codigo: "0666 1156" },
-          { voltagem: "125x6x22,23", codigo: "0666 1256" },
-          { voltagem: "178x6x22,23", codigo: "0666 1786" }
+          { voltagem: "115x6x22,23", codigo: "0666 1156", emEstoque: true },
+          { voltagem: "125x6x22,23", codigo: "0666 1256", emEstoque: true },
+          { voltagem: "178x6x22,23", codigo: "0666 1786", emEstoque: true }
         ]
       },
       {
@@ -2601,10 +2623,10 @@
         validade: "",
         criadoEm: "2026-08-19T19:56:51.075Z",
         codigos: [
-          { voltagem: "4x3/8x3/4\"", codigo: "3220 434" },
-          { voltagem: "4,5\"x7/8\"", codigo: "3220 4578" },
-          { voltagem: "7\"x7/8\"", codigo: "3220 7078" },
-          { voltagem: "9\"x7/8\"", codigo: "3220 9078" }
+          { voltagem: "4x3/8x3/4\"", codigo: "3220 434", emEstoque: true },
+          { voltagem: "4,5\"x7/8\"", codigo: "3220 4578", emEstoque: true },
+          { voltagem: "7\"x7/8\"", codigo: "3220 7078", emEstoque: true },
+          { voltagem: "9\"x7/8\"", codigo: "3220 9078", emEstoque: true }
         ]
       },
       {
@@ -2616,7 +2638,7 @@
         validade: "",
         criadoEm: "2026-08-19T20:00:56.148Z",
         codigos: [
-          { voltagem: "430mm", codigo: "0666 430" }
+          { voltagem: "430mm", codigo: "0666 430", emEstoque: true }
         ]
       },
       {
@@ -2628,7 +2650,7 @@
         validade: "",
         criadoEm: "2026-08-19T20:02:38.155Z",
         codigos: [
-          { voltagem: "115x22mm", codigo: "0665 115 22" }
+          { voltagem: "115x22mm", codigo: "0665 115 22", emEstoque: true }
         ]
       },
       {
@@ -2640,8 +2662,8 @@
         validade: "",
         criadoEm: "2026-08-19T20:05:02.564Z",
         codigos: [
-          { voltagem: "10\"", codigo: "4410 101 00" },
-          { voltagem: "12\"", codigo: "4410 121 00" }
+          { voltagem: "10\"", codigo: "4410 101 00", emEstoque: true },
+          { voltagem: "12\"", codigo: "4410 121 00", emEstoque: true }
         ]
       },
       {
@@ -2653,10 +2675,10 @@
         validade: "",
         criadoEm: "2026-08-19T20:06:46.116Z",
         codigos: [
-          { voltagem: "235x30mm", codigo: "3323 235" },
-          { voltagem: "260x30mm", codigo: "3323 260" },
-          { voltagem: "305x30mm", codigo: "3323 305" },
-          { voltagem: "405mm", codigo: "3323 405" }
+          { voltagem: "235x30mm", codigo: "3323 235", emEstoque: true },
+          { voltagem: "260x30mm", codigo: "3323 260", emEstoque: true },
+          { voltagem: "305x30mm", codigo: "3323 305", emEstoque: true },
+          { voltagem: "405mm", codigo: "3323 405", emEstoque: true }
         ]
       },
       {
@@ -2668,7 +2690,7 @@
         validade: "",
         criadoEm: "2026-08-19T20:09:00.732Z",
         codigos: [
-          { voltagem: "110mm", codigo: "3323 110" }
+          { voltagem: "110mm", codigo: "3323 110", emEstoque: true }
         ]
       },
       {
@@ -2680,8 +2702,8 @@
         validade: "",
         criadoEm: "2026-08-19T20:10:23.116Z",
         codigos: [
-          { voltagem: "254x30mm", codigo: "6030 254" },
-          { voltagem: "305x32mm", codigo: "6030 305" }
+          { voltagem: "254x30mm", codigo: "6030 254", emEstoque: true },
+          { voltagem: "305x32mm", codigo: "6030 305", emEstoque: true }
         ]
       },
       {
@@ -2693,7 +2715,7 @@
         validade: "",
         criadoEm: "2026-08-19T20:11:25.173Z",
         codigos: [
-          { voltagem: "184x20mm", codigo: "3332 186" }
+          { voltagem: "184x20mm", codigo: "3332 186", emEstoque: true }
         ]
       },
       {
@@ -2705,8 +2727,8 @@
         validade: "",
         criadoEm: "2026-08-19T20:12:05.725Z",
         codigos: [
-          { voltagem: "165x20mm", codigo: "3332 165 56" },
-          { voltagem: "185x20mm", codigo: "3332 185 60" }
+          { voltagem: "165x20mm", codigo: "3332 165 56", emEstoque: true },
+          { voltagem: "185x20mm", codigo: "3332 185 60", emEstoque: true }
         ]
       },
       {
@@ -2718,10 +2740,10 @@
         validade: "",
         criadoEm: "2026-08-19T20:38:12.997Z",
         codigos: [
-          { voltagem: "GR40", codigo: "0667 411 040" },
-          { voltagem: "GR60", codigo: "0667 411 060" },
-          { voltagem: "GR80", codigo: "0667 411 080" },
-          { voltagem: "GR120", codigo: "0667 411 120" }
+          { voltagem: "GR40", codigo: "0667 411 040", emEstoque: true },
+          { voltagem: "GR60", codigo: "0667 411 060", emEstoque: true },
+          { voltagem: "GR80", codigo: "0667 411 080", emEstoque: true },
+          { voltagem: "GR120", codigo: "0667 411 120", emEstoque: true }
         ]
       },
       {
@@ -2733,10 +2755,10 @@
         validade: "",
         criadoEm: "2026-08-19T20:41:02.581Z",
         codigos: [
-          { voltagem: "GR40", codigo: "0667 007 040" },
-          { voltagem: "GR60", codigo: "0667 007 060" },
-          { voltagem: "GR80", codigo: "0667 007 080" },
-          { voltagem: "GR120", codigo: "0667 007 120" }
+          { voltagem: "GR40", codigo: "0667 007 040", emEstoque: true },
+          { voltagem: "GR60", codigo: "0667 007 060", emEstoque: true },
+          { voltagem: "GR80", codigo: "0667 007 080", emEstoque: true },
+          { voltagem: "GR120", codigo: "0667 007 120", emEstoque: true }
         ]
       },
       {
@@ -2748,7 +2770,7 @@
         validade: "",
         criadoEm: "2026-08-19T20:43:21.540Z",
         codigos: [
-          { voltagem: "115x22,2", codigo: "0664 1150" }
+          { voltagem: "115x22,2", codigo: "0664 1150", emEstoque: true }
         ]
       },
       {
@@ -2760,9 +2782,9 @@
         validade: "",
         criadoEm: "2026-08-19T20:46:02.269Z",
         codigos: [
-          { voltagem: "GR40", codigo: "0667 412 040" },
-          { voltagem: "GR60", codigo: "0667 412 060" },
-          { voltagem: "GR120", codigo: "0667 412 120" }
+          { voltagem: "GR40", codigo: "0667 412 040", emEstoque: true },
+          { voltagem: "GR60", codigo: "0667 412 060", emEstoque: true },
+          { voltagem: "GR120", codigo: "0667 412 120", emEstoque: true }
         ]
       },
       {
@@ -2774,10 +2796,261 @@
         validade: "",
         criadoEm: "2026-08-19T20:48:09.173Z",
         codigos: [
-          { voltagem: "GR40", codigo: "0667 413 040" },
-          { voltagem: "GR60", codigo: "0667 413 060" },
-          { voltagem: "GR80", codigo: "0667 413 080" },
-          { voltagem: "GR120", codigo: "0667 413 120" }
+          { voltagem: "GR40", codigo: "0667 413 040", emEstoque: true },
+          { voltagem: "GR60", codigo: "0667 413 060", emEstoque: true },
+          { voltagem: "GR80", codigo: "0667 413 080", emEstoque: true },
+          { voltagem: "GR120", codigo: "0667 413 120", emEstoque: true }
+        ]
+      },
+      {
+        nome: "Serrra de Alumínio Circular TNT 100D",
+        imagem: "assets/produtos/serra-aluminio-circular-tnt-8.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T18:11:08.352Z",
+        codigos: [
+          { voltagem: "200x30mm", codigo: "3332 200", emEstoque: true },
+          { voltagem: "305x30", codigo: "3332 300", emEstoque: true }
+        ]
+      },
+      {
+        nome: "Serra Concreto Segmentada Corte Seco MTX",
+        imagem: "assets/produtos/serra-concreto-seg-350x25-4mm-corte-seco-mtx.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T18:20:05.873Z",
+        codigos: [
+          { voltagem: "350x25,4mm", codigo: "3245 350", emEstoque: true }
+        ]
+      },
+      {
+        nome: "Serra de Widea Madeira 24D",
+        imagem: "assets/produtos/serra-de-widea-madeira-110x20mm-24d.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T18:24:23.441Z",
+        codigos: [
+          { voltagem: "110x20mm", codigo: "3332 438", emEstoque: true }
+        ]
+      },
+      {
+        nome: "Serra de Widea Starrett Madeira 40D",
+        imagem: "assets/produtos/serra-de-widea-starret-madeira-110mm-40d.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T18:30:56.306Z",
+        codigos: [
+          { voltagem: "110x22,23mm", codigo: "6030 110 22", emEstoque: true }
+        ]
+      },
+      {
+        nome: "Serra Dekton Preto Pro",
+        imagem: "assets/produtos/serra-dekton-preto-pro.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T18:31:42.553Z",
+        codigos: [
+          { voltagem: "260x10x50mm", codigo: "3334 260", emEstoque: true }
+        ]
+      },
+      {
+        nome: "Serra Dekton Pro Verde",
+        imagem: "assets/produtos/serra-dekton-pro-verde.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T18:32:35.170Z",
+        codigos: [
+          { voltagem: "350x10mm", codigo: "3344 350", emEstoque: true }
+        ]
+      },
+      {
+        nome: "Serra Dekton Ultracompacto",
+        imagem: "assets/produtos/serra-dekton-ultra-compacto-350mm.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T18:34:19.795Z",
+        codigos: [
+          { voltagem: "350mm", codigo: "3334 356", emEstoque: true }
+        ]
+      },
+      {
+        nome: "Serra Dekton Ultracompacto Maxtool",
+        imagem: "assets/produtos/serra-dekton-ultra-compacto-maxtool-300mm.png",
+        imagemLegenda: "",
+        imagensExtras: [{"arquivo":"assets/produtos/serra-dekton-ultracompacta-maxtool-silenciosa-350mm.png","legenda":"Silenciosa"}],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T18:35:03.170Z",
+        codigos: [
+          { voltagem: "250mm", codigo: "3334 255", emEstoque: true },
+          { voltagem: "300mm", codigo: "3334 305", emEstoque: true },
+          { voltagem: "Silenc. 350mm ", codigo: "3334 355", emEstoque: true }
+        ]
+      },
+      {
+        nome: "Serra Freud Alumínio F30 RT 96D",
+        imagem: "assets/produtos/serra-freud-aluminio-300x28x96d.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T18:39:42.177Z",
+        codigos: [
+          { voltagem: "300x28mm", codigo: "3332 325", emEstoque: true }
+        ]
+      },
+      {
+        nome: "Serra Freud MDF F30",
+        imagem: "assets/produtos/serra-freud-mdf-250x28x80d-f30.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "250x28mm: 80D\n300x28mm: 96D",
+        validade: "",
+        criadoEm: "2026-08-20T18:40:40.722Z",
+        codigos: [
+          { voltagem: "250x28mm", codigo: "3332 250", emEstoque: true },
+          { voltagem: "300x28mm", codigo: "3332 305", emEstoque: true }
+        ]
+      },
+      {
+        nome: "Serra Mármore Norton PRO",
+        imagem: "assets/produtos/serra-marmore-norton-pro-350x3-2x50m.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T18:45:44.002Z",
+        codigos: [
+          { voltagem: "350x3,2x50mm", codigo: "3234 350", emEstoque: true }
+        ]
+      },
+      {
+        nome: "Serra Mármore Performance PS-05",
+        imagem: "assets/produtos/serra-marmore-performance-ps05.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T18:48:24.426Z",
+        codigos: [
+          { voltagem: "250mm", codigo: "3254 250", emEstoque: true },
+          { voltagem: "300mm", codigo: "3254 305", emEstoque: true },
+          { voltagem: "350mm", codigo: "3254 355", emEstoque: true }
+        ]
+      },
+      {
+        nome: "Serra Mármore Performance PS-07",
+        imagem: "assets/produtos/serra-marmore-performance-ps-07.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T18:50:22.067Z",
+        codigos: [
+          { voltagem: "300mm", codigo: "3254 257", emEstoque: true }
+        ]
+      },
+      {
+        nome: "Serra Mármore Performance PS-31",
+        imagem: "assets/produtos/serra-marmore-silenciosa-promo-ps-31.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T18:50:58.387Z",
+        codigos: [
+          { voltagem: "250mm", codigo: "3254 231", emEstoque: true },
+          { voltagem: "300mm", codigo: "3254 300", emEstoque: true }
+        ]
+      },
+      {
+        nome: "Serra Quartzo Performance PS-32 Silenciosa",
+        imagem: "assets/produtos/serra-quartzo-performance-ps-32.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T18:51:53.875Z",
+        codigos: [
+          { voltagem: "350mm", codigo: "3254 232", emEstoque: true }
+        ]
+      },
+      {
+        nome: "Serra Quartizito Maxtool Silenciosa",
+        imagem: "assets/produtos/serra-quartzito-350mm-silenciosa.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T18:53:06.363Z",
+        codigos: [
+          { voltagem: "350mm", codigo: "3254 356", emEstoque: true }
+        ]
+      },
+      {
+        nome: "Serra Mármore Silenciosa Promocional PS-31",
+        imagem: "assets/produtos/serra-marmore-silenciosa-promo-ps-31-1-.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T19:10:28.467Z",
+        codigos: [
+          { voltagem: "350x15x50mm", codigo: "3244 350", emEstoque: true }
+        ]
+      },
+      {
+        nome: "Serra Mármore Silenciosa Super",
+        imagem: "assets/produtos/serra-marmore-silenciosa-super-350x15x50mm.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T19:11:13.420Z",
+        codigos: [
+          { voltagem: "350x15x50mm", codigo: "3236 350", emEstoque: true }
+        ]
+      },
+      {
+        nome: "Serra Nanoglass Maxtool Premium",
+        imagem: "assets/produtos/serra-nanoglass-maxtool-premium.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T19:13:39.668Z",
+        codigos: [
+          { voltagem: "250x2,2x50x10mm", codigo: "3334 250", emEstoque: true },
+          { voltagem: "300x2,2x50x10mm", codigo: "3334 322", emEstoque: true },
+          { voltagem: "350x2,6x50x10mm", codigo: "3334 966", emEstoque: true }
+        ]
+      },
+      {
+        nome: "Serra Performance Fresa",
+        imagem: "assets/produtos/serra-marmore-performance-fresa.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T19:15:36.107Z",
+        codigos: [
+          { voltagem: "275x50x10mm", codigo: "3254 275", emEstoque: true },
+          { voltagem: "275x50x20mm", codigo: "3254 2752", emEstoque: true },
+          { voltagem: "300x50x10mm", codigo: "3254 301", emEstoque: true }
         ]
       }
     ]
@@ -5283,6 +5556,453 @@
     ]
   },
   {
+    id: "quimicos",
+    nome: "QUÍMICOS",
+    capa: "assets/capa-quimicos.png",
+    capaPosicao: "center",
+    ativa: true,
+    validade: "",
+    criadoEm: "2026-08-20T19:44:33.973Z",
+    produtos:
+    [
+      {
+        nome: "Adesivo Chumbar Epoxi Sikadur 1KG",
+        imagem: "assets/produtos/adesivo-chumbar-epoxi-sikadur.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T20:03:29.741Z",
+        codigos: [
+          { voltagem: " 1KG", codigo: "9890 100 330", emEstoque: true }
+        ]
+      },
+      {
+        nome: "Adesivo Chumbar Soudal P300-SF",
+        imagem: "assets/produtos/adesivo-chumbar-soudal-p300-sf.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T20:03:29.741Z",
+        codigos: [
+          { voltagem: "", codigo: "9890 100 320", emEstoque: true }
+        ]
+      },
+      {
+        nome: "Adesivo PVC Bisnaga",
+        imagem: "assets/produtos/adesivo-pvc-17gr-bisnaga.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T20:03:29.741Z",
+        codigos: [
+          { voltagem: "17g", codigo: "9890 017", emEstoque: true }
+        ]
+      },
+      {
+        nome: "Álcool Isopropílico",
+        imagem: "assets/produtos/alcool-isopropilico.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T20:03:29.741Z",
+        codigos: [
+          { voltagem: "1L", codigo: "9890 238", emEstoque: true }
+        ]
+      },
+      {
+        nome: "Anti Ferrugem Spray MP1 Mundial",
+        imagem: "assets/produtos/anti-ferrugem-spray-mp1-mundial.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T20:03:29.741Z",
+        codigos: [
+          { voltagem: "321ml", codigo: "9890 300", emEstoque: true }
+        ]
+      },
+      {
+        nome: "Ativador Cianoacrilato AKFIX",
+        imagem: "assets/produtos/ativador-cianoacrilato-akfix.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T20:03:29.741Z",
+        codigos: [
+          { voltagem: "400ml", codigo: "0893 606", emEstoque: true }
+        ]
+      },
+      {
+        nome: "Ativador QFS Aerosol",
+        imagem: "assets/produtos/ativador-qfs.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T20:03:29.741Z",
+        codigos: [
+          { voltagem: "200ml", codigo: "0893 600", emEstoque: true }
+        ]
+      },
+      {
+        nome: "Bell Spot Remover Vidro",
+        imagem: "assets/produtos/bell-spot-remover-vidro.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T20:03:29.741Z",
+        codigos: [
+          { voltagem: "500g", codigo: "3341 555", emEstoque: true }
+        ]
+      },
+      {
+        nome: "Cera Perfecta 3,6L",
+        imagem: "assets/produtos/cera-perfecta-incolor.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T20:03:29.741Z",
+        codigos: [
+          { voltagem: "Preta", codigo: "3341 362", emEstoque: true },
+          { voltagem: "Incolor", codigo: "33341 361" }
+        ]
+      },
+      {
+        nome: "Adesivo Aluzinco MS Argacon Sachê 600ml",
+        imagem: "assets/produtos/ades-aluzinco-ms-argacon-cinza-sache-600ml.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T20:20:58.775Z",
+        codigos: [
+          { voltagem: "Cinza", codigo: "9890 644" }
+        ]
+      },
+      {
+        nome: "Adesivo Aluzinco MS PRO Tubo 420g",
+        imagem: "assets/produtos/ades-aluzinco-ms-pro-cinza-tubo.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T20:21:57.951Z",
+        codigos: [
+          { voltagem: "Cinza", codigo: "9891 002" }
+        ]
+      },
+      {
+        nome: "Adesivo PRO PU40 Soudal 400g",
+        imagem: "assets/produtos/ades-pro-pu40-soudal.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T20:23:56.231Z",
+        codigos: [
+          { voltagem: "Branco", codigo: "9890 403" },
+          { voltagem: "Cinza", codigo: "9890 401" },
+          { voltagem: "Preto", codigo: "9890 402" }
+        ]
+      },
+      {
+        nome: "Adesivo Aluzinco PU Forteza Sachê 820g",
+        imagem: "assets/produtos/ades-aluzinco-pu-forteza-cinza-sache-820gr.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T20:22:47.543Z",
+        codigos: [
+          { voltagem: "Cinza", codigo: "9890 029 600" }
+        ]
+      },
+      {
+        nome: "Adesivo PRO PU Soudal Sachê 900g",
+        imagem: "assets/produtos/ades-pro-pu-soudal-sache-cinza-900gr.jpg",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T21:12:24.810Z",
+        codigos: [
+          { voltagem: "Cinza", codigo: "9890 028 600" }
+        ]
+      },
+      {
+        nome: "Adesivo PU Bisnaga Soudal 76g",
+        imagem: "assets/produtos/ades-pu-bisnaga-branco-soudal.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T21:45:25.899Z",
+        codigos: [
+          { voltagem: "Branco ", codigo: "9890 132 50" }
+        ]
+      },
+      {
+        nome: "Adesivo PU Super+ 400g",
+        imagem: "assets/produtos/ades-pu-super-.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T21:47:17.115Z",
+        codigos: [
+          { voltagem: "Branco", codigo: "9899 403" },
+          { voltagem: "Cinza", codigo: "9892 4001" },
+          { voltagem: "Preto", codigo: "999 4002" }
+        ]
+      },
+      {
+        nome: "Adesivo PU40 HT Poxpur Sachê 870g",
+        imagem: "assets/produtos/ades-pu40-ht-poxpur-cinza-sache.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T21:48:35.715Z",
+        codigos: [
+          { voltagem: "Branco", codigo: "9892 6002" },
+          { voltagem: "Cinza", codigo: "9890 025 600" },
+          { voltagem: "Preto", codigo: "9890 025 870" }
+        ]
+      },
+      {
+        nome: "Adesivo PU40 Q-BORG Sachê 900g",
+        imagem: "assets/produtos/ades-pu40-qborg-cinza-sache-900gr.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T21:52:43.236Z",
+        codigos: [
+          { voltagem: "Cinza", codigo: "9890 640" }
+        ]
+      },
+      {
+        nome: "Adesivo Q-BORG High Tack-350 400g",
+        imagem: "assets/produtos/ades-q-borg-high-tack-350-branco.png",
+        imagemLegenda: "Branco",
+        imagensExtras: [{"arquivo":"assets/produtos/ades-q-borg-high-tack-350-preto.png","legenda":"Preto"}],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T21:55:14.292Z",
+        codigos: [
+          { voltagem: "Branco", codigo: "9890 350" },
+          { voltagem: "Preto", codigo: "9890 351" }
+        ]
+      },
+      {
+        nome: "Adesivo Araldite Massa Blister",
+        imagem: "assets/produtos/adesivo-araldite-massa-blister-50gr.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T21:57:01.692Z",
+        codigos: [
+          { voltagem: "50g", codigo: "9890 550" }
+        ]
+      },
+      {
+        nome: "Adesivo Ciano Almasuper",
+        imagem: "assets/produtos/adesivo-ciano-almasuper-100g.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T21:57:37.468Z",
+        codigos: [
+          { voltagem: "100g", codigo: "9880 100" }
+        ]
+      },
+      {
+        nome: "Adesivo Ciano RendBond RB100 AE 100g",
+        imagem: "assets/produtos/adesivo-ciano-rendbond-rb100-ae-100gr.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T21:59:41.996Z",
+        codigos: [
+          { voltagem: "100g", codigo: "9892 120 100" }
+        ]
+      },
+      {
+        nome: "Adesivo Durepox",
+        imagem: "assets/produtos/adesivo-durepox.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T22:00:38.444Z",
+        codigos: [
+          { voltagem: "9880 027 320", codigo: "9880 027 320" }
+        ]
+      },
+      {
+        nome: "Adesivo Epoxi Bicomponente Araldite 10min Cartela",
+        imagem: "assets/produtos/adesivo-epoxi-bicomponente-araldite-10min-cartela.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T22:01:23.540Z",
+        codigos: [
+          { voltagem: "", codigo: "9890 100 310" }
+        ]
+      },
+      {
+        nome: "Adesivo Instantâneo Tekbond 20g",
+        imagem: "assets/produtos/adesivo-instantaneo-tekbond-791.png",
+        imagemLegenda: "791",
+        imagensExtras: [{"arquivo":"assets/produtos/adesivo-instantaneo-tekbond-793.png","legenda":"793"}],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T22:03:09.588Z",
+        codigos: [
+          { voltagem: "791", codigo: "9890 5" },
+          { voltagem: "793", codigo: "9890 6" }
+        ]
+      },
+      {
+        nome: "Adesivo MS Fix All Soudal 420g",
+        imagem: "assets/produtos/adesivo-ms-fix-all-soudal-branco.png",
+        imagemLegenda: "Branco",
+        imagensExtras: [{"arquivo":"assets/produtos/adesivo-ms-fix-all-soudal-preto.png","legenda":"Preto"}],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T22:04:47.820Z",
+        codigos: [
+          { voltagem: "Branco", codigo: "9890 602" },
+          { voltagem: "Preto", codigo: "9890 601" }
+        ]
+      },
+      {
+        nome: "Adesivo MS Fix All Soudal Sachê 600ml",
+        imagem: "assets/produtos/adesivo-ms-fix-all-soudal-preto-sache.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T22:06:31.724Z",
+        codigos: [
+          { voltagem: "Preto", codigo: "9890 666" }
+        ]
+      },
+      {
+        nome: "Adesivo MS Fix All Soudal Turbo 430g",
+        imagem: "assets/produtos/soudal-fixx-all-turbo.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T22:08:14.356Z",
+        codigos: [
+          { voltagem: "Branco", codigo: "9890 603" }
+        ]
+      },
+      {
+        nome: "Adesivo MS Soudal Crystal 290ml",
+        imagem: "assets/produtos/adesivo-ms-soudal-crystal-290ml.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T22:10:43.093Z",
+        codigos: [
+          { voltagem: "Incolor", codigo: "9890 290" }
+        ]
+      },
+      {
+        nome: "Adesivo para Juntas",
+        imagem: "assets/produtos/adesivo-p-juntas-73g.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T22:13:16.405Z",
+        codigos: [
+          { voltagem: "73g", codigo: "9890 101 75" }
+        ]
+      },
+      {
+        nome: "Adesivo para Tubo de PVC",
+        imagem: "assets/produtos/adesivo-para-tubo-de-pvc-175g.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T22:13:54.237Z",
+        codigos: [
+          { voltagem: "175g", codigo: "9890 175" }
+        ]
+      },
+      {
+        nome: "Adesivo PU Colors ACM",
+        imagem: "assets/produtos/adesivo-pu-colors-acm.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T22:15:17.493Z",
+        codigos: [
+          { voltagem: "Amarelo", codigo: "9888 100" },
+          { voltagem: "Bege", codigo: "9888 112" },
+          { voltagem: "Inox", codigo: "9888 111" },
+          { voltagem: "Laranja", codigo: "9888 104" },
+          { voltagem: "Verde", codigo: "9888 103" },
+          { voltagem: "Vermelho", codigo: "9888 102" }
+        ]
+      },
+      {
+        nome: "Adesivo PU Líquido Pro-Laje 4,3Kg SFIX",
+        imagem: "assets/produtos/adesivo-pu-liquido-pro-laje-cinza-4-3kg.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T22:18:18.669Z",
+        codigos: [
+          { voltagem: "Cinza", codigo: "9890 290 43" }
+        ]
+      },
+      {
+        nome: "Adesivo PU Parabrisa 55 400g",
+        imagem: "assets/produtos/adesivo-pu-parabrisa-55-preto.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T22:19:25.557Z",
+        codigos: [
+          { voltagem: "Preto", codigo: "9890 400" }
+        ]
+      },
+      {
+        nome: "Adesivo Pu Siloc Sachê 600ml",
+        imagem: "assets/produtos/adesivo-pu-siloc-cinza-sache-600ml.png",
+        imagemLegenda: "",
+        imagensExtras: [],
+        descricao: "",
+        validade: "",
+        criadoEm: "2026-08-20T22:20:02.181Z",
+        codigos: [
+          { voltagem: "Cinza", codigo: "9890 56" }
+        ]
+      }
+    ]
+  },
+  {
     id: "promocoes",
     nome: "PROMOÇÕES!",
     capa: "assets/capa-promocoes-site-.png",
@@ -5320,8 +6040,8 @@
       {
         nome: "Disco Corte Inox Starrett",
         imagem: "assets/produtos/disco-corte-inox-starret-115.png",
-        imagemLegenda: "",
-        imagensExtras: [],
+        imagemLegenda: "115mm",
+        imagensExtras: [{"arquivo":"assets/produtos/disco-corte-inox-starret-178.png","legenda":"178mm"}],
         descricao: "Promoção válida:\n115mm - acima de 144un\n178mm - acima de 100un",
         validade: "",
         criadoEm: "2026-08-06T21:03:49.046Z",
@@ -6692,8 +7412,16 @@
       card.dataset.voltagem = normalizar((p.codigos[0] && p.codigos[0].voltagem) || '');
       const ehNovo = produtoEhNovo(abaId, p);
       card.dataset.novo = ehNovo ? '1' : '0';
-      const LIMITE_CODIGOS_VISIVEIS = 3; // a partir daqui o produto vira "compacto" com botão de ver mais
+      const LIMITE_CODIGOS_VISIVEIS = 4; // a partir daqui o produto vira "compacto" com botão de ver mais
       const temMuitosCodigos = p.codigos.length > LIMITE_CODIGOS_VISIVEIS;
+
+      // além de "muitos códigos", um texto grande dentro do quadrado verde
+      // (voltagem/tamanho) também precisa empilhar o verde em cima do azul —
+      // mas isso só faz sentido no celular (no computador sobra espaço em
+      // branco), então essa classe extra só tem efeito dentro do media query
+      // de tela estreita (ver CSS "valores-grandes")
+      const LIMITE_CARACTERES_VOLTAGEM = 6; // acima disso já ativa o empilhamento no celular
+      const temVoltagemGrande = p.codigos.some(c => c.voltagem && c.voltagem.length > LIMITE_CARACTERES_VOLTAGEM);
 
       const codigosHtml = p.codigos.map((c, idx) => `
         <div class="codigo-linha${temMuitosCodigos && idx >= LIMITE_CODIGOS_VISIVEIS ? ' codigo-extra' : ''}">
@@ -6730,7 +7458,7 @@
           </div>` : ''}
         <div class="info">
           <h3>${p.nome}</h3>
-          <div class="codigos${temMuitosCodigos ? ' compacto' : ''}">${codigosHtml}</div>
+          <div class="codigos${temMuitosCodigos ? ' compacto' : ''}${temVoltagemGrande ? ' valores-grandes' : ''}">${codigosHtml}</div>
         </div>
       `;
 
